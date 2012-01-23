@@ -1,0 +1,7 @@
+*.suo
+encog-core/Debug/
+encog-core/Release/
+EncogExample/Debug/
+EncogExample/Release/
+_ReSharper.encog-c/
+ipch/

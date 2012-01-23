@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encog-core", "encog-core\encog-core.vcxproj", "{3DF9CEFF-41CA-46B9-A659-A63C6D19D204}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EncogExample", "EncogExample\EncogExample.vcxproj", "{CE50443B-9615-4C66-B9BE-57CD2A99F62A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3DF9CEFF-41CA-46B9-A659-A63C6D19D204}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3DF9CEFF-41CA-46B9-A659-A63C6D19D204}.Debug|Win32.Build.0 = Debug|Win32
+		{3DF9CEFF-41CA-46B9-A659-A63C6D19D204}.Release|Win32.ActiveCfg = Release|Win32
+		{3DF9CEFF-41CA-46B9-A659-A63C6D19D204}.Release|Win32.Build.0 = Release|Win32
+		{CE50443B-9615-4C66-B9BE-57CD2A99F62A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CE50443B-9615-4C66-B9BE-57CD2A99F62A}.Debug|Win32.Build.0 = Debug|Win32
+		{CE50443B-9615-4C66-B9BE-57CD2A99F62A}.Release|Win32.ActiveCfg = Release|Win32
+		{CE50443B-9615-4C66-B9BE-57CD2A99F62A}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

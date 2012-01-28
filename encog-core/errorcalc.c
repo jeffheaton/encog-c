@@ -26,9 +26,7 @@
 float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 {
     INT i,j;
-    REAL *input,*ideal,*output,delta,sum;
-
-    output = (REAL*)EncogUtilAlloc(net->outputCount,sizeof(REAL));
+    REAL *input,*ideal,delta,sum;
 
     sum = 0;
     for(i=0; i<data->recordCount; i++)
@@ -36,14 +34,13 @@ float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
         input = EncogDataGetInput(data,i);
         ideal = EncogDataGetIdeal(data,i);
 
-        EncogNetworkCompute(net,input,output);
+        EncogNetworkCompute(net,input,NULL);
         for(j=0; j<net->outputCount; j++)
         {
-            delta = output[j] - ideal[j];
+			delta = net->layerOutput[j] - ideal[j];
             sum+=delta*delta;
         }
     }
 
-    EncogUtilFree(output);
     return (float)(sum/data->recordCount);
 }

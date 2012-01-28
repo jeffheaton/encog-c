@@ -9,8 +9,44 @@
   <RecentFiles>
     <RecentFiles>
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:ReadMe.txt" caret="0" fromTop="0" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:activation.c" caret="1279" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="6698" fromTop="15" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="3088" fromTop="7" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="1211" fromTop="16" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="141" fromTop="7" />
     </RecentFiles>
-    <RecentEdits />
+    <RecentEdits>
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5091" fromTop="21" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="7433" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="7433" fromTop="15" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5091" fromTop="13" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5091" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5091" fromTop="19" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5091" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5091" fromTop="9" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="7993" fromTop="19" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="909" fromTop="6" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="6482" fromTop="6" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="6612" fromTop="10" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="6698" fromTop="15" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="8998" fromTop="12" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8543" fromTop="13" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8543" fromTop="8" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8543" fromTop="15" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8543" fromTop="10" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8543" fromTop="9" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8543" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8543" fromTop="17" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8543" fromTop="15" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5091" fromTop="7" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="8053" fromTop="7" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="557" fromTop="18" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="548" fromTop="19" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="586" fromTop="19" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8615" fromTop="6" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="583" fromTop="19" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="141" fromTop="7" />
+    </RecentEdits>
   </RecentFiles>
   <NAntValidationSettings>
     <NAntPath value="" />

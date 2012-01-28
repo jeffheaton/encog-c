@@ -30,6 +30,7 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include <omp.h>
 
 /* Deal with Microsoft Visual C++ */
 #ifdef _MSC_VER
@@ -47,6 +48,9 @@ typedef double REAL;
 typedef unsigned int INT;
 
 typedef void(*ACTIVATION_FUNCTION)(REAL *,int);
+typedef void(*ENCOG_TASK)(void*);
+
+struct ENCOG_TRAIN_PSO;
 
 typedef struct
 {
@@ -149,6 +153,8 @@ typedef struct
     REAL *bestVector;
     REAL *vtemp;
     float bestError;
+	INT index;
+	struct ENCOG_TRAIN_PSO *pso;
 } ENCOG_PARTICLE;
 
 typedef struct
@@ -209,6 +215,12 @@ typedef struct
 
 } ENCOG_TRAIN_PSO;
 
+typedef struct {
+char ident[8];
+double input;
+double ideal;
+} EGB_HEADER;
+
 void EncogActivationLinear(REAL *d,int count);
 void EncogActivationSigmoid(REAL *d,int count);
 void EncogActivationTANH(REAL *d,int count);
@@ -237,14 +249,21 @@ void EncogStrCatStr(char *base, char *str, size_t len );
 void EncogStrCatDouble(char *base, double d, int decimals,size_t len);
 void EncogStrCatInt(char *base, int i,size_t len);
 void EncogStrCatNL(char *base, size_t len);
+char *EncogUtilStrlwr(char *string);
+char *EncogUtilStrupr(char *strint);
+int EncogUtilStrcmpi(char *s1, char *s2);
 
-void EncogDataSaveCSV(char *filename, ENCOG_DATA *data, int decimals);
-void EncogDataCreate(ENCOG_DATA **data, INT inputCount, INT idealCount, unsigned long records);
+void EncogDataCSVSave(char *filename, ENCOG_DATA *data, int decimals);
+ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount);
+ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, unsigned long records);
 void EncogDataDelete(ENCOG_DATA *data);
 void EncogDataAddVar(ENCOG_DATA *data, ...);
 void EncogDataAdd(ENCOG_DATA *data,char *str);
 REAL *EncogDataGetInput(ENCOG_DATA *data, INT index);
 REAL *EncogDataGetIdeal(ENCOG_DATA *data, INT index);
+ENCOG_DATA *EncogDataGenerateRandom(INT inputCount, INT idealCount, INT records, REAL low, REAL high);
+ENCOG_DATA *EncogDataEGBLoad(char *f);
+void EncogDataEGBSave(char *egbFile,ENCOG_DATA *data);
 
 void EncogVectorAdd(REAL *v1, REAL *v2, int length);
 void EncogVectorSub(REAL* v1, REAL* v2, int length);

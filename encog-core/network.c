@@ -191,7 +191,9 @@ void EncogNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *output)
         _ComputeLayer(net,i);
     }
 
-    memcpy(output,net->layerOutput,net->outputCount*sizeof(REAL));
+	if( output!=NULL ) {
+		memcpy(output,net->layerOutput,net->outputCount*sizeof(REAL));
+	}
 }
 
 void EncogNetworkRandomizeRange(ENCOG_NEURAL_NETWORK *net,REAL low, REAL high)

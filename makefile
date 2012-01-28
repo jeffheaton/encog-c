@@ -1,6 +1,6 @@
 IDIR =./
 CC=gcc
-CFLAGS=-I$(IDIR) -std=c99 -pedantic -Wall
+CFLAGS=-I$(IDIR) -fopenmp -std=c99 -pedantic -Wall
 
 ODIR=obj
 LDIR =./lib

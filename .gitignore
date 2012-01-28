@@ -1,7 +1,12 @@
 *.suo
 encog-core/Debug/
 encog-core/Release/
+encog-core/x64/
 EncogExample/Debug/
 EncogExample/Release/
+EncogExample/x64/
 _ReSharper.encog-c/
 ipch/
+Debug/
+Release/
+x64/

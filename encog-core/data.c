@@ -23,14 +23,17 @@
  */
 #include "encog.h"
 
-void EncogDataCreate(ENCOG_DATA **data, unsigned int inputCount, unsigned int idealCount, unsigned long records)
+ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, unsigned long records)
 {
-    *data = (ENCOG_DATA*)EncogUtilAlloc(1,sizeof(ENCOG_DATA));
-    (*data)->inputCount = inputCount;
-    (*data)->idealCount = idealCount;
-    (*data)->recordCount = records;
-    (*data)->data = (REAL*)EncogUtilAlloc(records*(inputCount+idealCount),sizeof(REAL));
-    (*data)->cursor = (*data)->data;
+	ENCOG_DATA *data;
+
+    data = (ENCOG_DATA*)EncogUtilAlloc(1,sizeof(ENCOG_DATA));
+    data->inputCount = inputCount;
+    data->idealCount = idealCount;
+    data->recordCount = records;
+    data->data = (REAL*)EncogUtilAlloc(records*(inputCount+idealCount),sizeof(REAL));
+    data->cursor = data->data;
+	return data;
 }
 
 void EncogDataDelete(ENCOG_DATA *data)
@@ -57,7 +60,7 @@ void EncogDataAdd(ENCOG_DATA *data,char *str)
             *(data->cursor++) = d;
             *temp = 0;
         }
-        else if( isdigit(ch) || ch=='-' || ch=='.' )
+        else if( isdigit((int)ch) || ch=='-' || ch=='.' )
         {
             EncogStrCatChar(temp,ch,MAX_STR);
         }
@@ -101,7 +104,7 @@ REAL *EncogDataGetIdeal(ENCOG_DATA *data, unsigned int index)
     return &data->data[i+data->inputCount];
 }
 
-void EncogDataSaveCSV(char *filename, ENCOG_DATA *data, int decimals)
+void EncogDataCSVSave(char *filename, ENCOG_DATA *data, int decimals)
 {
     char temp[MAX_STR];
     INT i,j;
@@ -122,14 +125,91 @@ void EncogDataSaveCSV(char *filename, ENCOG_DATA *data, int decimals)
             }
             *temp=0;
             EncogStrCatDouble(temp,input[j],decimals,MAX_STR);
+			fputs(temp,fp);
         }
 
         for(j=0; j<data->idealCount; j++)
         {
             fprintf(fp,",");
+			*temp = 0;
             EncogStrCatDouble(temp,ideal[j],decimals,MAX_STR);
+			fputs(temp,fp);
         }
         fputs("\n",fp);
     }
     fclose(fp);
+}
+
+ENCOG_DATA *EncogDataGenerateRandom(INT inputCount, INT idealCount, INT records, REAL low, REAL high)
+{
+	ENCOG_DATA *data;
+	REAL *ptr;
+	int i,size;
+
+	data = EncogDataCreate(inputCount,idealCount,records);
+	size = (inputCount+idealCount)*records;
+	
+	ptr = data->data;
+	for(i=0;i<size;i++) {
+		*(ptr++) = EncogUtilRandomRange(low,high);		
+	}
+
+	return data;
+}
+
+ENCOG_DATA *EncogDataEGBLoad(char *f)
+{
+	REAL *ptr;
+	double *record,d;
+	INT records,i,j,k,recordSize;
+	EGB_HEADER header;
+	ENCOG_DATA *result;
+	FILE *fp;
+	long s;
+
+	fp = fopen(f,"rb");
+	fseek(fp,0,SEEK_END);
+	s = ftell(fp);
+	fseek(fp,0,SEEK_SET);
+	fread(&header,sizeof(EGB_HEADER),1,fp);
+	if( memcmp("ENCOG-00",header.ident,8) )
+	{
+		printf("Invalid training file.\n");
+		fclose(fp);
+		return NULL;
+	}
+
+	recordSize = (INT)(header.input+header.ideal+1);
+	records = (s-sizeof(EGB_HEADER))/(recordSize*sizeof(double));
+	result = EncogDataCreate((INT)header.input,(INT)header.ideal,records);
+	record = (double*)EncogUtilAlloc(recordSize,sizeof(double));
+
+	/* read in data, the size of REAL may not match the doubles written to the file */
+	ptr = result->data;
+	for(i=0;i<records;i++) {
+		k=0;
+		fread(record,sizeof(double),recordSize,fp);
+		for(j=0;j<result->inputCount;j++) {
+			d = record[k++];
+			*(ptr++) = d;
+		}
+		for(j=0;j<result->idealCount;j++) {
+			d = record[k++];
+			*(ptr++) = d;
+		}
+	}
+
+	EncogUtilFree(record);
+
+	fclose(fp);
+	return result;
+}
+
+ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
+{
+	return NULL;
+}
+
+void EncogDataEGBSave(char *egbFile,ENCOG_DATA *data)
+{
 }

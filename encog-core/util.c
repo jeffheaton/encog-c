@@ -54,12 +54,12 @@ void EncogUtilOutputRealArray(char *tag, REAL *array, INT len)
     INT i;
     char temp[MAX_STR];
 
-    printf(tag);
+    puts(tag);
     for(i=0; i<len; i++)
     {
         *temp = 0;
         EncogStrCatDouble(temp,array[i],4,MAX_STR);
-        printf(temp);
+        puts(temp);
     }
     printf("\n");
 }
@@ -68,7 +68,7 @@ void EncogUtilOutputIntArray(char *tag, INT *array, INT len)
 {
     INT i;
 
-    printf(tag);
+    puts(tag);
     for(i=0; i<len; i++)
     {
         printf("%i ",array[i]);
@@ -228,3 +228,41 @@ void EncogStrCatNL(char *base, size_t len)
     EncogStrCatStr(base,"\n",len);
 }
 
+char *EncogUtilStrlwr(char *string)
+{
+ char *s;
+ if (string)
+ {
+for (s = string; *s; ++s)
+ *s = tolower((int)*s);
+ }
+ return string;
+}
+
+char *EncogUtilStrupr(char *string)
+{
+ char *s;
+ if (string)
+ {
+for (s = string; *s; ++s)
+ *s = toupper((int)*s);
+ }
+ return string;
+}
+
+int EncogUtilStrcmpi(char *s1, char *s2)
+{
+ int ret = 0;
+
+  while (!(ret = tolower(*(unsigned char *) s1) - tolower(*(unsigned char *) s2)) && *s2) ++s1, ++s2;
+
+  if (ret < 0)
+
+    ret = -1;
+  else if (ret > 0)
+
+    ret = 1 ;
+
+  return ret;
+
+}

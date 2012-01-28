@@ -58,9 +58,9 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	data = EncogDataGenerateRandom(inputCount,idealCount,records,-1,1);
 
 	net = EncogNetworkNew();
-    EncogNetworkAddLayer(net,2,&EncogActivationTANH,inputCount);
-    EncogNetworkAddLayer(net,3,&EncogActivationTANH,50);
-    EncogNetworkAddLayer(net,1,&EncogActivationTANH,idealCount);
+    EncogNetworkAddLayer(net,inputCount,&EncogActivationTANH,1);
+    EncogNetworkAddLayer(net,50,&EncogActivationTANH,1);
+    EncogNetworkAddLayer(net,idealCount,&EncogActivationTANH,1);
     EncogNetworkFinalizeStructure(net);
 
 	EncogNetworkRandomizeRange(net,-1,1);

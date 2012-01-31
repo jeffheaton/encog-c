@@ -37,7 +37,12 @@ int isinf(double x)
 
 void EncogUtilInitRandom()
 {
-    unsigned int iseed = (unsigned int)time(NULL);
+    unsigned int iseed;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
+	
+	iseed = (unsigned int)time(NULL);
     srand (iseed);
 }
 

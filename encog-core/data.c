@@ -27,6 +27,9 @@ ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, un
 {
 	ENCOG_DATA *data;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     data = (ENCOG_DATA*)EncogUtilAlloc(1,sizeof(ENCOG_DATA));
     data->inputCount = inputCount;
     data->idealCount = idealCount;
@@ -38,6 +41,9 @@ ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, un
 
 void EncogDataDelete(ENCOG_DATA *data)
 {
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     EncogUtilFree(data->data);
     EncogUtilFree(data);
 }
@@ -47,6 +53,9 @@ void EncogDataAdd(ENCOG_DATA *data,char *str)
     char ch, *ptr;
     char temp[MAX_STR];
     REAL d;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
 
     *temp = 0;
     ptr = str;
@@ -78,8 +87,11 @@ void EncogDataAddVar(ENCOG_DATA *data, ...)
 {
     int i,total;
     REAL d = 0.0;
+	va_list arguments;
 
-    va_list arguments;
+	/* Clear out any previous errors */
+	EncogErrorClear();
+    
     va_start ( arguments, data );
     total = data->inputCount + data->idealCount;
 
@@ -94,13 +106,23 @@ void EncogDataAddVar(ENCOG_DATA *data, ...)
 
 REAL *EncogDataGetInput(ENCOG_DATA *data, unsigned int index)
 {
-    int i = index*(data->inputCount+data->idealCount);
+    int i;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
+	
+	i = index*(data->inputCount+data->idealCount);
     return &data->data[i];
 }
 
 REAL *EncogDataGetIdeal(ENCOG_DATA *data, unsigned int index)
 {
-    int i = index*(data->inputCount+data->idealCount);
+    int i;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
+	
+	i = index*(data->inputCount+data->idealCount);
     return &data->data[i+data->inputCount];
 }
 
@@ -111,7 +133,17 @@ void EncogDataCSVSave(char *filename, ENCOG_DATA *data, int decimals)
     REAL *input, *ideal;
     FILE *fp;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     fp = fopen(filename,"w");
+
+	if( fp==NULL ) {
+		EncogErrorSet(ENCOG_ERROR_FILE_NOT_FOUND);
+		return;
+	}
+
+
     for(i=0; i<data->recordCount; i++)
     {
         input = EncogDataGetInput(data,i);
@@ -146,6 +178,9 @@ ENCOG_DATA *EncogDataGenerateRandom(INT inputCount, INT idealCount, INT records,
 	REAL *ptr;
 	int i,size;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
 	data = EncogDataCreate(inputCount,idealCount,records);
 	size = (inputCount+idealCount)*records;
 	
@@ -167,14 +202,23 @@ ENCOG_DATA *EncogDataEGBLoad(char *f)
 	FILE *fp;
 	long s;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
 	fp = fopen(f,"rb");
+
+	if( fp==NULL ) {
+		EncogErrorSet(ENCOG_ERROR_FILE_NOT_FOUND);
+		return NULL;
+	}
+
 	fseek(fp,0,SEEK_END);
 	s = ftell(fp);
 	fseek(fp,0,SEEK_SET);
 	fread(&header,sizeof(EGB_HEADER),1,fp);
 	if( memcmp("ENCOG-00",header.ident,8) )
 	{
-		printf("Invalid training file.\n");
+		EncogErrorSet( ENCOG_ERROR_INVALID_FILE );
 		fclose(fp);
 		return NULL;
 	}
@@ -207,9 +251,14 @@ ENCOG_DATA *EncogDataEGBLoad(char *f)
 
 ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 {
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
 	return NULL;
 }
 
 void EncogDataEGBSave(char *egbFile,ENCOG_DATA *data)
 {
+	/* Clear out any previous errors */
+	EncogErrorClear();
 }

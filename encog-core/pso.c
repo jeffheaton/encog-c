@@ -47,7 +47,7 @@ static void _UpdatePersonalBestPosition(ENCOG_TRAIN_PSO *pso, int particleIndex)
     }
 }
 
-void _UpdateGlobalBestPosition(ENCOG_TRAIN_PSO *pso)
+static void _UpdateGlobalBestPosition(ENCOG_TRAIN_PSO *pso)
 {
     int bestUpdated = 0, i;
     ENCOG_PARTICLE *best,*particle;
@@ -109,6 +109,9 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     ENCOG_TRAIN_PSO *pso;
     ENCOG_NEURAL_NETWORK *clone;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     pso = (ENCOG_TRAIN_PSO*)EncogUtilAlloc(1,sizeof(ENCOG_TRAIN_PSO));
     pso->c1 = 2.0;
     pso->c2 = 2.0;
@@ -151,6 +154,9 @@ void EncogTrainPSODelete(ENCOG_TRAIN_PSO *pso)
     int i;
     ENCOG_PARTICLE *particle;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     /* first delete the particles */
     for(i=0;i<pso->populationSize;i++) {
         particle = &pso->particles[i];
@@ -168,7 +174,7 @@ void EncogTrainPSODelete(ENCOG_TRAIN_PSO *pso)
     EncogUtilFree(pso);
 }
 
-void _PSOTask(void *v)
+static void _PSOTask(void *v)
 {
 	ENCOG_PARTICLE *particle;
 	ENCOG_TRAIN_PSO *pso;
@@ -197,16 +203,15 @@ float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso)
     int i;
     ENCOG_PARTICLE *particle;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
 	#pragma omp parallel for
     for(i=0; i<pso->populationSize; i++)
     {
 		particle = &pso->particles[i];
 		_PSOTask(particle);
-		//EncogPoolSubmitTask(_PSOTask, particle);
-		//_PSOTask(particle);
     }
-	
-	//EncogPoolWaitEmpty();
 
     _UpdateGlobalBestPosition(pso);
     return pso->bestError;
@@ -215,6 +220,9 @@ float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso)
 void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net)
 {
     ENCOG_PARTICLE *particle;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
 
     particle = &pso->particles[pso->bestParticle];
     EncogNetworkImportWeights(net,particle->bestVector);

@@ -28,6 +28,9 @@ float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
     INT i,j;
     REAL *input,*ideal,delta,sum;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     sum = 0;
     for(i=0; i<data->recordCount; i++)
     {

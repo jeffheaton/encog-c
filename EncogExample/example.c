@@ -58,19 +58,23 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	data = EncogDataGenerateRandom(inputCount,idealCount,records,-1,1);
 
 	net = EncogNetworkNew();
+	EncogErrorCheck();
     EncogNetworkAddLayer(net,inputCount,&EncogActivationTANH,1);
     EncogNetworkAddLayer(net,50,&EncogActivationTANH,1);
     EncogNetworkAddLayer(net,idealCount,&EncogActivationTANH,1);
     EncogNetworkFinalizeStructure(net);
+	EncogErrorCheck();
 
 	EncogNetworkRandomizeRange(net,-1,1);
 
 	pso = EncogTrainPSONew(30, net, data);
+	EncogErrorCheck();
 
 	startTime = time(NULL);
 
 	for(i=0;i<iterations;i++) {
 		EncogTrainPSOIterate(pso);
+		EncogErrorCheck();
 	}
 
 	endTime = time(NULL);
@@ -93,6 +97,7 @@ void XORTest() {
 
 /* Load the data for XOR */
     data = EncogDataCreate(2, 1, 4);
+	EncogErrorCheck();
     EncogDataAdd(data,"0,0,  0");
     EncogDataAdd(data,"1,0,  1");
     EncogDataAdd(data,"0,1,  1");
@@ -101,22 +106,27 @@ void XORTest() {
 /* Create a 3 layer neural network, with sigmoid transfer functions and bias */
 
     net = EncogNetworkNew();
+	EncogErrorCheck();
     EncogNetworkAddLayer(net,2,&EncogActivationSigmoid,1);
     EncogNetworkAddLayer(net,3,&EncogActivationSigmoid,1);
     EncogNetworkAddLayer(net,1,&EncogActivationSigmoid,0);
     EncogNetworkFinalizeStructure(net);
+	EncogErrorCheck();
 
 /* Randomize the neural network weights */
     EncogNetworkRandomizeRange(net,-1,1);
+	EncogErrorCheck();
 
 /* Create a PSO trainer */
     pso = EncogTrainPSONew(30, net, data);
+	EncogErrorCheck();
 
 /* Begin training, report progress. */
     iteration = 1;
     do
     {
         error = EncogTrainPSOIterate(pso);
+		EncogErrorCheck();
         *line = 0;
         EncogStrCatStr(line,"Iteration #",MAX_STR);
         EncogStrCatInt(line,iteration,MAX_STR);
@@ -156,6 +166,7 @@ void XORTest() {
 
 /* Delete the neural network */
     EncogNetworkDelete(net);
+	EncogErrorCheck();
 
 }
 
@@ -169,6 +180,7 @@ void train(char *egbFile) {
 	INT lastUpdate;
 
 	data = EncogDataEGBLoad(egbFile);
+	EncogErrorCheck();
 
 	printf("Training\n");
 	printf("Input Count: %i\n", data->inputCount);
@@ -178,16 +190,20 @@ void train(char *egbFile) {
 /* Create a 3 layer neural network, with sigmoid transfer functions and bias */
 
     net = EncogNetworkNew();
+	EncogErrorCheck();
 	EncogNetworkAddLayer(net,data->inputCount,&EncogActivationTANH,1);
     EncogNetworkAddLayer(net,6,&EncogActivationTANH,1);
 	EncogNetworkAddLayer(net,data->idealCount,&EncogActivationTANH,0);
     EncogNetworkFinalizeStructure(net);
+	EncogErrorCheck();
 
 /* Randomize the neural network weights */
     EncogNetworkRandomizeRange(net,-1,1);
+	EncogErrorCheck();
 
 /* Create a PSO trainer */
     pso = EncogTrainPSONew(30, net, data);
+	EncogErrorCheck();
 
 /* Begin training, report progress. */
     iteration = 1;
@@ -195,6 +211,7 @@ void train(char *egbFile) {
     do
     {
         error = EncogTrainPSOIterate(pso);
+		EncogErrorCheck();
 		lastUpdate++;
 		if( lastUpdate>=100 )
 		{
@@ -211,7 +228,9 @@ void train(char *egbFile) {
 
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);
+	EncogErrorCheck();
     EncogTrainPSODelete(pso);
+	EncogErrorCheck();
 }
 
 void EGB2CSV(char *egbFile, char *csvFile) 
@@ -219,6 +238,7 @@ void EGB2CSV(char *egbFile, char *csvFile)
 	ENCOG_DATA *data;
 
 	data = EncogDataEGBLoad(egbFile);
+	EncogErrorCheck();
 
 	printf("Training\n");
 	printf("Input Count: %i\n", data->inputCount);
@@ -228,7 +248,9 @@ void EGB2CSV(char *egbFile, char *csvFile)
 	printf("Target File: %s\n", csvFile );
 
 	EncogDataCSVSave(csvFile,data,10);
+	EncogErrorCheck();
 	EncogDataDelete(data);
+	EncogErrorCheck();
 
 	printf("Conversion done.\n");
 }
@@ -238,6 +260,7 @@ void CSV2EGB(char *csvFile, char *egbFile, int inputCount, int idealCount)
 	ENCOG_DATA *data;
 
 	data = EncogDataCSVLoad(csvFile, inputCount, idealCount);
+	EncogErrorCheck();
 
 	printf("Training\n");
 	printf("Input Count: %i\n", data->inputCount);
@@ -247,7 +270,9 @@ void CSV2EGB(char *csvFile, char *egbFile, int inputCount, int idealCount)
 	printf("Target File: %s\n", egbFile );
 
 	EncogDataEGBSave(egbFile,data);
+	EncogErrorCheck();
 	EncogDataDelete(data);
+	EncogErrorCheck();
 
 	printf("Conversion done.\n");
 }
@@ -265,8 +290,9 @@ int main(int argc, char* argv[])
 	char arg1[MAX_STR];
 	char arg2[MAX_STR];
 
-	printf("Encog C/C++ Command Line v0.1\n");
+	printf("* * Encog C/C++ Command Line v0.1 * *\n");
 	printf("Running in: %i bit mode\n", (int)(sizeof(void*)*8));
+	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
 
 	for(i=1;i<(INT)argc;i++) {
 		if( *argv[i]=='/' || *argv[i]=='-' )

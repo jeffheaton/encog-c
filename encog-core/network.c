@@ -78,13 +78,23 @@ static void _ComputeLayer(ENCOG_NEURAL_NETWORK *net, int currentLayer)
 /* API Functions */
 ENCOG_NEURAL_NETWORK *EncogNetworkNew()
 {
-    ENCOG_NEURAL_NETWORK *network = (ENCOG_NEURAL_NETWORK*)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
+	ENCOG_NEURAL_NETWORK *network;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
+    network = (ENCOG_NEURAL_NETWORK*)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
     return network;
 }
 
 void EncogNetworkAddLayer(ENCOG_NEURAL_NETWORK *net, int count, ACTIVATION_FUNCTION af, unsigned char bias)
 {
-    NETWORK_BLOCK *block = (NETWORK_BLOCK *)EncogUtilAlloc(1,sizeof(NETWORK_BLOCK));
+    NETWORK_BLOCK *block;
+	
+	/* Clear out any previous errors */
+	EncogErrorClear();
+	
+	block = (NETWORK_BLOCK *)EncogUtilAlloc(1,sizeof(NETWORK_BLOCK));
     memset(block,0,sizeof(NETWORK_BLOCK));
     block->feedCount = count;
     block->totalCount = count + ((bias==1)?1:0);
@@ -106,6 +116,9 @@ void EncogNetworkAddLayer(ENCOG_NEURAL_NETWORK *net, int count, ACTIVATION_FUNCT
 
 void EncogNetworkDelete(ENCOG_NEURAL_NETWORK *net)
 {
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     EncogUtilFree(net->activationFunctions);
     EncogUtilFree(net->biasActivation);
     EncogUtilFree(net->layerCounts);
@@ -121,6 +134,9 @@ void EncogNetworkFinalizeStructure(ENCOG_NEURAL_NETWORK *net)
 {
     NETWORK_BLOCK *current;
     int index, neuronCount, weightCount;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
 
     /* Create the network */
     index = 0;
@@ -182,7 +198,12 @@ void EncogNetworkFinalizeStructure(ENCOG_NEURAL_NETWORK *net)
 void EncogNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *output)
 {
     int i;
-    int sourceIndex = net->neuronCount - net->layerCounts[net->layerCount - 1];
+    int sourceIndex;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
+	
+	sourceIndex = net->neuronCount - net->layerCounts[net->layerCount - 1];
 
     memcpy(net->layerOutput+sourceIndex,input,net->inputCount*sizeof(REAL));
 
@@ -201,6 +222,9 @@ void EncogNetworkRandomizeRange(ENCOG_NEURAL_NETWORK *net,REAL low, REAL high)
     INT i;
     REAL d;
 
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     for(i=0; i<net->weightCount; i++)
     {
         d = (REAL)rand()/(REAL)RAND_MAX;
@@ -212,11 +236,17 @@ void EncogNetworkRandomizeRange(ENCOG_NEURAL_NETWORK *net,REAL low, REAL high)
 
 void EncogNetworkImportWeights(ENCOG_NEURAL_NETWORK *net, REAL *w)
 {
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     memcpy(net->weights,w,net->weightCount*sizeof(REAL));
 }
 
 void EncogNetworkExportWeights(ENCOG_NEURAL_NETWORK *net, REAL *w)
 {
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     memcpy(w,net->weights,net->weightCount*sizeof(REAL));
 }
 
@@ -226,6 +256,9 @@ void EncogNetworkClearContext(ENCOG_NEURAL_NETWORK *net)
     INT hasBias;
     INT i;
     INT j;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
 
     for (i = 0; i < net->layerCount; i++)
     {
@@ -253,6 +286,9 @@ void EncogNetworkClearContext(ENCOG_NEURAL_NETWORK *net)
 
 void EncogNetworkDump(ENCOG_NEURAL_NETWORK *net)
 {
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
     printf("* * Encog Neural Network * *\n");
     printf("Layer Count: %i\n", net->layerCount);
     printf("Weight Count: %i\n", net->weightCount);
@@ -268,10 +304,16 @@ void EncogNetworkDump(ENCOG_NEURAL_NETWORK *net)
 
 ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net)
 {
-    ENCOG_NEURAL_NETWORK *result = (ENCOG_NEURAL_NETWORK *)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
+    ENCOG_NEURAL_NETWORK *result;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
+		
+	result = (ENCOG_NEURAL_NETWORK *)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
     if( net->firstBlock!=NULL )
     {
-        abort();
+		EncogErrorSet(ENCOG_ERROR_NETWORK_NOT_FINALIZED);
+        return NULL;
     }
 
     memcpy(result,net,sizeof(ENCOG_NEURAL_NETWORK));

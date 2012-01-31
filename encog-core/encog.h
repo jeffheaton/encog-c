@@ -23,6 +23,11 @@
  */
 #ifndef __ENCOG_H
 #define __ENCOG_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -31,6 +36,16 @@
 #include <string.h>
 #include <ctype.h>
 #include <omp.h>
+
+#define ENCOG_ERROR_OK				0
+#define ENCOG_ERROR_FILE_NOT_FOUND	1
+#define ENCOG_ERROR_IO				2
+#define ENCOG_ERROR_SIZE_MISMATCH	3
+#define ENCOG_ERROR_INVALID_FILE	4
+#define ENCOG_ERROR_NETWORK_NOT_FINALIZED 5
+#define ENCOG_ERROR_NETWORK_FINALIZED 6
+
+
 
 /* Deal with Microsoft Visual C++ */
 #ifdef _MSC_VER
@@ -281,5 +296,15 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
 void EncogTrainPSODelete(ENCOG_TRAIN_PSO *pso);
 float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso);
 void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net);
+
+void EncogErrorClear();
+void EncogErrorSet(int e);
+int EncogErrorGet();
+void EncogErrorCheck();
+char *EncogErrorMessage();
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif

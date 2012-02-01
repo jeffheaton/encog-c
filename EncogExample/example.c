@@ -49,6 +49,22 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	time_t endTime;
 	int elapsed;
 
+	if( inputCount==-1 ) {
+		inputCount = 10;
+	}
+
+	if( idealCount==-1 ) {
+		idealCount = 1;
+	}
+
+	if( records==-1 ) {
+		records = 10000;
+	}
+
+	if( iterations==-1 ) {
+		iterations = 100;
+	}
+	
 	printf("\nPerforming benchmark\n");
 	printf("Input Count: %i\n",inputCount);
 	printf("Ideal Count: %i\n",idealCount);
@@ -240,7 +256,7 @@ void EGB2CSV(char *egbFile, char *csvFile)
 	data = EncogDataEGBLoad(egbFile);
 	EncogErrorCheck();
 
-	printf("Training\n");
+	printf("Converting EGB to CSV\n");
 	printf("Input Count: %i\n", data->inputCount);
 	printf("Ideal Count: %i\n", data->idealCount);
 	printf("Record Count: %ld\n", data->recordCount);
@@ -259,10 +275,15 @@ void CSV2EGB(char *csvFile, char *egbFile, int inputCount, int idealCount)
 {
 	ENCOG_DATA *data;
 
+	if( inputCount==-1 || idealCount==-1 ) {
+		printf("You must specify both input and ideal counts.\n");
+		exit(1);
+	}
+
 	data = EncogDataCSVLoad(csvFile, inputCount, idealCount);
 	EncogErrorCheck();
 
-	printf("Training\n");
+	printf("Converting CSV to EGB\n");
 	printf("Input Count: %i\n", data->inputCount);
 	printf("Ideal Count: %i\n", data->idealCount);
 	printf("Record Count: %ld\n", data->recordCount);
@@ -280,10 +301,10 @@ void CSV2EGB(char *csvFile, char *egbFile, int inputCount, int idealCount)
 int main(int argc, char* argv[])
 {
 	INT i;
-	INT inputCount = 10;
-	INT idealCount = 1;
-	INT records = 10000;
-	INT iterations = 100;
+	INT inputCount = -1;
+	INT idealCount = -1;
+	INT records = -1;
+	INT iterations = -1;
 	INT threads = 0;
 	INT phase = 0;
 	char command[MAX_STR];
@@ -293,6 +314,8 @@ int main(int argc, char* argv[])
 	printf("* * Encog C/C++ Command Line v0.1 * *\n");
 	printf("Running in: %i bit mode\n", (int)(sizeof(void*)*8));
 	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
+
+	*arg1=*arg2=0;
 
 	for(i=1;i<(INT)argc;i++) {
 		if( *argv[i]=='/' || *argv[i]=='-' )

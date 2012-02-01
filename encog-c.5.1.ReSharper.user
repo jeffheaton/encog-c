@@ -12,44 +12,45 @@
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:activation.c" caret="1279" fromTop="11" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:errorcalc.c" caret="1485" fromTop="21" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="7062" fromTop="15" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util.c" caret="5754" fromTop="2" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="2971" fromTop="0" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="1376" fromTop="13" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="2" fromTop="0" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:errors.c" caret="501" fromTop="4" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="18" fromTop="0" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:errors.c" caret="705" fromTop="18" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util.c" caret="2008" fromTop="10" />
+      <File id="d:Miscellaneous Files/f:dbgheap.c/l:C!?Program Files (x86)?Microsoft Visual Studio 10.0?VC?crt?src?dbgheap.c" caret="65368" fromTop="35" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="7729" fromTop="12" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7541" fromTop="2" />
     </RecentFiles>
     <RecentEdits>
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="2407" fromTop="9" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="4822" fromTop="6" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5028" fromTop="15" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="3402" fromTop="21" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="3395" fromTop="19" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="1376" fromTop="13" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:errors.c" caret="300" fromTop="10" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="9306" fromTop="13" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="7013" fromTop="6" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="7374" fromTop="18" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="6427" fromTop="4" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="6791" fromTop="16" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="6243" fromTop="16" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="5762" fromTop="18" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="5601" fromTop="11" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="5506" fromTop="8" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="5139" fromTop="11" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="5396" fromTop="16" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="4822" fromTop="11" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="4582" fromTop="19" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="3247" fromTop="11" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="3104" fromTop="5" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="3009" fromTop="2" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="2657" fromTop="9" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="2899" fromTop="14" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="2381" fromTop="12" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="1920" fromTop="6" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="1808" fromTop="11" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="1450" fromTop="10" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="1702" fromTop="15" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="1652" fromTop="10" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="1904" fromTop="15" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="8207" fromTop="13" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="6172" fromTop="14" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7455" fromTop="13" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="6638" fromTop="5" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7127" fromTop="20" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7437" fromTop="13" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7417" fromTop="13" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="6315" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="6051" fromTop="6" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5941" fromTop="6" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="6781" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="6898" fromTop="13" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7333" fromTop="18" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7335" fromTop="12" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="7385" fromTop="13" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="6663" fromTop="9" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7213" fromTop="9" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="6529" fromTop="16" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="1332" fromTop="12" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="1332" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="7898" fromTop="9" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:example.c" caret="7264" fromTop="12" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="1382" fromTop="15" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="5001" fromTop="21" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="950" fromTop="5" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="8199" fromTop="19" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="8288" fromTop="20" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="7541" fromTop="2" />
     </RecentEdits>
   </RecentFiles>
   <NAntValidationSettings>

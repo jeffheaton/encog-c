@@ -186,7 +186,7 @@ void XORTest() {
 
 }
 
-void train(char *egbFile) {
+void train(char *egbFile, char *egFile) {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
 	ENCOG_TRAIN_PSO *pso;
@@ -245,6 +245,10 @@ void train(char *egbFile) {
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);
 	EncogErrorCheck();
+
+	EncogNetworkSave(egFile,net);
+	EncogErrorCheck();
+
     EncogTrainPSODelete(pso);
 	EncogErrorCheck();
 }
@@ -357,7 +361,7 @@ int main(int argc, char* argv[])
 	} else if (!EncogUtilStrcmpi(command,"benchmark") ) {
 		RunBenchmark(inputCount,idealCount,records,iterations );
 	} else if (!EncogUtilStrcmpi(command,"train") ) {
-		train(arg1);
+		train(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"egb2csv") ) {
 		EGB2CSV(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"csv2egb") ) {

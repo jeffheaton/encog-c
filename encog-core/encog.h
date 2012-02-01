@@ -150,6 +150,13 @@ typedef struct
      */
     REAL *biasActivation;
 
+		INT beginTraining;
+	REAL connectionLimit;
+	INT *contextTargetOffset;
+	INT *contextTargetSize;
+	INT endTraining;
+	INT hasContext;
+
 } ENCOG_NEURAL_NETWORK;
 
 typedef struct
@@ -251,6 +258,8 @@ void EncogNetworkExportWeights(ENCOG_NEURAL_NETWORK *net, REAL *weights);
 void EncogNetworkDump(ENCOG_NEURAL_NETWORK *net);
 void EncogNetworkClearContext(ENCOG_NEURAL_NETWORK *net);
 ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net);
+ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name);
+void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network);
 
 void EncogUtilInitRandom();
 REAL EncogUtilRandomRange(REAL low, REAL high);
@@ -302,6 +311,23 @@ void EncogErrorSet(int e);
 int EncogErrorGet();
 void EncogErrorCheck();
 char *EncogErrorMessage();
+
+int EncogStrPopLine(char *line, char *arg, int start, int len);
+int EncogStrIsWhiteSpace(char ch);
+void EncogStrTrim(char *line);
+void EncogStrStripQuotes(char *line);
+void EncogStrParseNV(char *line, char *name, char *value, size_t len);
+void EncogStrStripCRLF(char *str);
+int EncogStrCountValues(char *line);
+INT *EncogStrParseIntList(char *line);
+int EncogStrParseBoolean(char *line);
+double *EncogStrParseDoubleList(char *line);
+
+void EncogFileWriteValueInt(FILE *fp, char *name, INT value);
+void EncogFileWriteValueBoolean(FILE *fp, char *name, INT value);
+void EncogFileWriteValueIntArray(FILE *fp, char *name, INT *a, INT count);
+void EncogFileWriteValueDouble(FILE *fp, char *name, double value);
+void EncogFileWriteValueDoubleArray(FILE *fp, char *name, double *a, INT count);
 
 #ifdef __cplusplus
 }

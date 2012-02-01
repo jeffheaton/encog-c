@@ -126,6 +126,9 @@ void EncogNetworkDelete(ENCOG_NEURAL_NETWORK *net)
     EncogUtilFree(net->layerSums);
     EncogUtilFree(net->weightIndex);
     EncogUtilFree(net->weights);
+	EncogUtilFree(net->contextTargetOffset);
+	EncogUtilFree(net->contextTargetSize);
+
     _FreeChain(net);
     EncogUtilFree(net);
 }
@@ -150,6 +153,13 @@ void EncogNetworkFinalizeStructure(ENCOG_NEURAL_NETWORK *net)
     net->layerIndex = (INT*)EncogUtilAlloc(net->layerCount,sizeof(INT));
     net->layerFeedCounts = (INT*)EncogUtilAlloc(net->layerCount,sizeof(INT));
     net->biasActivation = (REAL*)EncogUtilAlloc(net->layerCount,sizeof(REAL));
+
+	net->beginTraining = 0;
+	net->connectionLimit = 0;
+	net->contextTargetOffset = (INT*)EncogUtilAlloc(net->layerCount,sizeof(INT));
+	net->contextTargetSize = (INT*)EncogUtilAlloc(net->layerCount,sizeof(INT));
+	net->endTraining = net->layerCount-1;
+	net->hasContext = 0;
 
     current = net->firstBlock;
     while(current!=NULL)
@@ -327,7 +337,8 @@ ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net)
     result->layerSums = (REAL*)EncogUtilDuplicateMemory(net->layerSums,net->neuronCount,sizeof(REAL));
     result->weights = (REAL*)EncogUtilDuplicateMemory(net->weights,net->weightCount,sizeof(REAL));
     result->weightIndex = (INT*)EncogUtilDuplicateMemory(net->weightIndex,net->layerCount,sizeof(INT));
-
+	result->contextTargetOffset = (INT*)EncogUtilDuplicateMemory(net->contextTargetOffset,net->layerCount,sizeof(INT));
+	result->contextTargetSize = (INT*)EncogUtilDuplicateMemory(net->contextTargetSize,net->layerCount,sizeof(INT));
     return result;
 }
 

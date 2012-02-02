@@ -2,9 +2,9 @@
 encog-core/Debug/
 encog-core/Release/
 encog-core/x64/
-EncogExample/Debug/
-EncogExample/Release/
-EncogExample/x64/
+encog-cmd/Debug/
+encog-cmd/Release/
+encog-cmd/x64/
 _ReSharper.encog-c/
 ipch/
 Debug/

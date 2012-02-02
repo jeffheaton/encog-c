@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encog-core", "encog-core\encog-core.vcxproj", "{3DF9CEFF-41CA-46B9-A659-A63C6D19D204}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encog-cmd", "encog-cmd\encog-cmd.vcxproj", "{CE50443B-9615-4C66-B9BE-57CD2A99F62A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encog-cmd", "encog-cmd\encog-cmd-cuda.vcxproj", "{CE50443B-9615-4C66-B9BE-57CD2A99F62A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

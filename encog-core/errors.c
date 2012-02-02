@@ -36,3 +36,4 @@ void EncogErrorCheck() {
 char *EncogErrorMessage() {
 	return _errorMessages[EncogErrorGet()];
 }
+

@@ -271,7 +271,8 @@ void *EncogUtilDuplicateMemory(void *source,size_t elementCount,size_t elementSi
 void EncogStrCatChar(char *base, char ch, size_t len);
 void EncogStrCatStr(char *base, char *str, size_t len );
 void EncogStrCatDouble(char *base, double d, int decimals,size_t len);
-void EncogStrCatInt(char *base, int i,size_t len);
+void EncogStrCatInt(char *base, INT i,size_t len);
+void EncogStrCatLong(char *base, long i,size_t len);
 void EncogStrCatNL(char *base, size_t len);
 char *EncogUtilStrlwr(char *string);
 char *EncogUtilStrupr(char *strint);

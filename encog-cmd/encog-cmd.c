@@ -19,7 +19,7 @@ void Usage() {
 	puts("/records:## The number of ideals.");
 	puts("/iterations:## The number of ideals.");
 	puts("/threads:## The number of threads.");
-};
+}
 
 void ParseOption(char *str)
 {

@@ -374,3 +374,4 @@ void EncogDataEGBSave(char *egbFile,ENCOG_DATA *data)
 
 	fclose(fp);
 }
+

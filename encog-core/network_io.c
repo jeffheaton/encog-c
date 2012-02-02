@@ -206,7 +206,8 @@ void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network)
 	strcat(line,",");
 	
 	time(&t);
-	ltoa((long)t,line+strlen(line),10);
+	*line = 0;
+	EncogStrCatLong(line,t,MAX_STR);
 	fputs(line,fp);
 	fputs("\n[BASIC]\n",fp);
 	fputs("[BASIC:PARAMS]\n",fp);
@@ -248,3 +249,4 @@ void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network)
 
 	fclose(fp);
 }
+

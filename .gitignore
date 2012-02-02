@@ -10,3 +10,6 @@ ipch/
 Debug/
 Release/
 x64/
+obj-lib/
+lib/
+obj-cmd/

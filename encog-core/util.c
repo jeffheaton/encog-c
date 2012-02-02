@@ -221,10 +221,17 @@ void EncogStrCatDouble(char *base, double d, int decimals,size_t len)
     EncogStrCatStr(base,temp,len);
 }
 
-void EncogStrCatInt(char *base, int i,size_t len)
+void EncogStrCatInt(char *base, INT i,size_t len)
 {
     char temp[MAX_STR];
 	sprintf(temp,"%i",i);
+    EncogStrCatStr(base,temp,len);
+}
+
+void EncogStrCatLong(char *base, long i,size_t len)
+{
+    char temp[MAX_STR];
+	sprintf(temp,"%ld",i);
     EncogStrCatStr(base,temp,len);
 }
 
@@ -271,3 +278,4 @@ int EncogUtilStrcmpi(char *s1, char *s2)
   return ret;
 
 }
+

@@ -138,19 +138,7 @@ void XORTest() {
 	EncogErrorCheck();
 
 /* Begin training, report progress. */
-    iteration = 1;
-    do
-    {
-        error = EncogTrainPSOIterate(pso);
-		EncogErrorCheck();
-        *line = 0;
-        EncogStrCatStr(line,"Iteration #",MAX_STR);
-        EncogStrCatInt(line,iteration,MAX_STR);
-        EncogStrCatStr(line,", Error: ",MAX_STR);
-        EncogStrCatDouble(line,error,4,MAX_STR);
-        puts(line);
-        iteration++;
-    } while(error>0.01);
+    TrainNetwork(pso, 0.01, 1);
 
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);
@@ -222,26 +210,8 @@ void train(char *egbFile, char *egFile) {
 	EncogErrorCheck();
 
 /* Begin training, report progress. */
-    iteration = 1;
-	lastUpdate = 0;
-    do
-    {
-        error = EncogTrainPSOIterate(pso);
-		EncogErrorCheck();
-		lastUpdate++;
-		if( lastUpdate>=100 )
-		{
-			lastUpdate = 0;
-        *line = 0;
-        EncogStrCatStr(line,"Iteration #",MAX_STR);
-        EncogStrCatInt(line,iteration,MAX_STR);
-        EncogStrCatStr(line,", Error: ",MAX_STR);
-        EncogStrCatDouble(line,error,4,MAX_STR);
-        puts(line);
-		}
-        iteration++;
-    } while(error>0.01);
-
+    TrainNetwork(pso, 0.01, 1);
+	
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);
 	EncogErrorCheck();

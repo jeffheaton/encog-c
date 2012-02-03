@@ -9,6 +9,8 @@ extern "C" {
 
 void TestCUDA();
 
+void TrainNetwork(ENCOG_TRAIN_PSO *pso, float maxError,int updateSeconds);
+
 #ifdef __cplusplus
 }
 #endif 

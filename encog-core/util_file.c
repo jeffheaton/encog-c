@@ -3,6 +3,7 @@
 void EncogFileWriteValueInt(FILE *fp, char *name, INT value)
 {
 	char buffer[MAX_STR];
+	*buffer = 0;
 	EncogStrCatInt(buffer,value,MAX_STR);
 	fputs(name,fp);
 	fputc('=',fp);
@@ -23,6 +24,7 @@ void EncogFileWriteValueIntArray(FILE *fp, char *name, INT *a, INT count)
 	char buffer[MAX_STR];
 	INT i;
 
+	*buffer = 0;
 	fputs(name,fp);
 	fputc('=',fp);
 	for(i=0;i<count;i++)

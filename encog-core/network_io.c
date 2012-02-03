@@ -206,7 +206,6 @@ void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network)
 	strcat(line,",");
 	
 	time(&t);
-	*line = 0;
 	EncogStrCatLong(line,t,MAX_STR);
 	fputs(line,fp);
 	fputs("\n[BASIC]\n",fp);

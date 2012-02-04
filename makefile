@@ -1,8 +1,38 @@
+# detect OS
+OSUPPER = $(shell uname -s 2>/dev/null | tr [:lower:] [:upper:])
+OSLOWER = $(shell uname -s 2>/dev/null | tr [:upper:] [:lower:])
+
+# 'linux' is output for Linux system, 'darwin' for OS X
+DARWIN = $(strip $(findstring DARWIN, $(OSUPPER)))
+ifneq ($(DARWIN),)
+   SNOWLEOPARD = $(strip $(findstring 10.6, $(shell egrep "<string>10\.6" /System/Library/CoreServices/SystemVersion.plist)))
+   LION        = $(strip $(findstring 10.7, $(shell egrep "<string>10\.7" /System/Library/CoreServices/SystemVersion.plist)))
+endif
+
+# Define arch to use
+ARCH := $(shell getconf LONG_BIT)
+
+CPP_FLAGS_32 := -m32
+CPP_FLAGS_64 := -m64
+#use CUDA?
+ifeq ($(CUDA),1) 
+
+endif
+
+# Encog Paths
 LIB_IDIR =./encog-core/
 CMD_IDIR =./encog-cmd/
 LIB_ODIR=./obj-lib
 CMD_ODIR=./obj-cmd
 LDIR =./lib
+
+# CUDA Paths
+ifeq ($(CUDA),1) 
+	CUDA_INSTALL_PATH ?= /usr/local/cuda
+	ifdef cuda-install
+		CUDA_INSTALL_PATH := $(cuda-install)
+	endif
+endif
 
 _LIB_DEPS = encog.h
 LIB_DEPS = $(patsubst %,$(LIB_IDIR)/%,$(_LIB_DEPS))
@@ -13,15 +43,54 @@ LIB_OBJ = $(patsubst %,$(LIB_ODIR)/%,$(_LIB_OBJ))
 _CMD_DEPS = encog-cmd.h
 CMD_DEPS = $(patsubst %,$(CMD_IDIR)/%,$(_CMD_DEPS))
 
-_CMD_OBJ = encog-cmd.o
+_CMD_OBJ = encog-cmd.o trainer.o cuda_test.o
 CMD_OBJ = $(patsubst %,$(CMD_ODIR)/%,$(_CMD_OBJ))
+
+ifeq ($(CUDA),1) 
+	_CMD_CUOBJ = cuda_vecadd.cu.o
+	CMD_CUOBJ = $(patsubst %,$(CMD_ODIR)/%,$(_CMD_CUOBJ))
+endif
 
 ENCOG_LIB = $(LDIR)/encog.a
 
 CC=gcc
-CFLAGS=-I$(LIB_IDIR) -fopenmp -std=c99 -pedantic -Wall
+NVCC       := $(CUDA_INSTALL_PATH)/bin/nvcc 
+CFLAGS=-I$(LIB_IDIR) -fopenmp -std=c99 -pedantic -Wall $(CPP_FLAGS_$(ARCH))
+NVCCFLAGS = -I$(LIB_IDIR) $(CPP_FLAGS_$(ARCH))
 
 LIBS=-lm
+
+ifeq ($(CUDA),1) 
+CFLAGS+= -DENCOG_CUDA=1
+CFLAGS+= -I$(CUDA_INSTALL_PATH)/include
+endif
+
+# Libs
+ifeq ($(CUDA),1) 
+ifneq ($(DARWIN),)
+    LIB       := -L$(CUDA_INSTALL_PATH)/lib 
+else
+  ifeq "$(strip $(HP_64))" ""
+    ifeq ($(x86_64),1)
+       LIB       := -L$(CUDA_INSTALL_PATH)/lib64
+    else
+       LIB       := -L$(CUDA_INSTALL_PATH)/lib 
+    endif
+  else
+    ifeq ($(i386),1)
+       LIB       := -L$(CUDA_INSTALL_PATH)/lib 
+    else
+       LIB       := -L$(CUDA_INSTALL_PATH)/lib64 
+    endif
+  endif
+endif
+
+LIB+= -lcudart
+endif
+
+$(CMD_ODIR)/%.cu.o : ./encog-cmd/%.cu $(CMD_DEPS)
+	$(NVCC) -o $@ -c $< $(NVCCFLAGS)
+
 
 $(LIB_ODIR)/%.o: ./encog-core/%.c $(LIB_DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -29,8 +98,8 @@ $(LIB_ODIR)/%.o: ./encog-core/%.c $(LIB_DEPS)
 $(CMD_ODIR)/%.o: ./encog-cmd/%.c $(CMD_DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-encog: $(CMD_OBJ) $(ENCOG_LIB)
-	gcc -o $@ $^ $(CFLAGS) -lm $(ENCOG_LIB)
+encog: $(CMD_OBJ) $(CMD_CUOBJ) $(ENCOG_LIB)
+	$(CC) -o $@ $^ $(CFLAGS) -lm $(ENCOG_LIB) $(LIB)
 
 $(ENCOG_LIB): $(LIB_OBJ)
 	ar rcs $(ENCOG_LIB) $(LIB_OBJ)

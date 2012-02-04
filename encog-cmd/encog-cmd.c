@@ -284,10 +284,17 @@ int main(int argc, char* argv[])
 	char command[MAX_STR];
 	char arg1[MAX_STR];
 	char arg2[MAX_STR];
+	char *cudastr;
+	
+#ifdef ENCOG_CUDA
+	cudastr = ", CUDA";
+#else 
+	cudastr = "";
+#endif
 
-	printf("* * Encog C/C++ Command Line v0.1 * *\n");
-	printf("Running in: %i bit mode\n", (int)(sizeof(void*)*8));
+	printf("\n* * Encog C/C++(%i bit%s) Command Line v0.1 * *\n",(int)(sizeof(void*)*8),cudastr);
 	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
+
 
 	*arg1=*arg2=0;
 

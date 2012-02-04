@@ -45,9 +45,10 @@ int ConvertSMVer2Cores(int major, int minor)
 	return -1;
 }
 
+#ifndef __APPLE_CC__
 void getCudaAttribute(int *attribute, CUdevice_attribute device_attribute, int device)
 {
-    CUresult error = 	cuDeviceGetAttribute( attribute, device_attribute, device );
+    CUresult error = cuDeviceGetAttribute( attribute, device_attribute, device );
 
     if( CUDA_SUCCESS != error) {
         fprintf(stderr, "cuSafeCallNoSync() Driver API error = %04d from file <%s>, line %i.\n",
@@ -55,6 +56,7 @@ void getCudaAttribute(int *attribute, CUdevice_attribute device_attribute, int d
         exit(-1);
     }
 }
+#endif
 
 void TestCUDA()
 {
@@ -71,8 +73,18 @@ void TestCUDA()
 	deviceProp.major = 1;
 	deviceProp.minor = 3;
 
-	cudaGetDeviceCount(&count);
-
+	CUresult error = cudaGetDeviceCount(&count);
+	if( error!= CUDA_SUCCESS )
+	{
+		printf("CUDA Error: cudaGetDeviceCount, returned %i.\n",error);
+		exit(1);
+	}
+	else if( count==0 ) 
+	{
+		printf("No CUDA devices detectd.\n");
+		exit(1);
+	}
+	
 	for(dev=0;dev<count;dev++) {
 		cudaGetDeviceProperties(&deviceProp,dev);
 		printf("Device %i: %s\n ",dev, deviceProp.name);
@@ -95,6 +107,7 @@ void TestCUDA()
    
         printf("  GPU Clock Speed:                               %.2f GHz\n", deviceProp.clockRate * 1e-6f);
   
+#ifndef __APPLE_CC__
         getCudaAttribute( &memoryClock, CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE, dev );
         printf("  Memory Clock rate:                             %.2f Mhz\n", memoryClock * 1e-3f);
 
@@ -104,6 +117,7 @@ void TestCUDA()
         if (L2CacheSize) {
             printf("  L2 Cache Size:                                 %d bytes\n", L2CacheSize);
         }
+#endif
 
         printf("  Max Texture Dimension Size (x,y,z)             1D=(%d), 2D=(%d,%d), 3D=(%d,%d,%d)\n",
                                                         deviceProp.maxTexture1D, deviceProp.maxTexture2D[0], deviceProp.maxTexture2D[1],

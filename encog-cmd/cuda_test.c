@@ -45,18 +45,6 @@ int ConvertSMVer2Cores(int major, int minor)
 	return -1;
 }
 
-#ifndef __APPLE_CC__
-void getCudaAttribute(int *attribute, CUdevice_attribute device_attribute, int device)
-{
-    CUresult error = cuDeviceGetAttribute( attribute, device_attribute, device );
-
-    if( CUDA_SUCCESS != error) {
-        fprintf(stderr, "cuSafeCallNoSync() Driver API error = %04d from file <%s>, line %i.\n",
-                error, __FILE__, __LINE__);
-        exit(-1);
-    }
-}
-#endif
 
 void TestCUDA()
 {
@@ -65,15 +53,16 @@ void TestCUDA()
 	int dev, driverVersion = 0, runtimeVersion = 0;     
 	int memoryClock;
 	char msg[256];
-	        int memBusWidth;
-		int L2CacheSize;
+	int memBusWidth;
+	int L2CacheSize;
+	CUresult error;
 
 
 	memset(&deviceProp,0,sizeof(struct cudaDeviceProp));
 	deviceProp.major = 1;
 	deviceProp.minor = 3;
 
-	CUresult error = cudaGetDeviceCount(&count);
+	error = cudaGetDeviceCount(&count);
 	if( error!= CUDA_SUCCESS )
 	{
 		printf("CUDA Error: cudaGetDeviceCount, returned %i.\n",error);
@@ -90,41 +79,24 @@ void TestCUDA()
 		printf("Device %i: %s\n ",dev, deviceProp.name);
 
         // Console log
+#if CUDART_VERSION >= 2020
         cudaDriverGetVersion(&driverVersion);
         cudaRuntimeGetVersion(&runtimeVersion);
         printf("  CUDA Driver Version / Runtime Version          %d.%d / %d.%d\n", driverVersion/1000, (driverVersion%100)/10, runtimeVersion/1000, (runtimeVersion%100)/10);
    
         printf("  CUDA Capability Major/Minor version number:    %d.%d\n", deviceProp.major, deviceProp.minor);
-
+#endif
         sprintf(msg, "  Total amount of global memory:                 %.0f MBytes (%llu bytes)\n", 
                       (float)deviceProp.totalGlobalMem/1048576.0f, (unsigned long long) deviceProp.totalGlobalMem);
         puts(msg);
-
+#if CUDART_VERSION >= 2000
         printf("  (%2d) Multiprocessors x (%2d) CUDA Cores/MP:     %d CUDA Cores\n", 
 			deviceProp.multiProcessorCount,
 			ConvertSMVer2Cores(deviceProp.major, deviceProp.minor),
 			ConvertSMVer2Cores(deviceProp.major, deviceProp.minor) * deviceProp.multiProcessorCount);
-   
+#endif   
         printf("  GPU Clock Speed:                               %.2f GHz\n", deviceProp.clockRate * 1e-6f);
   
-#ifndef __APPLE_CC__
-        getCudaAttribute( &memoryClock, CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE, dev );
-        printf("  Memory Clock rate:                             %.2f Mhz\n", memoryClock * 1e-3f);
-
-        getCudaAttribute( &memBusWidth, CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH, dev );
-        printf("  Memory Bus Width:                              %d-bit\n", memBusWidth);
-        getCudaAttribute( &L2CacheSize, CU_DEVICE_ATTRIBUTE_L2_CACHE_SIZE, dev );
-        if (L2CacheSize) {
-            printf("  L2 Cache Size:                                 %d bytes\n", L2CacheSize);
-        }
-#endif
-
-        printf("  Max Texture Dimension Size (x,y,z)             1D=(%d), 2D=(%d,%d), 3D=(%d,%d,%d)\n",
-                                                        deviceProp.maxTexture1D, deviceProp.maxTexture2D[0], deviceProp.maxTexture2D[1],
-                                                        deviceProp.maxTexture3D[0], deviceProp.maxTexture3D[1], deviceProp.maxTexture3D[2]);
-        printf("  Max Layered Texture Size (dim) x layers        1D=(%d) x %d, 2D=(%d,%d) x %d\n",
-                                                        deviceProp.maxTexture1DLayered[0], deviceProp.maxTexture1DLayered[1],
-                                                        deviceProp.maxTexture2DLayered[0], deviceProp.maxTexture2DLayered[1], deviceProp.maxTexture2DLayered[2]);
     
         printf("  Total amount of constant memory:               %u bytes\n", deviceProp.totalConstMem); 
         printf("  Total amount of shared memory per block:       %u bytes\n", deviceProp.sharedMemPerBlock);
@@ -141,22 +113,6 @@ void TestCUDA()
                deviceProp.maxGridSize[2]);
         printf("  Maximum memory pitch:                          %u bytes\n", deviceProp.memPitch);
 		printf("  Texture alignment:                             %u bytes\n", deviceProp.textureAlignment);
-
-        printf("  Concurrent copy and execution:                 %s with %d copy engine(s)\n", (deviceProp.deviceOverlap ? "Yes" : "No"), deviceProp.asyncEngineCount);
-
-        printf("  Run time limit on kernels:                     %s\n", deviceProp.kernelExecTimeoutEnabled ? "Yes" : "No");
-        printf("  Integrated GPU sharing Host Memory:            %s\n", deviceProp.integrated ? "Yes" : "No");
-        printf("  Support host page-locked memory mapping:       %s\n", deviceProp.canMapHostMemory ? "Yes" : "No");
-        printf("  Concurrent kernel execution:                   %s\n", deviceProp.concurrentKernels ? "Yes" : "No");
-        printf("  Alignment requirement for Surfaces:            %s\n", deviceProp.surfaceAlignment ? "Yes" : "No");
-        printf("  Device has ECC support enabled:                %s\n", deviceProp.ECCEnabled ? "Yes" : "No");
-        printf("  Device is using TCC driver mode:               %s\n", deviceProp.tccDriver ? "Yes" : "No");
-        printf("  Device supports Unified Addressing (UVA):      %s\n", deviceProp.unifiedAddressing ? "Yes" : "No");
-        printf("  Device PCI Bus ID / PCI location ID:           %d / %d\n", deviceProp.pciBusID, deviceProp.pciDeviceID );
-
-
-        printf("  Compute Mode:\n");
-        printf("     < %s >\n", sComputeMode[deviceProp.computeMode]);	
 }
 	printf("Performing CUDA test.\n");
 	TestVectorAdd();

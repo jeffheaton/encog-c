@@ -13,3 +13,5 @@ x64/
 obj-lib/
 lib/
 obj-cmd/
+encog-c.sdf
+encog-c-cuda.sdf

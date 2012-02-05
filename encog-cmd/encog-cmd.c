@@ -103,7 +103,7 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 void XORTest() {
 	    /* local variables */
     char line[MAX_STR];
-    int i, iteration;
+    int i;
     REAL *input,*ideal;
     REAL output[1];
     float error;
@@ -138,7 +138,7 @@ void XORTest() {
 	EncogErrorCheck();
 
 /* Begin training, report progress. */
-    TrainNetwork(pso, 0.01, 1);
+    TrainNetwork(pso, 0.01f, 1);
 
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);
@@ -178,10 +178,6 @@ void train(char *egbFile, char *egFile) {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
 	ENCOG_TRAIN_PSO *pso;
-	INT iteration;
-	float error;
-	char line[MAX_STR];
-	INT lastUpdate;
 
 	data = EncogDataEGBLoad(egbFile);
 	EncogErrorCheck();
@@ -210,7 +206,7 @@ void train(char *egbFile, char *egFile) {
 	EncogErrorCheck();
 
 /* Begin training, report progress. */
-    TrainNetwork(pso, 0.01, 1);
+    TrainNetwork(pso, 0.01f, 1);
 	
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);

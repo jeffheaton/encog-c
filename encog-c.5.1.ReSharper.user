@@ -23,6 +23,7 @@
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="4275" fromTop="12" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="4625" fromTop="11" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="4540" fromTop="10" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:cuda_test.c" caret="1065" fromTop="21" />
     </RecentFiles>
     <RecentEdits>
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="3822" fromTop="20" />

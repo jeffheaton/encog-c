@@ -70,18 +70,10 @@ ifeq ($(CUDA),1)
 ifneq ($(DARWIN),)
     LIB       := -L$(CUDA_INSTALL_PATH)/lib 
 else
-  ifeq "$(strip $(HP_64))" ""
-    ifeq ($(x86_64),1)
+  ifeq ($(ARCH),64)
        LIB       := -L$(CUDA_INSTALL_PATH)/lib64
-    else
-       LIB       := -L$(CUDA_INSTALL_PATH)/lib 
-    endif
   else
-    ifeq ($(i386),1)
-       LIB       := -L$(CUDA_INSTALL_PATH)/lib 
-    else
-       LIB       := -L$(CUDA_INSTALL_PATH)/lib64 
-    endif
+       LIB       := -L$(CUDA_INSTALL_PATH)/lib
   endif
 endif
 

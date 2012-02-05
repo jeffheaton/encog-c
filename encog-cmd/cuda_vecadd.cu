@@ -137,8 +137,9 @@ void CleanupResources(void)
         free(h_B);
     if (h_C)
         free(h_C);
-        
+#if (CUDA_VERSION > 4010 )        
     cudaDeviceReset();
+#endif	
 }
 
 // Allocates an array with random float entries.

@@ -1,7 +1,11 @@
 *.suo
+*.sdf
+_ReSharper*
+encog-core/_ReSharper*
 encog-core/Debug/
 encog-core/Release/
 encog-core/x64/
+encog-cmd/_ReSharper*
 encog-cmd/Debug/
 encog-cmd/Release/
 encog-cmd/x64/

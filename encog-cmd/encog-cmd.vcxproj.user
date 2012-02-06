@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>train d:\test.eg d:\xor.egb</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>create test.eg basic "2:B-&gt;SIGMOID-&gt;3:B-&gt;SIGMOID-&gt;1"</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

@@ -8,7 +8,7 @@ void Usage() {
 	puts("\nUsage:\n");
 	puts("encog xor");
 	puts("encog benchmark");
-	puts("encog train [egb file]");
+	puts("encog train [eg file] [egb file]");
 	puts("encog egb2csv [egb file] [csv file]");
 	puts("encog csv2egb [csv file] [egb file]");
 	puts("");
@@ -121,24 +121,14 @@ void XORTest() {
 
 /* Create a 3 layer neural network, with sigmoid transfer functions and bias */
 
-    net = EncogNetworkNew();
-	EncogErrorCheck();
-    EncogNetworkAddLayer(net,2,&EncogActivationSigmoid,1);
-    EncogNetworkAddLayer(net,3,&EncogActivationSigmoid,1);
-    EncogNetworkAddLayer(net,1,&EncogActivationSigmoid,0);
-    EncogNetworkFinalizeStructure(net);
-	EncogErrorCheck();
-
-/* Randomize the neural network weights */
-    EncogNetworkRandomizeRange(net,-1,1);
-	EncogErrorCheck();
+    net = EncogNetworkFactory("basic", "2:B->SIGMOID->2:B->SIGMOID->1", 0,0);
 
 /* Create a PSO trainer */
     pso = EncogTrainPSONew(30, net, data);
 	EncogErrorCheck();
 
 /* Begin training, report progress. */
-    TrainNetwork(pso, 0.01f, 1);
+    TrainNetwork(pso, 0.01f, 0);
 
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);
@@ -174,10 +164,15 @@ void XORTest() {
 
 }
 
-void train(char *egbFile, char *egFile) {
+void train(char *egFile, char *egbFile) {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
 	ENCOG_TRAIN_PSO *pso;
+
+	if( *egFile==0 || *egbFile==0 ) {
+		printf("Usage: train [egFile] [egbFile]\n");
+		return;
+	}
 
 	data = EncogDataEGBLoad(egbFile);
 	EncogErrorCheck();
@@ -187,19 +182,22 @@ void train(char *egbFile, char *egFile) {
 	printf("Ideal Count: %i\n", data->idealCount);
 	printf("Record Count: %ld\n", data->recordCount);	    
 
-/* Create a 3 layer neural network, with sigmoid transfer functions and bias */
-
-    net = EncogNetworkNew();
-	EncogErrorCheck();
-	EncogNetworkAddLayer(net,data->inputCount,&EncogActivationTANH,1);
-    EncogNetworkAddLayer(net,6,&EncogActivationTANH,1);
-	EncogNetworkAddLayer(net,data->idealCount,&EncogActivationTANH,0);
-    EncogNetworkFinalizeStructure(net);
+	net = EncogNetworkLoad(egFile);
 	EncogErrorCheck();
 
-/* Randomize the neural network weights */
-    EncogNetworkRandomizeRange(net,-1,1);
-	EncogErrorCheck();
+	if( data->inputCount != net->inputCount ) {
+		EncogNetworkDelete(net);
+		EncogErrorCheck();
+		printf("Error: The network has a different input count than the training data.\n");
+		return;
+	}
+
+	if( data->idealCount != net->outputCount ) {
+		EncogNetworkDelete(net);
+		EncogErrorCheck();
+		printf("Error: The network has a different output count than the training data.\n");
+		return;
+	}
 
 /* Create a PSO trainer */
     pso = EncogTrainPSONew(30, net, data);
@@ -216,6 +214,9 @@ void train(char *egbFile, char *egFile) {
 	EncogErrorCheck();
 
     EncogTrainPSODelete(pso);
+	EncogErrorCheck();
+
+	EncogNetworkDelete(net);
 	EncogErrorCheck();
 }
 
@@ -268,6 +269,28 @@ void CSV2EGB(char *csvFile, char *egbFile, int inputCount, int idealCount)
 	printf("Conversion done.\n");
 }
 
+void CreateNetwork(char *egFile, char *method, char *architecture, int inputCount, int idealCount) {
+	ENCOG_NEURAL_NETWORK *network;
+
+	if( *egFile==0 || *method==0 || *architecture==0 ) {
+		printf("Must call with: create [egFile] [method] [architecture]\nNote: Because architecture includes < and > it must be includes in qutoes on most OS's.\n");
+	}
+
+	printf("Creating neural network\n");
+	printf("Method: %s\n", method);
+	printf("Architecture: %s\n", architecture);
+
+	network = EncogNetworkFactory(method, architecture, inputCount,idealCount);
+	EncogErrorCheck();
+	printf("Input Count: %i\n",network->inputCount);
+	printf("Output Count: %i\n",network->outputCount);
+
+	EncogNetworkSave(egFile,network);
+	EncogErrorCheck();
+	printf("Network Saved\n");
+
+}
+
 int main(int argc, char* argv[])
 {
 	INT i;
@@ -280,6 +303,7 @@ int main(int argc, char* argv[])
 	char command[MAX_STR];
 	char arg1[MAX_STR];
 	char arg2[MAX_STR];
+	char arg3[MAX_STR];
 	char *cudastr;
 	
 #ifdef ENCOG_CUDA
@@ -321,6 +345,8 @@ int main(int argc, char* argv[])
 				strncpy(arg1,argv[i],MAX_STR);
 			} else if( phase==2 ) {
 				strncpy(arg2,argv[i],MAX_STR);
+			} else if( phase==3 ) {
+				strncpy(arg3,argv[i],MAX_STR);
 			}
 
 			phase++;
@@ -339,6 +365,8 @@ int main(int argc, char* argv[])
 		EGB2CSV(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"csv2egb") ) {
 		CSV2EGB(arg1,arg2,inputCount,idealCount);
+	} else if (!EncogUtilStrcmpi(command,"create") ) {
+		CreateNetwork(arg1,arg2,arg3,inputCount,idealCount);
 	} else if (!EncogUtilStrcmpi(command,"cuda") ) {
 #ifdef ENCOG_CUDA
 		TestCUDA();

@@ -261,6 +261,7 @@ void EncogNetworkClearContext(ENCOG_NEURAL_NETWORK *net);
 ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net);
 ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name);
 void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network);
+ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int defaultInputCount, int defaultOutputCount);
 
 void EncogUtilInitRandom();
 REAL EncogUtilRandomRange(REAL low, REAL high);

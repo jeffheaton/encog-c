@@ -150,7 +150,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 		return NULL;
 	}
 
-	result = (ENCOG_NEURAL_NETWORK *)malloc(sizeof(ENCOG_NEURAL_NETWORK));
+	result = (ENCOG_NEURAL_NETWORK *)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
 	mode = 0;
 	currentActivation = 0;
 
@@ -181,6 +181,8 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 	}
 
 	fclose(fp);
+
+	result->layerSums = (REAL*)EncogUtilAlloc(result->neuronCount,sizeof(REAL));
 	return result;
 }
 
@@ -191,8 +193,18 @@ void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network)
 	FILE *fp;
 	time_t t;
 
+	if( network->weights == NULL || network->firstBlock!=NULL ) {
+		EncogErrorSet(ENCOG_ERROR_NETWORK_NOT_FINALIZED);
+		return;
+	}
+
 	/* Write the header line */
 	fp = fopen(name,"w");
+	if( fp==NULL ) {
+		EncogErrorSet(ENCOG_ERROR_FILE_NOT_FOUND);
+		return;
+	}
+
 	*line=0;
 	strcat(line,"encog");
 	strcat(line,",");

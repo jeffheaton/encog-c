@@ -389,3 +389,85 @@ ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net)
     return result;
 }
 
+ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int defaultInputCount, int defaultOutputCount)
+{
+	char line[MAX_STR];
+	ENCOG_NEURAL_NETWORK *network;
+	int bias, phase, neuronCount;
+	char *ptrBegin, *ptrEnd, *ptrMid;
+	ACTIVATION_FUNCTION activation;
+
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
+    network = EncogNetworkNew();
+
+	strncpy(line,architecture,MAX_STR);
+	EncogUtilStrupr(line);
+
+	activation = EncogActivationLinear;
+	ptrBegin = line;
+	phase = 0;
+
+	do {		
+		ptrEnd = strstr(ptrBegin,"->");
+
+		if( ptrEnd!=NULL ) {
+			*ptrEnd = 0;						
+		}
+
+		bias = 0;
+		ptrMid = strstr(ptrBegin,":");
+
+		if( ptrMid!=NULL ) {
+			*ptrMid = 0;
+			ptrMid++;
+			while( *ptrMid==' ' || *ptrMid=='\t' ) {
+				ptrMid++;
+			}
+		
+			if( *ptrMid=='B' ) {
+				bias = 1;
+			}
+		}
+
+		if( !strcmp(ptrBegin,"SIGMOID") ) {
+			activation = EncogActivationSigmoid;
+		} else if(!strcmp(ptrBegin,"TANH") ) {
+			activation = EncogActivationTANH;
+		} else if(!strcmp(ptrBegin,"LINEAR") ) {
+			activation = EncogActivationLinear;
+		} else {
+			if(!strcmp(ptrBegin,"?") ) {
+				if( phase==0 ) {
+					neuronCount = defaultInputCount;
+				} else if(phase==1 ) {
+					neuronCount = defaultOutputCount;
+				}
+				phase++;
+			} else {
+				neuronCount = atoi(ptrBegin);
+			}
+			EncogNetworkAddLayer(network,neuronCount,activation,bias);
+			if( EncogErrorGet()!=ENCOG_ERROR_OK ) {
+				EncogNetworkDelete(network);
+				return NULL;
+			}
+		}
+		if( ptrEnd!=NULL ) {
+			ptrBegin = ptrEnd+2;
+		}
+	} while(ptrEnd!=NULL);
+
+	EncogNetworkFinalizeStructure(network);
+
+/* Randomize the neural network weights */
+    EncogNetworkRandomizeRange(network,-1,1);
+	if( EncogErrorGet()!=ENCOG_ERROR_OK ) {
+		EncogNetworkDelete(network);
+		return NULL;
+	}
+
+    return network;
+}

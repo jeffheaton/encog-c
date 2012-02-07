@@ -36,15 +36,21 @@ extern "C" {
 #include <string.h>
 #include <ctype.h>
 #include <omp.h>
+#include <assert.h>
 
 #define ENCOG_ERROR_OK				0
 #define ENCOG_ERROR_FILE_NOT_FOUND	1
 #define ENCOG_ERROR_IO				2
 #define ENCOG_ERROR_SIZE_MISMATCH	3
-#define ENCOG_ERROR_INVALID_FILE	4
-#define ENCOG_ERROR_NETWORK_NOT_FINALIZED 5
-#define ENCOG_ERROR_NETWORK_FINALIZED 6
-#define ENCOG_ERROR_MIN_2LAYER 7
+#define ENCOG_ERROR_INVALID_EG_FILE	4
+#define ENCOG_ERROR_INVALID_EGB_FILE	5
+#define ENCOG_ERROR_INVALID_EGA_FILE	6
+#define ENCOG_ERROR_NETWORK_NOT_FINALIZED 7
+#define ENCOG_ERROR_NETWORK_FINALIZED 8
+#define ENCOG_ERROR_MIN_2LAYER 9
+#define ENCOG_ERROR_FACTORY_INVALID_ACTIVATION 10
+#define ENCOG_ERROR_FACTORY_INVALID_BIAS 11
+#define ENCOG_ERROR_FACTORY_INVALID_COND 12
 
 
 
@@ -319,7 +325,7 @@ int EncogStrPopLine(char *line, char *arg, int start, int len);
 int EncogStrIsWhiteSpace(char ch);
 void EncogStrTrim(char *line);
 void EncogStrStripQuotes(char *line);
-void EncogStrParseNV(char *line, char *name, char *value, size_t len);
+char *EncogStrParseNV(char *line, char *name, size_t len);
 void EncogStrStripCRLF(char *str);
 int EncogStrCountValues(char *line);
 INT *EncogStrParseIntList(char *line);

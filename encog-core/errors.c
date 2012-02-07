@@ -3,12 +3,19 @@
 static int _currentError = ENCOG_ERROR_OK;
 static char *_errorMessages[] = 
 {
-	"Success",				/* 0 */
-	"File  not found",		/* 1 */
-	"IO Error",				/* 2 */
-	"Size mismatch",			/* 3 */
-	"Network has not been finalized", /* 4 */
-	"Network has already been finalized" /* 5 */
+	"Success",							/* 0 */
+	"File  not found",					/* 1 */
+	"IO Error",							/* 2 */
+	"Size mismatch",					/* 3 */
+	"Invalid EG File",					/* 4 */
+	"Invalid EGB File",					/* 5 */
+	"Invalid EGA File",					/* 6 */
+	"Network has not been finalized",	/* 7 */
+	"Network has already been finalized",	/* 8 */
+	"Network must have at least two layers",	/* 9 */
+	"Invalid activation function name",	/* 10 */
+	"Expected a bias (b) to follow the :",	/* 11 */
+	"Invalid layer conditional (?), must have only two"	/* 12 */
 };
 
 void EncogErrorClear() {

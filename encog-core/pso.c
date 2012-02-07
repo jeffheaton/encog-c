@@ -139,7 +139,9 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
         particle->vtemp = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
         particle->bestVector = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
         particle->bestError = 0;
-        EncogNetworkRandomizeRange(particle->network,-1,1);
+		if( i>0 ) {
+			EncogNetworkRandomizeRange(particle->network,-1,1);
+		}
         EncogNetworkExportWeights(particle->network,particle->bestVector);
         EncogVectorRandomise(particle->velocities, pso->maxVelocity, clone->weightCount);
         _UpdatePersonalBestPosition(pso, i);

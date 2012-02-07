@@ -220,7 +220,7 @@ ENCOG_DATA *EncogDataEGBLoad(char *f)
 	fread(&header,sizeof(EGB_HEADER),1,fp);
 	if( memcmp(HEADER,header.ident,8) )
 	{
-		EncogErrorSet( ENCOG_ERROR_INVALID_FILE );
+		EncogErrorSet( ENCOG_ERROR_INVALID_EGB_FILE );
 		fclose(fp);
 		return NULL;
 	}

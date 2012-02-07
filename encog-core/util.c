@@ -96,9 +96,13 @@ void EncogUtilFree(void *m)
 
 void *EncogUtilDuplicateMemory(void *source,size_t elementCount,size_t elementSize)
 {
-    void *result = EncogUtilAlloc(elementCount,elementSize);
-    memcpy(result,source,elementCount*elementSize);
-    return result;
+	if( source!=NULL ) {
+		void *result = EncogUtilAlloc(elementCount,elementSize);
+		memcpy(result,source,elementCount*elementSize);
+		return result;
+	} else {
+		return NULL;
+	}
 }
 
 /**

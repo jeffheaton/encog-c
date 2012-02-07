@@ -429,6 +429,10 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 		
 			if( *ptrMid=='B' ) {
 				bias = 1;
+			} else {
+				EncogNetworkDelete(network);				
+				EncogErrorSet(ENCOG_ERROR_FACTORY_INVALID_BIAS);				
+				return NULL;
 			}
 		}
 
@@ -444,11 +448,22 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 					neuronCount = defaultInputCount;
 				} else if(phase==1 ) {
 					neuronCount = defaultOutputCount;
+				} else {					
+					EncogNetworkDelete(network);				
+					EncogErrorSet(ENCOG_ERROR_FACTORY_INVALID_COND);
+					return NULL;
 				}
 				phase++;
 			} else {
 				neuronCount = atoi(ptrBegin);
 			}
+
+			if( neuronCount==0 ) {				
+				EncogNetworkDelete(network);
+				EncogErrorSet(ENCOG_ERROR_FACTORY_INVALID_ACTIVATION);
+				return NULL;
+			}
+
 			EncogNetworkAddLayer(network,neuronCount,activation,bias);
 			if( EncogErrorGet()!=ENCOG_ERROR_OK ) {
 				EncogNetworkDelete(network);

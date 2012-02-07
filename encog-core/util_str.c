@@ -69,26 +69,31 @@ void EncogStrStripQuotes(char *line)
 	}
 }
 
-void EncogStrParseNV(char *line, char *name, char *value, size_t len)
+char *EncogStrParseNV(char *line, char *name, size_t len)
 {
 	char *p = strchr(line,'=');
 	
 	if( p==NULL )
 	{
-		*name = *value = 0;
-		return;
+		*name = 0;
+		return name;
 	}
 
 	*p = 0;
 
 	strncpy(name,line,len);
-	strncpy(value,p+1,len);
 
 	EncogStrTrim(name);
-	EncogStrTrim(value);
 
 	/* Restore */
 	*p = '=';
+	p++;
+
+	while( *p && (*p==' ' || *p=='\t') )
+		p++;
+
+	return p;
+	
 }
 
 

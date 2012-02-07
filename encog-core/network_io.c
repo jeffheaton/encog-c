@@ -1,5 +1,7 @@
 #include "encog.h"
 
+#define LINE_BUFFER_SIZE 50000
+
 static int _CheckNetwork(FILE *fp)
 {
 	int index, v;
@@ -45,10 +47,10 @@ static int _CheckNetwork(FILE *fp)
 
 static void _LoadBasic(char *line, ENCOG_NEURAL_NETWORK *network)
 {
-	char name[MAX_STR],value[MAX_STR];
+	char name[MAX_STR],*value;
 
 	EncogStrStripCRLF(line);
-	EncogStrParseNV(line,name,value,MAX_STR);
+	value = EncogStrParseNV(line,name,MAX_STR);
 
 	if(!strcmp(name,"beginTraining") )
 	{
@@ -139,7 +141,7 @@ static void _LoadActivation(char *line, ENCOG_NEURAL_NETWORK *network, int curre
 
 ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 {
-	char line[MAX_STR];
+	char *line;
 	ENCOG_NEURAL_NETWORK *result;
 	int mode, currentActivation;
 
@@ -150,11 +152,12 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 		return NULL;
 	}
 
+	line = (char*)EncogUtilAlloc(LINE_BUFFER_SIZE,sizeof(char));
 	result = (ENCOG_NEURAL_NETWORK *)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
 	mode = 0;
 	currentActivation = 0;
 
-	while( fgets(line,sizeof(line),fp) ) 
+	while( fgets(line,LINE_BUFFER_SIZE,fp) ) 
 	{
 		EncogStrStripCRLF(line);
 
@@ -181,6 +184,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 	}
 
 	fclose(fp);
+	EncogUtilFree(line);
 
 	result->layerSums = (REAL*)EncogUtilAlloc(result->neuronCount,sizeof(REAL));
 	return result;

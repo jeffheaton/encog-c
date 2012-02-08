@@ -3,7 +3,7 @@
 #include <cuda_runtime_api.h>
 #include <string.h>
 #include <stdio.h>
-#include "encog.h"
+#include "encog-cmd.h"
 
 		const char *sComputeMode[] = {
             "Default (multiple host threads can use ::cudaSetDevice() with device simultaneously)",
@@ -49,20 +49,17 @@ int ConvertSMVer2Cores(int major, int minor)
 void TestCUDA()
 {
 	struct cudaDeviceProp deviceProp;
-	int count,i;
+	int count;
 	int dev, driverVersion = 0, runtimeVersion = 0;     
-	int memoryClock;
 	char msg[256];
-	int memBusWidth;
-	int L2CacheSize;
-	CUresult error;
+	int error;
 
 
 	memset(&deviceProp,0,sizeof(struct cudaDeviceProp));
 	deviceProp.major = 1;
 	deviceProp.minor = 3;
 
-	error = cudaGetDeviceCount(&count);
+	error = (int)cudaGetDeviceCount(&count);
 	if( error!= CUDA_SUCCESS )
 	{
 		printf("CUDA Error: cudaGetDeviceCount, returned %i.\n",error);

@@ -338,6 +338,10 @@ void EncogFileWriteValueIntArray(FILE *fp, char *name, INT *a, INT count);
 void EncogFileWriteValueDouble(FILE *fp, char *name, double value);
 void EncogFileWriteValueDoubleArray(FILE *fp, char *name, double *a, INT count);
 
+#ifdef ENCOG_CUDA
+float EncogNetworkGPUEval(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
+#endif
+
 #ifdef __cplusplus
 }
 #endif 

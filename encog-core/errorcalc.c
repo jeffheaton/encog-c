@@ -25,6 +25,7 @@
 
 float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 {
+#ifndef ENCOG_CUDA
     INT i,j;
     REAL *input,*ideal,delta,sum;
 
@@ -46,4 +47,7 @@ float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
     }
 
     return (float)(sum/data->recordCount);
+#else
+	return EncogCUDAErrorSSE(net,data);
+#endif
 }

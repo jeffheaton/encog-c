@@ -61,7 +61,7 @@ __global__ void VecAdd(const float* A, const float* B, float* C, int N)
 }
 
 // Host code
-extern "C" float EncogNetworkGPUEval(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
+extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 {
     printf("Vector Addition\n");
     int N = 50000;

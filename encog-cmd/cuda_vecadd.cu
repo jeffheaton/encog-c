@@ -5,13 +5,13 @@
 #include <cuda_runtime.h>
 
 // Variables
-float* h_A;
-float* h_B;
-float* h_C;
-float* d_A;
-float* d_B;
-float* d_C;
-bool noprompt = false;
+static float* h_A;
+static float* h_B;
+static float* h_C;
+static float* d_A;
+static float* d_B;
+static float* d_C;
+static bool noprompt = false;
 
 // Functions
 void CleanupResources(void);
@@ -36,7 +36,7 @@ inline void __checkCudaErrors(cudaError err, const char *file, const int line )
 // This will output the proper error string when calling cudaGetLastError
 #define getLastCudaError(msg)      __getLastCudaError (msg, __FILE__, __LINE__)
 
-inline void __getLastCudaError(const char *errorMessage, const char *file, const int line )
+static inline void __getLastCudaError(const char *errorMessage, const char *file, const int line )
 {
     cudaError_t err = cudaGetLastError();
     if (cudaSuccess != err)
@@ -51,7 +51,7 @@ inline void __getLastCudaError(const char *errorMessage, const char *file, const
 
 
 // Device code
-__global__ void VecAdd(const float* A, const float* B, float* C, int N)
+__global__ void VecAddKernel(const float* A, const float* B, float* C, int N)
 {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     if (i < N)
@@ -89,7 +89,7 @@ extern "C" int TestVectorAdd()
     // Invoke kernel
     int threadsPerBlock = 256;
     int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
-    VecAdd<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, N);
+    VecAddKernel<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, N);
     getLastCudaError("kernel launch failure");
 #ifdef _DEBUG
     checkCudaErrors( cudaDeviceSynchronize() );
@@ -120,7 +120,7 @@ extern "C" int TestVectorAdd()
 	return 0;   
 }
 
-void CleanupResources(void)
+static void CleanupResources(void)
 {
     // Free device memory
     if (d_A)
@@ -143,14 +143,14 @@ void CleanupResources(void)
 }
 
 // Allocates an array with random float entries.
-void RandomInit(float* data, int n)
+static void RandomInit(float* data, int n)
 {
     for (int i = 0; i < n; ++i)
         data[i] = rand() / (float)RAND_MAX;
 }
 
 // Parse program arguments
-void ParseArguments(int argc, char** argv)
+static void ParseArguments(int argc, char** argv)
 {
     for (int i = 0; i < argc; ++i) {
         if (strcmp(argv[i], "--noprompt") == 0 ||

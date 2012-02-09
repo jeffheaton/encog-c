@@ -74,7 +74,7 @@ typedef void(*ENCOG_TASK)(void*);
 
 struct ENCOG_TRAIN_PSO;
 
-typedef struct
+typedef struct NETWORK_BLOCK
 {
     struct NETWORK_BLOCK *next;
     INT feedCount;
@@ -186,7 +186,7 @@ typedef struct
 	struct ENCOG_TRAIN_PSO *pso;
 } ENCOG_PARTICLE;
 
-typedef struct
+typedef struct ENCOG_TRAIN_PSO
 {
     ENCOG_PARTICLE *particles;
     int bestParticle;

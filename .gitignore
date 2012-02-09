@@ -1,6 +1,8 @@
 *.suo
 *.sdf
 _ReSharper*
+*.o
+*.a
 encog-core/_ReSharper*
 encog-core/Debug/
 encog-core/Release/

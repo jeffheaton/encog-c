@@ -303,8 +303,8 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 				*(optr++) = atof(lastNumber);
 				/* too much data for the line? */
 				if( lineCount++>lineSize ) {
-					EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);
 					EncogDataDelete(result);
+					EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);					
 					return NULL;
 				}
 				nptr = lastNumber;
@@ -319,8 +319,8 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 
 		/* too much or to little data for the line? */
 		if( ++lineCount!=lineSize ) {
-			EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);
 			EncogDataDelete(result);
+			EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);			
 			return NULL;
 		}
 

@@ -22,7 +22,7 @@
     <ProjectGuid>{CE50443B-9615-4C66-B9BE-57CD2A99F62A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>EncogExample</RootNamespace>
-    <ProjectName>encog-cmd</ProjectName>
+    <ProjectName>encog-cmd-cuda</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -142,11 +142,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\encog-core\encog-core.vcxproj">
-      <Project>{3df9ceff-41ca-46b9-a659-a63c6d19d204}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cuda_test.c" />

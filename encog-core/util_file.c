@@ -49,16 +49,38 @@ void EncogFileWriteValueDouble(FILE *fp, char *name, double value)
 
 void EncogFileWriteValueDoubleArray(FILE *fp, char *name, double *a, INT count)
 {
-	INT i;
+	INT i, lineCount;
+
 	fputs(name,fp);
 	fputc('=',fp);
-	for(i=0;i<count;i++)
-	{
-		if( i>0 )
+
+	if( count>2048 ) {
+		fprintf(fp,"##%i##double#%i\n",0,count);
+		lineCount = 0;
+
+		for(i=0;i<count;i++)
 		{
-			fputc(',',fp);
+			if( lineCount>0 )
+			{
+				fputc(',',fp);
+			}
+			fprintf(fp,"%.20g",a[i]);
+			lineCount++;
+			if( lineCount>2048 ) {
+				lineCount = 0;
+				fprintf(fp,"\n");
+			}
 		}
-		fprintf(fp,"%.20g",a[i]);	
+		fputs("\n##end\n",fp);
+	} else {
+		for(i=0;i<count;i++)
+		{
+			if( i>0 )
+			{
+				fputc(',',fp);
+			}
+			fprintf(fp,"%.20g",a[i]);	
+		}
+		fputs("\n",fp);
 	}
-	fputs("\n",fp);
 }

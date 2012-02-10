@@ -200,10 +200,11 @@ void train(char *egFile, char *egbFile) {
 	}
 
 /* Create a PSO trainer */
+	printf("Please wait...creating particles.\n");
     pso = EncogTrainPSONew(30, net, data);
 	EncogErrorCheck();
 
-/* Begin training, report progress. */
+/* Begin training, report progress. */	
     TrainNetwork(pso, 0.01f, 1);
 	
 /* Pull the best neural network that the PSO found */
@@ -288,7 +289,76 @@ void CreateNetwork(char *egFile, char *method, char *architecture, int inputCoun
 	EncogNetworkSave(egFile,network);
 	EncogErrorCheck();
 	printf("Network Saved\n");
+}
 
+void EvaluateError(char *egFile, char *egbFile) {
+	ENCOG_DATA *data;
+	ENCOG_NEURAL_NETWORK *net;
+	ENCOG_TRAIN_PSO *pso;
+	float error;
+	char line[MAX_STR];
+
+	if( *egFile==0 || *egbFile==0 ) {
+		printf("Usage: error [egFile] [egbFile]\n");
+		return;
+	}
+
+	data = EncogDataEGBLoad(egbFile);
+	EncogErrorCheck();
+
+	printf("Evaluate Error\n");
+	printf("Input Count: %i\n", data->inputCount);
+	printf("Ideal Count: %i\n", data->idealCount);
+	printf("Record Count: %ld\n", data->recordCount);	    
+
+	net = EncogNetworkLoad(egFile);
+	EncogErrorCheck();
+
+	if( data->inputCount != net->inputCount ) {
+		EncogNetworkDelete(net);
+		EncogErrorCheck();
+		printf("Error: The network has a different input count than the training data.\n");
+		return;
+	}
+
+	if( data->idealCount != net->outputCount ) {
+		EncogNetworkDelete(net);
+		EncogErrorCheck();
+		printf("Error: The network has a different output count than the training data.\n");
+		return;
+	}
+
+	error = EncogErrorSSE(net,data);
+
+	EncogNetworkDelete(net);
+	EncogDataDelete(data);
+
+	*line = 0;
+	EncogStrCatStr(line,"SSE Error: ",MAX_STR);
+	EncogStrCatDouble(line,error*100.0,2,MAX_STR);
+	EncogStrCatStr(line,"%\n",MAX_STR);
+	puts(line);
+}
+
+void RandomizeNetwork(char *egFile) {
+	ENCOG_NEURAL_NETWORK *net;
+
+	if( *egFile==0  ) {
+		printf("Usage: randomize [egFile]\n");
+		return;
+	}
+
+	net = EncogNetworkLoad(egFile);
+	EncogErrorCheck();
+
+	EncogNetworkRandomizeRange(net,-1,1);
+	EncogErrorCheck();
+
+	EncogNetworkSave(egFile,net);
+	EncogErrorCheck();
+
+
+	printf("Network randomized and saved.\n");
 }
 
 int main(int argc, char* argv[])
@@ -367,6 +437,10 @@ int main(int argc, char* argv[])
 		CSV2EGB(arg1,arg2,inputCount,idealCount);
 	} else if (!EncogUtilStrcmpi(command,"create") ) {
 		CreateNetwork(arg1,arg2,arg3,inputCount,idealCount);
+	} else if (!EncogUtilStrcmpi(command,"randomize") ) {
+		RandomizeNetwork(arg1);
+	} else if (!EncogUtilStrcmpi(command,"error") ) {
+		EvaluateError(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"cuda") ) {
 #ifdef ENCOG_CUDA
 		TestCUDA();

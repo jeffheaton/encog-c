@@ -10,6 +10,7 @@ void TrainNetwork(ENCOG_TRAIN_PSO *pso, float maxError,int updateSeconds)
 	time_t lastUpdate;
 	time_t sinceLastUpdate;
 
+	printf("Beginning training.\n");
 	/* Begin training, report progress. */
 	done = 0;
     iteration = 1;

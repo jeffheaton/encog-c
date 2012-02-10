@@ -128,6 +128,8 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     /* construct the arrays */
 
     pso->particles = (ENCOG_PARTICLE*)EncogUtilAlloc(populationSize,sizeof(ENCOG_PARTICLE));
+
+	#pragma omp parallel for private(particle,clone)
     for(i=0; i<populationSize; i++)
     {
         particle = &pso->particles[i];

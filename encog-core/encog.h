@@ -52,7 +52,9 @@ extern "C" {
 #define ENCOG_ERROR_FACTORY_INVALID_BIAS 11
 #define ENCOG_ERROR_FACTORY_INVALID_COND 12
 
-
+#define SIZE_BYTE 1
+#define SIZE_KILOBYTE (SIZE_BYTE*1024)
+#define SIZE_MEGABYTE (SIZE_KILOBYTE*1024)
 
 /* Deal with Microsoft Visual C++ */
 #ifdef _MSC_VER

@@ -55,7 +55,7 @@ void EncogFileWriteValueDoubleArray(FILE *fp, char *name, double *a, INT count)
 	fputc('=',fp);
 
 	if( count>2048 ) {
-		fprintf(fp,"##%i##double#%i\n",0,count);
+		fprintf(fp,"##%i\n##double#%i\n",0,count);
 		lineCount = 0;
 
 		for(i=0;i<count;i++)

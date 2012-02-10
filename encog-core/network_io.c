@@ -20,8 +20,9 @@ static double *_ParseLargeDoubleList(_PARSED_NETWORK *parse,char *firstline, INT
 	double *dptr;
 
 	if( firstline[0]=='#' && firstline[1]=='#' ) {
+		fgets(parse->line,SIZE_MEGABYTE,parse->fp);
 		/* first, strip the length off the end */
-		ptr = firstline+strlen(firstline)-1;
+		ptr = firstline+strlen(parse->line)-1;
 		while(*(ptr-1)!='#' && ptr>firstline ) {
 			ptr--;
 		}

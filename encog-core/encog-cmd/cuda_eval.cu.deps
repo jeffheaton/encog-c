@@ -188,11 +188,11 @@ c:\program files\nvidia gpu computing toolkit\cuda\v4.1\include\vector_functions
 c:\program files\nvidia gpu computing toolkit\cuda\v4.1\include\vector_types.h
 c:\program files\nvidia gpu computing toolkit\cuda\v4.1\include\device_launch_parameters.h
 c:\program files\nvidia gpu computing toolkit\cuda\v4.1\include\vector_types.h
+c:\projects\encog-c\encog-core\encog_cuda.h
+c:\projects\encog-c\encog-core\encog.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\swprintf.inl
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.1\include\cuda_runtime.h
-c:\projects\encog-c\encog-core\encog.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdarg.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\math.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\ctype.h
@@ -200,3 +200,4 @@ c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\omp.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\assert.h
 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\crtdefs.h
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.1\include\cuda_runtime.h

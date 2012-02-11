@@ -87,6 +87,7 @@ typedef struct NETWORK_LAYER
 
 typedef struct
 {
+	INT memorySize;
     INT layerCount;
     INT neuronCount;
     INT weightCount;
@@ -162,12 +163,12 @@ typedef struct
 	INT *contextTargetSize;
 	INT endTraining;
 	INT hasContext;
-	INT totalNetworkSize;
 
 } ENCOG_NEURAL_NETWORK;
 
 typedef struct
 {
+	INT memorySize;
     INT inputCount;
     INT idealCount;
     unsigned long recordCount;
@@ -341,7 +342,7 @@ void EncogFileWriteValueDouble(FILE *fp, char *name, double value);
 void EncogFileWriteValueDoubleArray(FILE *fp, char *name, double *a, INT count);
 
 #ifdef ENCOG_CUDA
-float EncogNetworkGPUEval(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
+float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 #endif
 
 #ifdef __cplusplus

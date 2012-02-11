@@ -143,7 +143,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
 
 	result->endTraining = result->layerCount-1;
 	result->hasContext = 0;
-	result->totalNetworkSize = sizeofNetwork;
+	result->memorySize = sizeofNetwork;
 
 	EncogNetworkLink(result);
 
@@ -222,8 +222,7 @@ void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net)
 	net->weights = (REAL*)ptr; ptr+=net->weightCount*sizeof(REAL);
     net->layerOutput = (REAL*)ptr; ptr+=net->neuronCount*sizeof(REAL);
     net->layerSums = (REAL*)ptr; ptr+=net->neuronCount*sizeof(REAL);
-	i=(ptr-((unsigned char*)net));
-	assert( (ptr-((unsigned char*)net)) == net->totalNetworkSize);
+	assert( (ptr-((unsigned char*)net)) == net->memorySize);
 }
 
 void EncogNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *output)
@@ -365,7 +364,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net)
 	/* Clear out any previous errors */
 	EncogErrorClear();
 
-	result = (ENCOG_NEURAL_NETWORK *)EncogUtilDuplicateMemory(net,1,net->totalNetworkSize);
+	result = (ENCOG_NEURAL_NETWORK *)EncogUtilDuplicateMemory(net,1,net->memorySize);
 	EncogNetworkLink(result);
 
     return result;

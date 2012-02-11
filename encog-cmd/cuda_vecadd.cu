@@ -1,54 +1,7 @@
-// Includes
-#include <stdio.h>
-
-// includes CUDA
-#include <cuda_runtime.h>
-
-// Variables
-static float* h_A;
-static float* h_B;
-static float* h_C;
-static float* d_A;
-static float* d_B;
-static float* d_C;
-static bool noprompt = false;
+#include <encog_cuda.h>
 
 // Functions
-void CleanupResources(void);
 void RandomInit(float*, int);
-void ParseArguments(int, char**);
-
-////////////////////////////////////////////////////////////////////////////////
-// These are CUDA Helper functions
-
-// This will output the proper CUDA error strings in the event that a CUDA host call returns an error
-#define checkCudaErrors(err)  __checkCudaErrors (err, __FILE__, __LINE__)
-
-inline void __checkCudaErrors(cudaError err, const char *file, const int line )
-{
-    if(cudaSuccess != err)
-    {
-        fprintf(stderr, "%s(%i) : CUDA Runtime API error %d: %s.\n",file, line, (int)err, cudaGetErrorString( err ) );
-        exit(-1);        
-    }
-}
-
-// This will output the proper error string when calling cudaGetLastError
-#define getLastCudaError(msg)      __getLastCudaError (msg, __FILE__, __LINE__)
-
-static inline void __getLastCudaError(const char *errorMessage, const char *file, const int line )
-{
-    cudaError_t err = cudaGetLastError();
-    if (cudaSuccess != err)
-    {
-        fprintf(stderr, "%s(%i) : getLastCudaError() CUDA error : %s : (%d) %s.\n",
-        file, line, errorMessage, (int)err, cudaGetErrorString( err ) );
-        exit(-1);
-    }
-}
-
-// end of CUDA Helper Functions
-
 
 // Device code
 __global__ void VecAddKernel(const float* A, const float* B, float* C, int N)
@@ -61,17 +14,21 @@ __global__ void VecAddKernel(const float* A, const float* B, float* C, int N)
 // Host code
 extern "C" int TestVectorAdd()
 {
+	float* h_A;
+	float* h_B;
+	float* h_C;
+	float* d_A;
+	float* d_B;
+	float* d_C;
+
     printf("Vector Addition\n");
     int N = 50000;
     size_t size = N * sizeof(float);
 
     // Allocate input vectors h_A and h_B in host memory
-    h_A = (float*)malloc(size);
-    if (h_A == 0) CleanupResources();
-    h_B = (float*)malloc(size);
-    if (h_B == 0) CleanupResources();
-    h_C = (float*)malloc(size);
-    if (h_C == 0) CleanupResources();
+    h_A = (float*)EncogUtilAlloc(N,sizeof(float));
+    h_B = (float*)EncogUtilAlloc(N,sizeof(float));
+    h_C = (float*)EncogUtilAlloc(N,sizeof(float));
     
     // Initialize input vectors
     RandomInit(h_A, N);
@@ -90,7 +47,8 @@ extern "C" int TestVectorAdd()
     int threadsPerBlock = 256;
     int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
     VecAddKernel<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C, N);
-    getLastCudaError("kernel launch failure");
+    
+	getLastCudaError("kernel launch failure");
 #ifdef _DEBUG
     checkCudaErrors( cudaDeviceSynchronize() );
 #endif
@@ -110,19 +68,8 @@ extern "C" int TestVectorAdd()
 		}
     }
 
-    CleanupResources();
-
-	if( error ) {
-		printf("CUDA Vector Add Test failed.\n");
-	} else {
-		printf("CUDA Vector Add Test was successful.\n");
-	}
-	return 0;   
-}
-
-static void CleanupResources(void)
-{
-    // Free device memory
+    // cleanup resources
+	// Free device memory
     if (d_A)
         cudaFree(d_A);
     if (d_B)
@@ -140,6 +87,14 @@ static void CleanupResources(void)
 #if (CUDA_VERSION > 4010 )        
     cudaDeviceReset();
 #endif	
+
+	// display error
+	if( error ) {
+		printf("CUDA Vector Add Test failed.\n");
+	} else {
+		printf("CUDA Vector Add Test was successful.\n");
+	}
+	return 0;   
 }
 
 // Allocates an array with random float entries.
@@ -149,15 +104,3 @@ static void RandomInit(float* data, int n)
         data[i] = rand() / (float)RAND_MAX;
 }
 
-// Parse program arguments
-static void ParseArguments(int argc, char** argv)
-{
-    for (int i = 0; i < argc; ++i) {
-        if (strcmp(argv[i], "--noprompt") == 0 ||
-            strcmp(argv[i], "-noprompt") == 0) 
-        {
-            noprompt = true;
-            break;
-        }
-    }
-}

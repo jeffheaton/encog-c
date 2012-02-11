@@ -90,6 +90,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>cuda.lib;cudart.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CudaCompile>
+      <Include>c:\projects\encog-c\encog-core</Include>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -153,6 +156,11 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="cuda_vecadd.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\encog-core\encog-core-cuda.vcxproj">
+      <Project>{3df9ceff-41ca-46b9-a659-a63c6d19d204}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

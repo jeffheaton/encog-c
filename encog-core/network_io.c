@@ -283,7 +283,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 	result->layerCount = parse.layerCount;
 	result->neuronCount = parse.neuronCount;
 	result->outputCount = parse.outputCount;
-	result->totalNetworkSize = parse.totalNetworkSize;
+	result->memorySize = parse.totalNetworkSize;
 	result->weightCount = parse.weightCount;
 	EncogNetworkLink(result);
 	

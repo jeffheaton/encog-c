@@ -125,8 +125,6 @@ void XORTest() {
     net = EncogNetworkFactory("basic", "2:B->SIGMOID->2:B->SIGMOID->1", 0,0);
 	EncogErrorCheck();
 
-	EncogNetworkDump(net);
-
 /* Create a PSO trainer */
     pso = EncogTrainPSONew(30, net, data);
 	EncogErrorCheck();

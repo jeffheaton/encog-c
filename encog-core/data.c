@@ -35,6 +35,7 @@ ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, un
 
 	totalSize = sizeof(ENCOG_DATA) + ((records*(inputCount+idealCount+1)) * sizeof(REAL));
     data = (ENCOG_DATA*)EncogUtilAlloc(1,totalSize);
+	data->memorySize = totalSize;
     data->inputCount = inputCount;
     data->idealCount = idealCount;
     data->recordCount = records;

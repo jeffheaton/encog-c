@@ -22,7 +22,7 @@ static double *_ParseLargeDoubleList(_PARSED_NETWORK *parse,char *firstline, INT
 	if( firstline[0]=='#' && firstline[1]=='#' ) {
 		fgets(parse->line,SIZE_MEGABYTE,parse->fp);
 		/* first, strip the length off the end */
-		ptr = firstline+strlen(parse->line)-1;
+		ptr = parse->line+strlen(parse->line)-1;
 		while(*(ptr-1)!='#' && ptr>firstline ) {
 			ptr--;
 		}
@@ -45,10 +45,13 @@ static double *_ParseLargeDoubleList(_PARSED_NETWORK *parse,char *firstline, INT
 			
 			do {
 				index = EncogStrPopLine(parse->line, arg, index, sizeof(arg));
-				*(dptr++) = atof(arg);
-				len++;
-			} while(*arg && len<*size);
+				if( *arg || parse->line[index] ) {
+					*(dptr++) = atof(arg);
+					len++;
+				}
+			} while(parse->line[index] && len<*size);
 		}
+		
 	} else {
 	*size = EncogStrCountValues(firstline);		
 	result = (double*)malloc((*size)*sizeof(double));
@@ -256,11 +259,6 @@ void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network)
 	INT i;
 	FILE *fp;
 	time_t t;
-
-	if( network->weights == NULL || network->firstBlock!=NULL ) {
-		EncogErrorSet(ENCOG_ERROR_NETWORK_NOT_FINALIZED);
-		return;
-	}
 
 	/* Write the header line */
 	fp = fopen(name,"w");

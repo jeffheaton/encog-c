@@ -9,50 +9,51 @@
   <RecentFiles>
     <RecentFiles>
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:cuda_test.c" caret="1" fromTop="0" />
-      <File id="d:Miscellaneous Files/f:fputs.c/l:C!?Program Files (x86)?Microsoft Visual Studio 10.0?VC?crt?src?fputs.c" caret="1067" fromTop="15" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:errorcalc.c" caret="1449" fromTop="19" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="4257" fromTop="3" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.h" caret="154" fromTop="11" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="7134" fromTop="11" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:trainer.c" caret="271" fromTop="12" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util_str.c" caret="388" fromTop="21" />
-      <File id="d:Miscellaneous Files/f:malloc.c/l:C!?Program Files (x86)?Microsoft Visual Studio 10.0?VC?crt?src?malloc.c" caret="1246" fromTop="10" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="7535" fromTop="10" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="8945" fromTop="7" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util_file.c" caret="1064" fromTop="18" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="593" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:data.c" caret="1454" fromTop="17" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:errors.c" caret="0" fromTop="0" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:errorcalc.c" caret="1263" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util.c" caret="2149" fromTop="10" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="4343" fromTop="10" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util_str.c" caret="388" fromTop="21" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.h" caret="0" fromTop="0" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="6943" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="11291" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="1095" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="6034" fromTop="9" />
     </RecentFiles>
     <RecentEdits>
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="2921" fromTop="11" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3028" fromTop="15" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3425" fromTop="13" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3544" fromTop="17" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3658" fromTop="8" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3905" fromTop="7" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3998" fromTop="11" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="4246" fromTop="20" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3314" fromTop="11" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="5275" fromTop="11" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="4825" fromTop="21" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="4825" fromTop="4" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="1396" fromTop="21" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3744" fromTop="9" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="4178" fromTop="13" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="2325" fromTop="10" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="1265" fromTop="13" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="5100" fromTop="10" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:trainer.c" caret="272" fromTop="4" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="187" fromTop="10" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="313" fromTop="5" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="1310" fromTop="10" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="1113" fromTop="15" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="352" fromTop="7" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="795" fromTop="5" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="966" fromTop="11" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="1016" fromTop="13" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util_file.c" caret="1345" fromTop="16" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util_file.c" caret="1064" fromTop="18" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="593" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="5384" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="4981" fromTop="19" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="3009" fromTop="10" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="6081" fromTop="18" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="934" fromTop="2" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="1964" fromTop="18" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="4097" fromTop="12" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="4833" fromTop="15" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="4981" fromTop="19" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="7241" fromTop="21" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="7180" fromTop="20" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="7216" fromTop="20" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="6221" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="7836" fromTop="10" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="4628" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="4628" fromTop="9" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="4954" fromTop="12" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="10964" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="2339" fromTop="13" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="2220" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="2361" fromTop="16" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="2238" fromTop="12" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="2338" fromTop="17" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="2783" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="5137" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="6943" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="5934" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="11291" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="1095" fromTop="8" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="6034" fromTop="9" />
     </RecentEdits>
   </RecentFiles>
   <NAntValidationSettings>

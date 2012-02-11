@@ -44,6 +44,7 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
 	ENCOG_TRAIN_PSO *pso;
+	NETWORK_LAYER *layer;
 	INT i;
 	time_t startTime;
 	time_t endTime;
@@ -75,10 +76,10 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 
 	net = EncogNetworkNew();
 	EncogErrorCheck();
-    EncogNetworkAddLayer(net,inputCount,&EncogActivationTANH,1);
-    EncogNetworkAddLayer(net,50,&EncogActivationTANH,1);
-    EncogNetworkAddLayer(net,idealCount,&EncogActivationTANH,1);
-    EncogNetworkFinalizeStructure(net);
+    layer = EncogNetworkCreateLayer(NULL,inputCount,&EncogActivationTANH,1);
+    layer = EncogNetworkCreateLayer(layer,50,&EncogActivationTANH,1);
+    layer = EncogNetworkCreateLayer(layer,idealCount,&EncogActivationTANH,1);
+    net = EncogNetworkFinalizeStructure(layer,1);
 	EncogErrorCheck();
 
 	EncogNetworkRandomizeRange(net,-1,1);
@@ -122,6 +123,9 @@ void XORTest() {
 /* Create a 3 layer neural network, with sigmoid transfer functions and bias */
 
     net = EncogNetworkFactory("basic", "2:B->SIGMOID->2:B->SIGMOID->1", 0,0);
+	EncogErrorCheck();
+
+	EncogNetworkDump(net);
 
 /* Create a PSO trainer */
     pso = EncogTrainPSONew(30, net, data);

@@ -76,20 +76,17 @@ typedef void(*ENCOG_TASK)(void*);
 
 struct ENCOG_TRAIN_PSO;
 
-typedef struct NETWORK_BLOCK
+typedef struct NETWORK_LAYER
 {
-    struct NETWORK_BLOCK *next;
+    struct NETWORK_LAYER *next;
     INT feedCount;
     INT totalCount;
     ACTIVATION_FUNCTION af;
     unsigned char bias;
-} NETWORK_BLOCK;
+} NETWORK_LAYER;
 
 typedef struct
 {
-
-    NETWORK_BLOCK *firstBlock;
-
     INT layerCount;
     INT neuronCount;
     INT weightCount;
@@ -165,6 +162,7 @@ typedef struct
 	INT *contextTargetSize;
 	INT endTraining;
 	INT hasContext;
+	INT totalNetworkSize;
 
 } ENCOG_NEURAL_NETWORK;
 
@@ -258,8 +256,8 @@ void EncogActivationTANH(REAL *d,int count);
 
 ENCOG_NEURAL_NETWORK *EncogNetworkNew();
 void EncogNetworkDelete(ENCOG_NEURAL_NETWORK *network);
-void EncogNetworkFinalizeStructure(ENCOG_NEURAL_NETWORK *network);
-void EncogNetworkAddLayer(ENCOG_NEURAL_NETWORK *net, int count, ACTIVATION_FUNCTION af, unsigned char bias);
+ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, int freeLayers);
+NETWORK_LAYER *EncogNetworkCreateLayer(NETWORK_LAYER *prevLayer, int count, ACTIVATION_FUNCTION af, unsigned char bias);
 void EncogNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *output);
 void EncogNetworkRandomizeRange(ENCOG_NEURAL_NETWORK *net,REAL low, REAL high);
 void EncogNetworkImportWeights(ENCOG_NEURAL_NETWORK *net, REAL *weights);
@@ -270,6 +268,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net);
 ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name);
 void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network);
 ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int defaultInputCount, int defaultOutputCount);
+void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net);
 
 void EncogUtilInitRandom();
 REAL EncogUtilRandomRange(REAL low, REAL high);

@@ -269,6 +269,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name);
 void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network);
 ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int defaultInputCount, int defaultOutputCount);
 void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net);
+INT EncogNetworkDetermineSize(INT layerCount, INT neuronCount, INT weightCount);
 
 void EncogUtilInitRandom();
 REAL EncogUtilRandomRange(REAL low, REAL high);

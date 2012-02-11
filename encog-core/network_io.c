@@ -2,7 +2,28 @@
 
 typedef struct {
 	char *line;
-	ENCOG_NEURAL_NETWORK *result;
+	INT layerCount;
+    INT neuronCount;
+    INT weightCount;
+    INT inputCount;
+    INT *layerCounts;
+    INT *layerContextCount;
+    INT *layerFeedCounts;
+    INT *layerIndex;
+    REAL *layerOutput;
+    INT outputCount;
+    INT *weightIndex;
+    REAL *weights;
+    ACTIVATION_FUNCTION *activationFunctions;
+    REAL *biasActivation;
+	INT beginTraining;
+	REAL connectionLimit;
+	INT *contextTargetOffset;
+	INT *contextTargetSize;
+	INT endTraining;
+	INT hasContext;
+	INT totalNetworkSize;
+
 	FILE *fp;
 } _PARSED_NETWORK;
 
@@ -119,73 +140,73 @@ static void _LoadBasic(_PARSED_NETWORK *parse)
 
 	if(!strcmp(name,"beginTraining") )
 	{
-		parse->result->beginTraining = atoi(value);
+		parse->beginTraining = atoi(value);
 	}
 	else if(!strcmp(name,"connectionLimit") )
 	{
-		parse->result->connectionLimit = atof(value);
+		parse->connectionLimit = atof(value);
 	}
 	else if(!strcmp(name,"contextTargetOffset") )
 	{
-		parse->result->contextTargetOffset = EncogStrParseIntList(value);
+		parse->contextTargetOffset = EncogStrParseIntList(value);
 	}
 	else if(!strcmp(name,"contextTargetSize") )
 	{
-		parse->result->contextTargetSize = EncogStrParseIntList(value);
+		parse->contextTargetSize = EncogStrParseIntList(value);
 	}
 	else if(!strcmp(name,"endTraining") )
 	{
-		parse->result->endTraining = atoi(value);
+		parse->endTraining = atoi(value);
 	}
 	else if(!strcmp(name,"hasContext") )
 	{
-		parse->result->hasContext = EncogStrParseBoolean(value);
+		parse->hasContext = EncogStrParseBoolean(value);
 	}
 	else if(!strcmp(name,"inputCount") )
 	{
-		parse->result->inputCount = atoi(value);
+		parse->inputCount = atoi(value);
 	}
 	else if(!strcmp(name,"layerCounts") )
 	{
-		parse->result->layerCount = EncogStrCountValues(value);
-		parse->result->layerCounts = EncogStrParseIntList(value);
-		parse->result->activationFunctions = (ACTIVATION_FUNCTION*)EncogUtilAlloc(parse->result->layerCount,sizeof(ACTIVATION_FUNCTION));
+		parse->layerCount = EncogStrCountValues(value);
+		parse->layerCounts = EncogStrParseIntList(value);
+		parse->activationFunctions = (ACTIVATION_FUNCTION*)EncogUtilAlloc(parse->layerCount,sizeof(ACTIVATION_FUNCTION));
 	}
 	else if(!strcmp(name,"layerFeedCounts") )
 	{
-		parse->result->layerFeedCounts = EncogStrParseIntList(value);
+		parse->layerFeedCounts = EncogStrParseIntList(value);
 	}
 	else if(!strcmp(name,"layerContextCount") )
 	{
-		parse->result->layerContextCount = EncogStrParseIntList(value);
+		parse->layerContextCount = EncogStrParseIntList(value);
 	}
 	else if(!strcmp(name,"layerIndex") )
 	{
-		parse->result->layerIndex = EncogStrParseIntList(value);
+		parse->layerIndex = EncogStrParseIntList(value);
 	}
 	else if(!strcmp(name,"output") )
 	{
-		parse->result->layerOutput = _ParseLargeDoubleList(parse,value,&parse->result->neuronCount);
+		parse->layerOutput = _ParseLargeDoubleList(parse,value,&parse->neuronCount);
 	}
 	else if(!strcmp(name,"outputCount") )
 	{
-		parse->result->outputCount = atoi(value);
+		parse->outputCount = atoi(value);
 	}
 	else if(!strcmp(name,"weightIndex") )
 	{
-		parse->result->weightIndex = EncogStrParseIntList(value);
+		parse->weightIndex = EncogStrParseIntList(value);
 	}
 	else if(!strcmp(name,"weights") )
 	{
-		parse->result->weights = _ParseLargeDoubleList(parse,value,&parse->result->weightCount);
+		parse->weights = _ParseLargeDoubleList(parse,value,&parse->weightCount);
 	}
 	else if(!strcmp(name,"biasActivation") )
 	{
-		parse->result->biasActivation = EncogStrParseDoubleList(value);
+		parse->biasActivation = EncogStrParseDoubleList(value);
 	}	
 }
 
-static void _LoadActivation(char *line, ENCOG_NEURAL_NETWORK *network, int currentActivation)
+static void _LoadActivation(char *line, _PARSED_NETWORK *network, int currentActivation)
 {
 	EncogStrStripQuotes(line);
 	if( !strcmp(line,"ActivationLinear") )
@@ -207,6 +228,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 {
 	int mode, currentActivation;
 	_PARSED_NETWORK parse;
+	ENCOG_NEURAL_NETWORK *result;
 
 	parse.fp = fopen(name,"r");
 
@@ -216,7 +238,6 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 	}
 
 	parse.line = (char*)EncogUtilAlloc(SIZE_MEGABYTE,sizeof(char));
-	parse.result = (ENCOG_NEURAL_NETWORK *)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
 	mode = 0;
 	currentActivation = 0;
 
@@ -240,7 +261,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 					_LoadBasic(&parse);
 					break;
 				case 2:
-					_LoadActivation(parse.line,parse.result,currentActivation++);
+					_LoadActivation(parse.line,&parse,currentActivation++);
 					break;
 			}
 		}		
@@ -249,8 +270,51 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 	fclose(parse.fp);
 	EncogUtilFree(parse.line);
 
-	parse.result->layerSums = (REAL*)EncogUtilAlloc(parse.result->neuronCount,sizeof(REAL));
-	return parse.result;
+	// calculate total network size
+	parse.totalNetworkSize = EncogNetworkDetermineSize(parse.layerCount,parse.neuronCount,parse.weightCount);
+
+	// now actually build the neural network from the parsed structure
+	result = (ENCOG_NEURAL_NETWORK*)EncogUtilAlloc(1,parse.totalNetworkSize);
+	result->beginTraining = parse.beginTraining;
+	result->connectionLimit = parse.connectionLimit;
+	result->endTraining = parse.endTraining;
+	result->hasContext = parse.hasContext;
+	result->inputCount = parse.inputCount;
+	result->layerCount = parse.layerCount;
+	result->neuronCount = parse.neuronCount;
+	result->outputCount = parse.outputCount;
+	result->totalNetworkSize = parse.totalNetworkSize;
+	result->weightCount = parse.weightCount;
+	EncogNetworkLink(result);
+	
+	// copy array values loaded
+	memcpy(result->activationFunctions,parse.activationFunctions,parse.layerCount*sizeof(ACTIVATION_FUNCTION));
+	memcpy(result->biasActivation,parse.biasActivation,parse.layerCount*sizeof(REAL));
+	memcpy(result->contextTargetOffset,parse.contextTargetOffset,parse.layerCount*sizeof(INT));
+	memcpy(result->contextTargetSize,parse.contextTargetSize,parse.layerCount*sizeof(INT));
+	memcpy(result->layerContextCount,parse.layerContextCount,parse.layerCount*sizeof(INT));
+	memcpy(result->layerCounts,parse.layerCounts,parse.layerCount*sizeof(INT));
+	memcpy(result->layerFeedCounts,parse.layerFeedCounts,parse.layerCount*sizeof(INT));
+	memcpy(result->layerIndex,parse.layerIndex,parse.layerCount*sizeof(INT));
+	memcpy(result->layerOutput,parse.layerOutput,parse.neuronCount*sizeof(REAL));
+	result->layerSums = (REAL*)EncogUtilAlloc(parse.neuronCount,sizeof(REAL));
+	memcpy(result->weightIndex,parse.weightIndex,parse.layerCount*sizeof(INT));
+	memcpy(result->weights,parse.weights,parse.weightCount*sizeof(REAL));
+
+	// clean up the parsed structure and de-alloc
+	EncogUtilFree(parse.activationFunctions);
+	EncogUtilFree(parse.biasActivation);
+	EncogUtilFree(parse.contextTargetOffset);
+	EncogUtilFree(parse.contextTargetSize);
+	EncogUtilFree(parse.layerContextCount);
+	EncogUtilFree(parse.layerCounts);
+	EncogUtilFree(parse.layerFeedCounts);
+	EncogUtilFree(parse.layerIndex);
+	EncogUtilFree(parse.layerOutput);
+	EncogUtilFree(parse.weightIndex);
+	EncogUtilFree(parse.weights);
+
+	return result;
 }
 
 void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network)

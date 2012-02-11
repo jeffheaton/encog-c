@@ -127,21 +127,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
 	}
 
 	/* calculate how big the network is */
-	sizeofNetwork = sizeof(ENCOG_NEURAL_NETWORK);
-
-	sizeofNetwork+=layerCount*sizeof(INT); // net->layerCounts
-	sizeofNetwork+=layerCount*sizeof(REAL); // net->biasActivation
-	sizeofNetwork+=layerCount*sizeof(ACTIVATION_FUNCTION); // net->activationFunctions
-	sizeofNetwork+=layerCount*sizeof(INT); // net->layerContextCount 
-	sizeofNetwork+=layerCount*sizeof(INT); // net->weightIndex
-	sizeofNetwork+=layerCount*sizeof(INT); // net->layerIndex
-	sizeofNetwork+=layerCount*sizeof(INT); // net->layerFeedCounts
-	sizeofNetwork+=layerCount*sizeof(REAL); // net->biasActivation
-	sizeofNetwork+=layerCount*sizeof(INT); // net->contextTargetOffset
-	sizeofNetwork+=layerCount*sizeof(INT); // net->contextTargetSize
-	sizeofNetwork+=weightCount*sizeof(REAL); // net->weights
-    sizeofNetwork+=neuronCount*sizeof(REAL); // net->layerOutput
-    sizeofNetwork+=neuronCount*sizeof(REAL); // net->layerSums
+	sizeofNetwork = EncogNetworkDetermineSize(layerCount,neuronCount,weightCount);
 
     /* Create the network and lineup internal pointers */
     index = 0;
@@ -196,9 +182,31 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
 	return result;
 }
 
+INT EncogNetworkDetermineSize(INT layerCount, INT neuronCount, INT weightCount) {
+	INT sizeofNetwork;
+
+	sizeofNetwork = sizeof(ENCOG_NEURAL_NETWORK);
+
+	sizeofNetwork+=layerCount*sizeof(INT); // net->layerCounts
+	sizeofNetwork+=layerCount*sizeof(REAL); // net->biasActivation
+	sizeofNetwork+=layerCount*sizeof(ACTIVATION_FUNCTION); // net->activationFunctions
+	sizeofNetwork+=layerCount*sizeof(INT); // net->layerContextCount 
+	sizeofNetwork+=layerCount*sizeof(INT); // net->weightIndex
+	sizeofNetwork+=layerCount*sizeof(INT); // net->layerIndex
+	sizeofNetwork+=layerCount*sizeof(INT); // net->layerFeedCounts
+	sizeofNetwork+=layerCount*sizeof(REAL); // net->biasActivation
+	sizeofNetwork+=layerCount*sizeof(INT); // net->contextTargetOffset
+	sizeofNetwork+=layerCount*sizeof(INT); // net->contextTargetSize
+	sizeofNetwork+=weightCount*sizeof(REAL); // net->weights
+    sizeofNetwork+=neuronCount*sizeof(REAL); // net->layerOutput
+    sizeofNetwork+=neuronCount*sizeof(REAL); // net->layerSums
+	return sizeofNetwork;
+}
+
 void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net)
 {
 	unsigned char *ptr;
+	INT i;
 
 	ptr = ((unsigned char*)net)+sizeof(ENCOG_NEURAL_NETWORK);
     net->layerCounts = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
@@ -214,6 +222,8 @@ void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net)
 	net->weights = (REAL*)ptr; ptr+=net->weightCount*sizeof(REAL);
     net->layerOutput = (REAL*)ptr; ptr+=net->neuronCount*sizeof(REAL);
     net->layerSums = (REAL*)ptr; ptr+=net->neuronCount*sizeof(REAL);
+	i=(ptr-((unsigned char*)net));
+	assert( (ptr-((unsigned char*)net)) == net->totalNetworkSize);
 }
 
 void EncogNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *output)

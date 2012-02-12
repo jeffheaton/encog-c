@@ -116,9 +116,9 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     pso->c1 = 2.0;
     pso->c2 = 2.0;
     pso->populationSize = populationSize;
-    pso->inertiaWeight = 0.4;
-    pso->maxPosition = -1;
-    pso->maxVelocity = 2;
+    pso->inertiaWeight = (REAL)0.4;
+    pso->maxPosition = (REAL)-1;
+    pso->maxVelocity = (REAL)2;
     pso->pseudoAsynchronousUpdate = 0;
     pso->bestParticle = -1;
     pso->dimensions = model->weightCount;

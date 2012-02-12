@@ -128,11 +128,11 @@ int EncogStrCountValues(char *line)
 INT *EncogStrParseIntList(char *line)
 {
 	int size, index, i;
-	int *result;
+	INT *result;
 	char arg[MAX_STR];
 
 	size = EncogStrCountValues(line);	
-	result = (int*)malloc(size*sizeof(int));
+	result = (INT*)malloc(size*sizeof(INT));
 
 	index = 0;
 	for(i = 0; i<size; i++ )
@@ -148,20 +148,20 @@ int EncogStrParseBoolean(char *line)
 	return( toupper(*line)=='T' );
 }
 
-double *EncogStrParseDoubleList(char *line)
+REAL *EncogStrParseDoubleList(char *line)
 {
 	int size, index, i;
-	double *result;
+	REAL *result;
 	char arg[MAX_STR];
 
 	size = EncogStrCountValues(line);		
-	result = (double*)malloc(size*sizeof(double));
+	result = (REAL*)malloc(size*sizeof(REAL));
 
 	index = 0;
 	for(i = 0; i<size; i++ )
 	{
 		index = EncogStrPopLine(line, arg, index, sizeof(arg));
-		result[i] = atof(arg);
+		result[i] = (REAL)atof(arg);
 	}
 	return result;
 }

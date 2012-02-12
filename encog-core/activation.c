@@ -33,7 +33,7 @@ void EncogActivationSigmoid(REAL *d,int count)
 
     for(i=0; i<count; i++)
     {
-        *d = 1.0 / (1.0 + exp(-1.0 * *d));
+        *d = (REAL)1.0 / ((REAL)1.0 + (REAL)exp((REAL)-1.0 * *d));
         d++;
     }
 }
@@ -43,7 +43,7 @@ void EncogActivationTANH(REAL *d,int count)
     int i;
     for(i=0; i<count; i++)
     {
-        *d = tanh(*d);
+        *d = (REAL)tanh(*d);
         d++;
     }
 }

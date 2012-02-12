@@ -33,12 +33,12 @@ typedef struct _ARRAY_SEGMENT {
 	struct _ARRAY_SEGMENT *next;
 } _ARRAY_SEGMENT;
 
-static double *_ParseLargeDoubleList(_PARSED_NETWORK *parse,char *firstline, INT *size)
+static REAL *_ParseLargeDoubleList(_PARSED_NETWORK *parse,char *firstline, INT *size)
 {
-	int index, i, len;
-	double *result;
+	INT index, i, len;
+	REAL *result;
 	char arg[MAX_STR],*ptr;
-	double *dptr;
+	REAL *dptr;
 
 	if( firstline[0]=='#' && firstline[1]=='#' ) {
 		fgets(parse->line,SIZE_MEGABYTE,parse->fp);
@@ -50,7 +50,7 @@ static double *_ParseLargeDoubleList(_PARSED_NETWORK *parse,char *firstline, INT
 		*size = atoi(ptr);
 
 		/* allocate enough space */
-		result = (double*)malloc((*size)*sizeof(double));
+		result = (REAL*)malloc((*size)*sizeof(double));
 		dptr = result;
 		len = 0;
 
@@ -67,7 +67,7 @@ static double *_ParseLargeDoubleList(_PARSED_NETWORK *parse,char *firstline, INT
 			do {
 				index = EncogStrPopLine(parse->line, arg, index, sizeof(arg));
 				if( *arg || parse->line[index] ) {
-					*(dptr++) = atof(arg);
+					*(dptr++) = (REAL)atof(arg);
 					len++;
 				}
 			} while(parse->line[index] && len<*size);
@@ -75,13 +75,13 @@ static double *_ParseLargeDoubleList(_PARSED_NETWORK *parse,char *firstline, INT
 		
 	} else {
 	*size = EncogStrCountValues(firstline);		
-	result = (double*)malloc((*size)*sizeof(double));
+	result = (REAL*)malloc((*size)*sizeof(double));
 
 	index = 0;
 	for(i = 0; i<(*size); i++ )
 	{
 		index = EncogStrPopLine(firstline, arg, index, sizeof(arg));
-		result[i] = atof(arg);
+		result[i] = (REAL)atof(arg);
 	}
 	}
 	return result;
@@ -144,7 +144,7 @@ static void _LoadBasic(_PARSED_NETWORK *parse)
 	}
 	else if(!strcmp(name,"connectionLimit") )
 	{
-		parse->connectionLimit = atof(value);
+		parse->connectionLimit = (REAL)atof(value);
 	}
 	else if(!strcmp(name,"contextTargetOffset") )
 	{

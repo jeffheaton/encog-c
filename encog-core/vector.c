@@ -79,7 +79,7 @@ void EncogVectorNeg(REAL* v, int length)
  * @param v     an array of doubles.
  * @param k     a scalar.
  */
-void EncogVectorMulRand(REAL* v, double k, int length)
+void EncogVectorMulRand(REAL* v, REAL k, int length)
 {
     int i;
     for (i = 0; i < length; i++)
@@ -97,7 +97,7 @@ void EncogVectorMulRand(REAL* v, double k, int length)
  * @param v     an array of doubles.
  * @param k     a scalar.
  */
-void EncogVectorMul(REAL* v, double k, int length)
+void EncogVectorMul(REAL* v, REAL k, int length)
 {
     int i;
     for (i = 0; i < length; i++)
@@ -143,7 +143,7 @@ void EncogVectorRandomise(REAL* v, REAL maxValue, int length)
      */
 void EncogVectorRandomiseDefault(REAL* v, int length)
 {
-    EncogVectorRandomise(v, 0.1, length);
+    EncogVectorRandomise(v, (REAL)0.1, length);
 }
 
 
@@ -154,7 +154,7 @@ void EncogVectorRandomiseDefault(REAL* v, int length)
  * @param v         an array of doubles
  * @param maxValue  if -1 this function does nothing
  */
-void EncogVectorClampComponents(REAL* v, double maxValue,int length)
+void EncogVectorClampComponents(REAL* v, REAL maxValue,int length)
 {
     int i;
     if (maxValue != -1)

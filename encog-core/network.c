@@ -206,7 +206,6 @@ INT EncogNetworkDetermineSize(INT layerCount, INT neuronCount, INT weightCount) 
 void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net)
 {
 	unsigned char *ptr;
-	INT i;
 
 	ptr = ((unsigned char*)net)+sizeof(ENCOG_NEURAL_NETWORK);
     net->layerCounts = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);

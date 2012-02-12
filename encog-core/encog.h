@@ -203,7 +203,7 @@ typedef struct ENCOG_TRAIN_PSO
     // [-maxPos, maxPos]
     // A well chosen range can improve the performance.
     // -1 is a special value that represents boundless search space.
-    double maxPosition;
+    REAL maxPosition;
 
     // Maximum change one particle can take during one iteration.
     // Imposes a limit on the maximum absolute value of the velocity
@@ -214,15 +214,15 @@ typedef struct ENCOG_TRAIN_PSO
     // Usually set to a fraction of the dynamic range of the search
     // space (10% was shown to be good for high dimensional problems).
     // -1 is a special value that represents boundless velocities.
-    double maxVelocity;
+    REAL maxVelocity;
 
     // c1, cognitive learning rate >= 0
     // tendency to return to personal best position
-    double c1;
+    REAL c1;
 
     // c2, social learning rate >= 0
     // tendency to move towards the swarm best position
-    double c2;
+    REAL c2;
 
     // w, inertia weight.
     // Controls global (higher value) vs local exploration
@@ -230,7 +230,7 @@ typedef struct ENCOG_TRAIN_PSO
     // Analogous to temperature in simulated annealing.
     // Must be chosen carefully or gradually decreased over time.
     // Value usually between 0 and 1.
-    double inertiaWeight;
+    REAL inertiaWeight;
 
     // If true, the position of the previous global best position
     // can be updated *before* the other particles have been modified.
@@ -238,7 +238,7 @@ typedef struct ENCOG_TRAIN_PSO
 
     int dimensions;
 
-    double *bestVector;
+    REAL *bestVector;
     float bestError;
 
     ENCOG_DATA *data;
@@ -304,12 +304,12 @@ void EncogDataEGBSave(char *egbFile,ENCOG_DATA *data);
 void EncogVectorAdd(REAL *v1, REAL *v2, int length);
 void EncogVectorSub(REAL* v1, REAL* v2, int length);
 void EncogVectorNeg(REAL* v, int length);
-void EncogVectorMulRand(REAL* v, double k, int length);
-void EncogVectorMul(REAL* v, double k, int length);
+void EncogVectorMulRand(REAL* v, REAL k, int length);
+void EncogVectorMul(REAL* v, REAL k, int length);
 void EncogVectorCopy(REAL* dst, REAL *src, int length);
 void EncogVectorRandomise(REAL* v, REAL maxValue, int length);
 void EncogVectorRandomiseDefault(REAL* v, int length);
-void EncogVectorClampComponents(REAL* v, double maxValue,int length);
+void EncogVectorClampComponents(REAL* v, REAL maxValue,int length);
 
 float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 
@@ -333,13 +333,13 @@ void EncogStrStripCRLF(char *str);
 int EncogStrCountValues(char *line);
 INT *EncogStrParseIntList(char *line);
 int EncogStrParseBoolean(char *line);
-double *EncogStrParseDoubleList(char *line);
+REAL *EncogStrParseDoubleList(char *line);
 
 void EncogFileWriteValueInt(FILE *fp, char *name, INT value);
 void EncogFileWriteValueBoolean(FILE *fp, char *name, INT value);
 void EncogFileWriteValueIntArray(FILE *fp, char *name, INT *a, INT count);
-void EncogFileWriteValueDouble(FILE *fp, char *name, double value);
-void EncogFileWriteValueDoubleArray(FILE *fp, char *name, double *a, INT count);
+void EncogFileWriteValueDouble(FILE *fp, char *name, REAL value);
+void EncogFileWriteValueDoubleArray(FILE *fp, char *name, REAL *a, INT count);
 
 #ifdef ENCOG_CUDA
 float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);

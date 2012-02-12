@@ -297,7 +297,6 @@ void CreateNetwork(char *egFile, char *method, char *architecture, int inputCoun
 void EvaluateError(char *egFile, char *egbFile) {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
-	ENCOG_TRAIN_PSO *pso;
 	float error;
 	char line[MAX_STR];
 
@@ -387,6 +386,7 @@ int main(int argc, char* argv[])
 
 	printf("\n* * Encog C/C++(%i bit%s) Command Line v0.1 * *\n",(int)(sizeof(void*)*8),cudastr);
 	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
+	printf("Basic Data Type: %s (%i bits)\n", (sizeof(REAL)==8)?"double":"float", sizeof(REAL)*8);
 
 
 	*arg1=*arg2=*arg3=0;

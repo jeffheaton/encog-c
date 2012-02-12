@@ -70,7 +70,7 @@ void EncogDataAdd(ENCOG_DATA *data,char *str)
         ch = *ptr;
         if( ch==',' )
         {
-            d = atof(temp);
+            d = (REAL)atof(temp);
             *(data->cursor++) = d;
             *temp = 0;
         }
@@ -83,7 +83,7 @@ void EncogDataAdd(ENCOG_DATA *data,char *str)
 
     if(*temp)
     {
-        d = atof(temp);
+        d = (REAL)atof(temp);
         *(data->cursor++) = d;
     }
 }
@@ -102,7 +102,7 @@ void EncogDataAddVar(ENCOG_DATA *data, ...)
 
     for(i=0; i<total; i++)
     {
-        d = va_arg(arguments,double);
+        d = (REAL)va_arg(arguments,double);
         *(data->cursor++) = d;
     }
 
@@ -240,11 +240,11 @@ ENCOG_DATA *EncogDataEGBLoad(char *f)
 		fread(record,sizeof(double),recordSize,fp);
 		for(j=0;j<result->inputCount;j++) {
 			d = record[k++];
-			*(ptr++) = d;
+			*(ptr++) = (REAL)d;
 		}
 		for(j=0;j<result->idealCount;j++) {
 			d = record[k++];
-			*(ptr++) = d;
+			*(ptr++) = (REAL)d;
 		}
 	}
 
@@ -261,7 +261,7 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 	int records,lineCount,lineSize;
 	ENCOG_DATA *result;
 	char *ptr, *nptr;
-	double *optr;
+	REAL *optr;
 
 	lineSize = inputCount+idealCount;
 
@@ -303,7 +303,7 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 		
 		while(*ptr) {
 			if( *ptr==',' ) {
-				*(optr++) = atof(lastNumber);
+				*(optr++) = (REAL)atof(lastNumber);
 				/* too much data for the line? */
 				if( lineCount++>lineSize ) {
 					EncogDataDelete(result);
@@ -327,10 +327,10 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 			return NULL;
 		}
 
-		*(optr++) = atof(lastNumber);
+		*(optr++) = (REAL)atof(lastNumber);
 
 		/* Skip significance */
-		*(optr++) = 1.0;
+		*(optr++) = (REAL)1.0;
 	}
 
 	fclose(fp);

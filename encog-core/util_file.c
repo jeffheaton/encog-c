@@ -39,7 +39,7 @@ void EncogFileWriteValueIntArray(FILE *fp, char *name, INT *a, INT count)
 	fputs("\n",fp);
 }
 
-void EncogFileWriteValueDouble(FILE *fp, char *name, double value)
+void EncogFileWriteValueDouble(FILE *fp, char *name, REAL value)
 {
 	fputs(name,fp);
 	fputc('=',fp);
@@ -47,7 +47,7 @@ void EncogFileWriteValueDouble(FILE *fp, char *name, double value)
 	fputs("\n",fp);
 }
 
-void EncogFileWriteValueDoubleArray(FILE *fp, char *name, double *a, INT count)
+void EncogFileWriteValueDoubleArray(FILE *fp, char *name, REAL *a, INT count)
 {
 	INT i, lineCount;
 

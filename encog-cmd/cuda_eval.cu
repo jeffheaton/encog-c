@@ -125,7 +125,7 @@ __device__ void _ComputeLayer(ENCOG_NEURAL_NETWORK *net, int currentLayer,REAL *
         layerOutput[x] = sum;
     }
 
-	EncogGPUActivationSigmoid(
+	EncogGPUActivationTANH(
         layerOutput+outputIndex, outputSize);
 
     //(*net->activationFunctions[currentLayer - 1])(
@@ -204,8 +204,8 @@ extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
     // h_C contains the result in host memory
     checkCudaErrors( cudaMemcpy(errors, deviceErrors, data->recordCount * sizeof(float), cudaMemcpyDeviceToHost) );
 
-	REAL *temp = (REAL*)EncogUtilAlloc(data->recordCount * net->neuronCount ,sizeof(REAL));
-	checkCudaErrors( cudaMemcpy(temp, deviceOutput, data->recordCount * net->neuronCount * sizeof(REAL), cudaMemcpyDeviceToHost) );
+	//REAL *temp = (REAL*)EncogUtilAlloc(data->recordCount * net->neuronCount ,sizeof(REAL));
+	//checkCudaErrors( cudaMemcpy(temp, deviceOutput, data->recordCount * net->neuronCount * sizeof(REAL), cudaMemcpyDeviceToHost) );
 
     cudaFree(deviceData);
 	cudaFree(deviceNet);
@@ -219,12 +219,12 @@ extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	float sum = 0;
 	for(int i=0;i<data->recordCount;i++) {
 		
-		REAL *ptr = temp + (i*net->neuronCount);
+		/*REAL *ptr = temp + (i*net->neuronCount);
 		for(int j=0;j<net->neuronCount;j++) {
 			printf("%f ",(float)*ptr);
 			ptr++; 
-		}
-		printf("\n");
+		}*/
+		//printf("\n");
 		//printf("\n%f\n",errors[i]);
 	
 		sum+=errors[i];

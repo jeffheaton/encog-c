@@ -67,7 +67,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkNew()
     return network;
 }
 
-NETWORK_LAYER *EncogNetworkCreateLayer(NETWORK_LAYER *prevLayer, int count, ACTIVATION_FUNCTION af, unsigned char bias)
+NETWORK_LAYER *EncogNetworkCreateLayer(NETWORK_LAYER *prevLayer, int count, INT af, unsigned char bias)
 {
     NETWORK_LAYER *result;
 	
@@ -155,7 +155,8 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
         result->layerCounts[index]=current->totalCount;
         result->layerFeedCounts[index]=current->feedCount;
         result->biasActivation[index]=current->bias;
-        result->activationFunctions[index]=current->af;
+        result->activationFunctions[index]=EncogNetworkResolveAF(current->af);
+		result->activationFunctionIDs[index] = current->af;
 
         if (index == 0)
         {
@@ -190,6 +191,7 @@ INT EncogNetworkDetermineSize(INT layerCount, INT neuronCount, INT weightCount) 
 	sizeofNetwork+=layerCount*sizeof(INT); // net->layerCounts
 	sizeofNetwork+=layerCount*sizeof(REAL); // net->biasActivation
 	sizeofNetwork+=layerCount*sizeof(ACTIVATION_FUNCTION); // net->activationFunctions
+	sizeofNetwork+=layerCount*sizeof(INT); // activationFunctionIDs
 	sizeofNetwork+=layerCount*sizeof(INT); // net->layerContextCount 
 	sizeofNetwork+=layerCount*sizeof(INT); // net->weightIndex
 	sizeofNetwork+=layerCount*sizeof(INT); // net->layerIndex
@@ -211,6 +213,7 @@ void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net)
     net->layerCounts = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
     net->biasActivation = (REAL*)ptr; ptr+=net->layerCount*sizeof(REAL);
     net->activationFunctions = (ACTIVATION_FUNCTION*)ptr; ptr+=net->layerCount*sizeof(ACTIVATION_FUNCTION);
+	net->activationFunctionIDs = (INT*)ptr; ptr+=net->layerCount * sizeof(INT);
     net->layerContextCount = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
     net->weightIndex = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
     net->layerIndex = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
@@ -375,7 +378,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 	ENCOG_NEURAL_NETWORK *network;
 	int bias, phase, neuronCount;
 	char *ptrBegin, *ptrEnd, *ptrMid;
-	ACTIVATION_FUNCTION activation;
+	INT activation;
 	NETWORK_LAYER *currentLayer;
 
 
@@ -387,7 +390,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 	strncpy(line,architecture,MAX_STR);
 	EncogUtilStrupr(line);
 
-	activation = EncogActivationLinear;
+	activation = AF_LINEAR;
 	ptrBegin = line;
 	phase = 0;
 	currentLayer = NULL;
@@ -419,11 +422,11 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 		}
 
 		if( !strcmp(ptrBegin,"SIGMOID") ) {
-			activation = EncogActivationSigmoid;
+			activation = AF_SIGMOID;
 		} else if(!strcmp(ptrBegin,"TANH") ) {
-			activation = EncogActivationTANH;
+			activation = AF_TANH;
 		} else if(!strcmp(ptrBegin,"LINEAR") ) {
-			activation = EncogActivationLinear;
+			activation = AF_LINEAR;
 		} else {
 			if(!strcmp(ptrBegin,"?") ) {
 				if( phase==0 ) {
@@ -470,4 +473,14 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 	}
 
     return network;
+}
+
+ACTIVATION_FUNCTION EncogNetworkResolveAF(INT af) {
+	switch(af) {
+		case AF_LINEAR:return EncogActivationLinear;
+		case AF_SIGMOID:return EncogActivationSigmoid;
+		case AF_TANH:return EncogActivationTANH;
+		default:
+			return NULL;
+	}
 }

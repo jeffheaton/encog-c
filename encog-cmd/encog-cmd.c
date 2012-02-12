@@ -76,9 +76,9 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 
 	net = EncogNetworkNew();
 	EncogErrorCheck();
-    layer = EncogNetworkCreateLayer(NULL,inputCount,&EncogActivationTANH,1);
-    layer = EncogNetworkCreateLayer(layer,50,&EncogActivationTANH,1);
-    layer = EncogNetworkCreateLayer(layer,idealCount,&EncogActivationTANH,1);
+    layer = EncogNetworkCreateLayer(NULL,inputCount,AF_TANH,1);
+    layer = EncogNetworkCreateLayer(layer,50,AF_TANH,1);
+    layer = EncogNetworkCreateLayer(layer,idealCount,AF_TANH,1);
     net = EncogNetworkFinalizeStructure(layer,1);
 	EncogErrorCheck();
 

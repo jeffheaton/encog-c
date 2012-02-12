@@ -38,6 +38,10 @@ extern "C" {
 #include <omp.h>
 #include <assert.h>
 
+#define AF_LINEAR	0
+#define AF_SIGMOID	1
+#define AF_TANH		2
+
 #define ENCOG_ERROR_OK				0
 #define ENCOG_ERROR_FILE_NOT_FOUND	1
 #define ENCOG_ERROR_IO				2
@@ -81,7 +85,7 @@ typedef struct NETWORK_LAYER
     struct NETWORK_LAYER *next;
     INT feedCount;
     INT totalCount;
-    ACTIVATION_FUNCTION af;
+    INT af;
     unsigned char bias;
 } NETWORK_LAYER;
 
@@ -150,6 +154,7 @@ typedef struct
      * The activation types.
      */
     ACTIVATION_FUNCTION *activationFunctions;
+	INT *activationFunctionIDs;
 
     /**
      * The bias activation for each layer. This is usually either 1, for a bias,
@@ -258,7 +263,7 @@ void EncogActivationTANH(REAL *d,int count);
 ENCOG_NEURAL_NETWORK *EncogNetworkNew();
 void EncogNetworkDelete(ENCOG_NEURAL_NETWORK *network);
 ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, int freeLayers);
-NETWORK_LAYER *EncogNetworkCreateLayer(NETWORK_LAYER *prevLayer, int count, ACTIVATION_FUNCTION af, unsigned char bias);
+NETWORK_LAYER *EncogNetworkCreateLayer(NETWORK_LAYER *prevLayer, int count, INT af, unsigned char bias);
 void EncogNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *output);
 void EncogNetworkRandomizeRange(ENCOG_NEURAL_NETWORK *net,REAL low, REAL high);
 void EncogNetworkImportWeights(ENCOG_NEURAL_NETWORK *net, REAL *weights);
@@ -271,6 +276,7 @@ void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network);
 ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int defaultInputCount, int defaultOutputCount);
 void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net);
 INT EncogNetworkDetermineSize(INT layerCount, INT neuronCount, INT weightCount);
+ACTIVATION_FUNCTION EncogNetworkResolveAF(INT af);
 
 void EncogUtilInitRandom();
 REAL EncogUtilRandomRange(REAL low, REAL high);

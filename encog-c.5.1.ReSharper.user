@@ -21,14 +21,11 @@
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.h" caret="0" fromTop="0" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="7867" fromTop="13" />
       <File id="d:Miscellaneous Files/f:memcpy.asm/l:C!?Program Files (x86)?Microsoft Visual Studio 10.0?VC?crt?src?intel?memcpy.asm" caret="5617" fromTop="11" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="4350" fromTop="4" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="5135" fromTop="0" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="7344" fromTop="11" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="7338" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="7378" fromTop="13" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="5195" fromTop="12" />
     </RecentFiles>
     <RecentEdits>
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3520" fromTop="20" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3877" fromTop="16" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3988" fromTop="20" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="4094" fromTop="10" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="4317" fromTop="18" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="4402" fromTop="9" />
@@ -56,6 +53,9 @@
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="8311" fromTop="16" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="7501" fromTop="11" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="7344" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="9819" fromTop="10" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="7249" fromTop="6" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="5195" fromTop="12" />
     </RecentEdits>
   </RecentFiles>
   <NAntValidationSettings>

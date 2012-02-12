@@ -277,6 +277,7 @@ void CreateNetwork(char *egFile, char *method, char *architecture, int inputCoun
 
 	if( *egFile==0 || *method==0 || *architecture==0 ) {
 		printf("Must call with: create [egFile] [method] [architecture]\nNote: Because architecture includes < and > it must be includes in qutoes on most OS's.\n");
+		exit(1);
 	}
 
 	printf("Creating neural network\n");
@@ -388,7 +389,7 @@ int main(int argc, char* argv[])
 	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
 
 
-	*arg1=*arg2=0;
+	*arg1=*arg2=*arg3=0;
 
 	for(i=1;i<(INT)argc;i++) {
 		if( *argv[i]=='/' || *argv[i]=='-' )

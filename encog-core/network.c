@@ -175,7 +175,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
         current=(NETWORK_LAYER*)current->next;
     }
 
-	result->inputCount = result->layerFeedCounts[result->inputCount-1];
+	result->inputCount = result->layerFeedCounts[result->layerCount-1];
 	result->outputCount = result->layerFeedCounts[0];
 
     EncogNetworkClearContext(result);

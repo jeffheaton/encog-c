@@ -3,6 +3,8 @@
 _ReSharper*
 *.o
 *.a
+*.sdf
+*.user
 encog-core/_ReSharper*
 encog-core/Debug/
 encog-core/Release/

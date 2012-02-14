@@ -4,7 +4,7 @@ static int _currentError = ENCOG_ERROR_OK;
 static char *_errorMessages[] = 
 {
 	"Success",							/* 0 */
-	"File  not found",					/* 1 */
+	"File not found",					/* 1 */
 	"IO Error",							/* 2 */
 	"Size mismatch",					/* 3 */
 	"Invalid EG File",					/* 4 */

@@ -28,20 +28,16 @@ static const char *HEADER = "ENCOG-00";
 ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, unsigned long records)
 {
 	ENCOG_DATA *data;
-	int totalSize;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
 
-	totalSize = sizeof(ENCOG_DATA) + ((records*(inputCount+idealCount+1)) * sizeof(REAL));
-    data = (ENCOG_DATA*)EncogUtilAlloc(1,totalSize);
-	data->memorySize = totalSize;
+    data = (ENCOG_DATA*)EncogUtilAlloc(1,sizeof(ENCOG_DATA));
     data->inputCount = inputCount;
     data->idealCount = idealCount;
     data->recordCount = records;
-    data->data = (REAL*)(((char*)data)+sizeof(ENCOG_DATA));
-    data->cursor = data->data;
-	assert( (((char*)data->data)-((char*)data))==sizeof(ENCOG_DATA));
+    data->data = (REAL*)EncogUtilAlloc(records*(inputCount+idealCount+1),sizeof(REAL));
+    data->cursor = data->data;    
 	return data;
 }
 
@@ -50,6 +46,7 @@ void EncogDataDelete(ENCOG_DATA *data)
 	/* Clear out any previous errors */
 	EncogErrorClear();
 
+    EncogUtilFree(data->data);
     EncogUtilFree(data);
 }
 

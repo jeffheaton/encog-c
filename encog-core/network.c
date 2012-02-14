@@ -90,6 +90,18 @@ void EncogNetworkDelete(ENCOG_NEURAL_NETWORK *net)
 {
 	/* Clear out any previous errors */
 	EncogErrorClear();
+	
+	EncogUtilFree(net->layerCounts);
+    EncogUtilFree(net->biasActivation);
+    EncogUtilFree(net->activationFunctions);
+	EncogUtilFree(net->activationFunctionIDs);
+    EncogUtilFree(net->layerContextCount);
+    EncogUtilFree(net->weightIndex);
+    EncogUtilFree(net->layerIndex);
+    EncogUtilFree(net->layerFeedCounts);
+	EncogUtilFree(net->contextTargetOffset);
+	EncogUtilFree(net->contextTargetSize);
+
     EncogUtilFree(net);
 }
 
@@ -98,7 +110,6 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
 	ENCOG_NEURAL_NETWORK *result;
     NETWORK_LAYER *current;
     int index;
-	int sizeofNetwork;
 	int layerCount, neuronCount, weightCount;
 
 	/* Clear out any previous errors */
@@ -126,12 +137,10 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
 		current = current->next;
 	}
 
-	/* calculate how big the network is */
-	sizeofNetwork = EncogNetworkDetermineSize(layerCount,neuronCount,weightCount);
-
     /* Create the network and lineup internal pointers */
     index = 0;
-	result = (ENCOG_NEURAL_NETWORK*)EncogUtilAlloc(1,sizeofNetwork);
+	result = (ENCOG_NEURAL_NETWORK*)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
+
 
 	/* Set initial values */
 	result->beginTraining = 0;
@@ -142,10 +151,23 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
 	result->layerCount = layerCount;
 
 	result->endTraining = result->layerCount-1;
-	result->hasContext = 0;
-	result->memorySize = sizeofNetwork;
+	result->hasContext = 0;	
 
-	EncogNetworkLink(result);
+	/* allocate arrays */
+	result->layerCounts = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
+    result->biasActivation = (REAL*)EncogUtilAlloc(result->layerCount,sizeof(REAL));
+    result->activationFunctions = (ACTIVATION_FUNCTION*)EncogUtilAlloc(result->layerCount,sizeof(ACTIVATION_FUNCTION));
+	result->activationFunctionIDs = (INT*)EncogUtilAlloc(result->layerCount,sizeof(ACTIVATION_FUNCTION));
+    result->layerContextCount = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
+    result->weightIndex = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
+    result->layerIndex = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
+    result->layerFeedCounts = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
+	result->contextTargetOffset = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
+	result->contextTargetSize = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
+
+	result->weights = (REAL*)EncogUtilAlloc(weightCount,sizeof(REAL));
+    result->layerOutput = (REAL*)EncogUtilAlloc(neuronCount,sizeof(REAL));
+    result->layerSums = (REAL*)EncogUtilAlloc(neuronCount,sizeof(REAL));
 
 	/* now set all of the values from the layers */
     current = firstLayer;
@@ -183,49 +205,6 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
 	return result;
 }
 
-INT EncogNetworkDetermineSize(INT layerCount, INT neuronCount, INT weightCount) {
-	INT sizeofNetwork;
-
-	sizeofNetwork = sizeof(ENCOG_NEURAL_NETWORK);
-
-	sizeofNetwork+=layerCount*sizeof(INT); // net->layerCounts
-	sizeofNetwork+=layerCount*sizeof(REAL); // net->biasActivation
-	sizeofNetwork+=layerCount*sizeof(ACTIVATION_FUNCTION); // net->activationFunctions
-	sizeofNetwork+=layerCount*sizeof(INT); // activationFunctionIDs
-	sizeofNetwork+=layerCount*sizeof(INT); // net->layerContextCount 
-	sizeofNetwork+=layerCount*sizeof(INT); // net->weightIndex
-	sizeofNetwork+=layerCount*sizeof(INT); // net->layerIndex
-	sizeofNetwork+=layerCount*sizeof(INT); // net->layerFeedCounts
-	sizeofNetwork+=layerCount*sizeof(REAL); // net->biasActivation
-	sizeofNetwork+=layerCount*sizeof(INT); // net->contextTargetOffset
-	sizeofNetwork+=layerCount*sizeof(INT); // net->contextTargetSize
-	sizeofNetwork+=weightCount*sizeof(REAL); // net->weights
-    sizeofNetwork+=neuronCount*sizeof(REAL); // net->layerOutput
-    sizeofNetwork+=neuronCount*sizeof(REAL); // net->layerSums
-	return sizeofNetwork;
-}
-
-void EncogNetworkLink(ENCOG_NEURAL_NETWORK *net)
-{
-	unsigned char *ptr;
-
-	ptr = ((unsigned char*)net)+sizeof(ENCOG_NEURAL_NETWORK);
-    net->layerCounts = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
-    net->biasActivation = (REAL*)ptr; ptr+=net->layerCount*sizeof(REAL);
-    net->activationFunctions = (ACTIVATION_FUNCTION*)ptr; ptr+=net->layerCount*sizeof(ACTIVATION_FUNCTION);
-	net->activationFunctionIDs = (INT*)ptr; ptr+=net->layerCount * sizeof(INT);
-    net->layerContextCount = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
-    net->weightIndex = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
-    net->layerIndex = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
-    net->layerFeedCounts = (INT*)ptr;ptr+=net->layerCount*sizeof(INT);
-    net->biasActivation = (REAL*)ptr;ptr+=net->layerCount*sizeof(REAL);
-	net->contextTargetOffset = (INT*)ptr;ptr+=net->layerCount*sizeof(INT);
-	net->contextTargetSize = (INT*)ptr;ptr+=net->layerCount*sizeof(INT);
-	net->weights = (REAL*)ptr; ptr+=net->weightCount*sizeof(REAL);
-    net->layerOutput = (REAL*)ptr; ptr+=net->neuronCount*sizeof(REAL);
-    net->layerSums = (REAL*)ptr; ptr+=net->neuronCount*sizeof(REAL);
-	assert( (ptr-((unsigned char*)net)) == net->memorySize);
-}
 
 void EncogNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *output)
 {
@@ -361,14 +340,32 @@ void EncogNetworkDump(ENCOG_NEURAL_NETWORK *net)
 
 ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net)
 {
-    ENCOG_NEURAL_NETWORK *result;
+ENCOG_NEURAL_NETWORK *result;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
 
-	result = (ENCOG_NEURAL_NETWORK *)EncogUtilDuplicateMemory(net,1,net->memorySize);
-	EncogNetworkLink(result);
+	if( net->weights == NULL ) {
+		EncogErrorSet(ENCOG_ERROR_NETWORK_NOT_FINALIZED);
+		return NULL;
+	}
+		
+	result = (ENCOG_NEURAL_NETWORK *)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
 
+    memcpy(result,net,sizeof(ENCOG_NEURAL_NETWORK));
+    result->activationFunctions = (ACTIVATION_FUNCTION*)EncogUtilDuplicateMemory(net->activationFunctions,net->layerCount,sizeof(ACTIVATION_FUNCTION));
+	result->activationFunctionIDs = (INT*)EncogUtilDuplicateMemory(net->activationFunctionIDs,net->layerCount,sizeof(INT));
+    result->layerContextCount = (INT*)EncogUtilDuplicateMemory(net->layerContextCount,net->layerCount,sizeof(INT));
+    result->biasActivation = (REAL*)EncogUtilDuplicateMemory(net->biasActivation,net->layerCount,sizeof(REAL));
+    result->layerCounts = (INT*)EncogUtilDuplicateMemory(net->layerCounts,net->layerCount,sizeof(INT));
+    result->layerFeedCounts = (INT*)EncogUtilDuplicateMemory(net->layerFeedCounts,net->layerCount,sizeof(INT));
+    result->layerIndex = (INT*)EncogUtilDuplicateMemory(net->layerIndex,net->layerCount,sizeof(INT));
+    result->layerOutput = (REAL*)EncogUtilDuplicateMemory(net->layerOutput,net->neuronCount,sizeof(REAL));
+    result->layerSums = (REAL*)EncogUtilDuplicateMemory(net->layerSums,net->neuronCount,sizeof(REAL));
+    result->weights = (REAL*)EncogUtilDuplicateMemory(net->weights,net->weightCount,sizeof(REAL));
+    result->weightIndex = (INT*)EncogUtilDuplicateMemory(net->weightIndex,net->layerCount,sizeof(INT));
+	result->contextTargetOffset = (INT*)EncogUtilDuplicateMemory(net->contextTargetOffset,net->layerCount,sizeof(INT));
+	result->contextTargetSize = (INT*)EncogUtilDuplicateMemory(net->contextTargetSize,net->layerCount,sizeof(INT));
     return result;
 }
 

@@ -1,6 +1,12 @@
 #include "encog_cuda.h"
 
 
+
+__device__ __constant__ GPU_CONST_NETWORK cnet;
+
+
+
+
 // Device code
 
 __device__ void EncogGPUActivationLinear(REAL *d,int count)
@@ -29,86 +35,59 @@ __device__ void EncogGPUActivationTANH(REAL *d,int count)
 }
 
 
-__device__ REAL *EncogGPUDataGetInput(ENCOG_DATA *data, unsigned int index)
+__device__ REAL *EncogGPUDataGetInput(REAL *data, unsigned int index)
 {
-    int i = index*(data->inputCount+data->idealCount);
-    return &data->data[i];
+    int i = index*(cnet.inputCount+cnet.outputCount);
+    return &data[i];
 }
 
-__device__ REAL *EncogGPUDataGetIdeal(ENCOG_DATA *data, unsigned int index)
+__device__ REAL *EncogGPUDataGetIdeal(REAL *data, unsigned int index)
 {
-    int i = index*(data->inputCount+data->idealCount);
-    return &data->data[i+data->inputCount];
+    int i = index*(cnet.inputCount+cnet.outputCount);
+    return &data[i+cnet.inputCount];
 }
 
-__global__ void EncogGPULink(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data) {
-
-	unsigned char *ptr;
-	INT i;
-
-	if( data!=NULL ) {
-		data->data = (REAL*)(((char*)data)+sizeof(ENCOG_DATA));
-	}
-
-	if( net!=NULL ) {
-		ptr = ((unsigned char*)net)+sizeof(ENCOG_NEURAL_NETWORK);
-		net->layerCounts = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
-		net->biasActivation = (REAL*)ptr; ptr+=net->layerCount*sizeof(REAL);
-		net->activationFunctions = (ACTIVATION_FUNCTION*)ptr; ptr+=net->layerCount*sizeof(ACTIVATION_FUNCTION);
-		net->layerContextCount = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
-		net->weightIndex = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
-		net->layerIndex = (INT*)ptr; ptr+=net->layerCount*sizeof(INT);
-		net->layerFeedCounts = (INT*)ptr;ptr+=net->layerCount*sizeof(INT);
-		net->biasActivation = (REAL*)ptr;ptr+=net->layerCount*sizeof(REAL);
-		net->contextTargetOffset = (INT*)ptr;ptr+=net->layerCount*sizeof(INT);
-		net->contextTargetSize = (INT*)ptr;ptr+=net->layerCount*sizeof(INT);
-		net->weights = (REAL*)ptr; ptr+=net->weightCount*sizeof(REAL);
-		net->layerOutput = (REAL*)ptr; ptr+=net->neuronCount*sizeof(REAL);
-		net->layerSums = (REAL*)ptr; ptr+=net->neuronCount*sizeof(REAL);	
-	}	
-}
-
-__device__ void EncogGPUNetworkClearContext(ENCOG_NEURAL_NETWORK *net,REAL *layerSums, REAL *layerOutput)
+__device__ void EncogGPUNetworkClearContext(GPU_DYNAMIC_NETWORK *dnet)
 {
     INT index = 0;
     INT hasBias;
     INT i;
     INT j;
 
-    for (i = 0; i < net->layerCount; i++)
+    for (i = 0; i < cnet.layerCount; i++)
     {
-        hasBias = (net->layerContextCount[i] + net->layerFeedCounts[i]) != net->layerCounts[i];
+        hasBias = (cnet.layerContextCount[i] + cnet.layerFeedCounts[i]) != cnet.layerCounts[i];
 
         // fill in regular neurons
-        for (j = 0; j < net->layerFeedCounts[i]; j++)
+        for (j = 0; j < cnet.layerFeedCounts[i]; j++)
         {
-            layerOutput[index++] = 0;
+            dnet->layerOutput[index++] = 0;
         }
 
         // fill in the bias
         if (hasBias)
         {
-            layerOutput[index++] = net->biasActivation[i];
+            dnet->layerOutput[index++] = cnet.biasActivation[i];
         }
 
         // fill in context
-        for (j = 0; j < net->layerContextCount[i]; j++)
+        for (j = 0; j < cnet.layerContextCount[i]; j++)
         {
-            layerOutput[index++] = 0;
+            dnet->layerOutput[index++] = 0;
         }
     }
 }
 
-__device__ void _ComputeLayer(ENCOG_NEURAL_NETWORK *net, int currentLayer,REAL *layerSums, REAL *layerOutput)
+__device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer)
 {
     int x;
     int y;
-    int inputIndex = net->layerIndex[currentLayer];
-    int outputIndex = net->layerIndex[currentLayer - 1];
-    int inputSize = net->layerCounts[currentLayer];
-    int outputSize = net->layerFeedCounts[currentLayer - 1];
+    int inputIndex = cnet.layerIndex[currentLayer];
+    int outputIndex = cnet.layerIndex[currentLayer - 1];
+    int inputSize = cnet.layerCounts[currentLayer];
+    int outputSize = cnet.layerFeedCounts[currentLayer - 1];
 
-    int index = net->weightIndex[currentLayer - 1];
+    int index = cnet.weightIndex[currentLayer - 1];
 
     int limitX = outputIndex + outputSize;
     int limitY = inputIndex + inputSize;
@@ -119,48 +98,51 @@ __device__ void _ComputeLayer(ENCOG_NEURAL_NETWORK *net, int currentLayer,REAL *
         REAL sum = 0;
         for (y = inputIndex; y < limitY; y++)
         {
-            sum += net->weights[index++] * layerOutput[y];
+            sum += dnet->weights[index++] * dnet->layerOutput[y];
         }
-        layerSums[x] = sum;
-        layerOutput[x] = sum;
+        dnet->layerSums[x] = sum;
+        dnet->layerOutput[x] = sum;
     }
 
-	EncogGPUActivationTANH(
-        layerOutput+outputIndex, outputSize);
+	EncogGPUActivationSigmoid(
+        dnet->layerOutput+outputIndex, outputSize);
 
     //(*net->activationFunctions[currentLayer - 1])(
     //    net->layerOutput+outputIndex, outputSize);
 }
 
-__device__ void EncogGPUNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *layerSums, REAL *layerOutput)
+__device__ void EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input)
 {
     int i;
     int sourceIndex;
 	
-	sourceIndex = net->neuronCount - net->layerCounts[net->layerCount - 1];
+	sourceIndex = cnet.neuronCount - cnet.layerCounts[cnet.layerCount - 1];
 
-    memcpy(layerOutput+sourceIndex,input,net->inputCount*sizeof(REAL));
+    memcpy(dnet->layerOutput+sourceIndex,input,cnet.inputCount*sizeof(REAL));
 
-    for (i = net->layerCount - 1; i > 0; i--)
+    for (i = cnet.layerCount - 1; i > 0; i--)
     {
-        _ComputeLayer(net,i, layerSums, layerOutput);
+        _ComputeLayer(dnet,i);
     }
 }
 
 
-__global__ void EncogGPUEval(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, REAL *globalSums, REAL *globalOutput, float *errors)
+__global__ void EncogGPUEval(REAL *data, REAL *dynamic, REAL *weights, float *errors)
 {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
+	GPU_DYNAMIC_NETWORK dnet;
 
-    if (i < data->recordCount)
+    if (i < cnet.recordCount)
 	{
-		REAL *sums = globalSums + (i*net->neuronCount);
-		REAL *output = globalOutput + (i*net->neuronCount);
+		dnet.layerOutput = dynamic + (cnet.dynamicSize*i);
+		dnet.layerSums = dnet.layerOutput + cnet.layerCount;
+		dnet.weights = weights;
         REAL *input = EncogGPUDataGetInput(data,i);
 		REAL *ideal = EncogGPUDataGetIdeal(data,i);
-		EncogGPUNetworkClearContext(net, sums, output);
-		EncogGPUNetworkCompute(net,input,sums, output);
-		REAL delta = *output - *ideal;
+		//errors = cnet.dynamicSize;
+		EncogGPUNetworkClearContext(&dnet);
+		EncogGPUNetworkCompute(&dnet,input);
+		REAL delta = *dnet.layerOutput - *ideal;
 		errors[i] = delta*delta;
 	}
 }
@@ -168,32 +150,71 @@ __global__ void EncogGPUEval(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, REAL *
 // Host code
 extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 {    
-	ENCOG_NEURAL_NETWORK *deviceNet; 
-	ENCOG_DATA *deviceData;
+	GPU_CONST_NETWORK tempConstNet; 
+	REAL *deviceData;
+	REAL *deviceDynamic;
 	float *deviceErrors;
-	REAL *deviceSums;
-	REAL *deviceOutput;
+	REAL *deviceWeights;
 	float *errors = (float*)EncogUtilAlloc(data->recordCount,sizeof(float));
 
-    // Allocate vectors in device memory
-    checkCudaErrors( cudaMalloc((void**)&deviceNet, net->memorySize) );
-    checkCudaErrors( cudaMalloc((void**)&deviceData, data->memorySize) );
-	checkCudaErrors( cudaMalloc((void**)&deviceErrors, data->recordCount * sizeof(float)) );
+	// construct the temp const network
+	tempConstNet.layerCount = net->layerCount;
+    tempConstNet.neuronCount = net->neuronCount;
+    tempConstNet.weightCount = net->weightCount;
+    tempConstNet.inputCount = net->inputCount;
+	tempConstNet.beginTraining = net->beginTraining;
+	tempConstNet.connectionLimit = net->connectionLimit;
+	tempConstNet.endTraining = net->endTraining;
+	tempConstNet.hasContext = net->hasContext;
+	tempConstNet.recordCount = data->recordCount;
+	tempConstNet.outputCount = net->outputCount;
+	tempConstNet.dynamicSize = (net->neuronCount*2); 
 
-	checkCudaErrors( cudaMalloc((void**)&deviceSums, data->recordCount * net->neuronCount * sizeof(REAL)) );
-	checkCudaErrors( cudaMalloc((void**)&deviceOutput, data->recordCount * net->neuronCount * sizeof(REAL)) );
+	for(int i=0;i<MAX_CUDA_LAYERS;i++) {
+		if( i<net->layerCount ) {
+		tempConstNet.contextTargetOffset[i] = net->contextTargetOffset[i];
+		tempConstNet.contextTargetSize[i] = net->contextTargetSize[i];
+	    tempConstNet.layerCounts[i] = net->layerCounts[i];
+		tempConstNet.layerContextCount[i] = net->layerContextCount[i];
+		tempConstNet.layerFeedCounts[i] = net->layerFeedCounts[i];
+		tempConstNet.layerIndex[i] = net->layerIndex[i];
+		tempConstNet.weightIndex[i] = net->weightIndex[i];
+		tempConstNet.activationFunctionIDs[i] = net->activationFunctionIDs[i];
+		tempConstNet.biasActivation[i] = net->biasActivation[i];
+		} else {
+				tempConstNet.contextTargetOffset[i] = 0;
+		tempConstNet.contextTargetSize[i] = 0;
+	    tempConstNet.layerCounts[i] = 0;
+		tempConstNet.layerContextCount[i] = 0;
+		tempConstNet.layerFeedCounts[i] = 0;
+		tempConstNet.layerIndex[i] = 0;
+		tempConstNet.weightIndex[i] = 0;
+		tempConstNet.activationFunctionIDs[i] = 0;
+		tempConstNet.biasActivation[i] = 0;
+		}
+	}
+
+	cudaMemcpyToSymbol("cnet", &tempConstNet, sizeof(GPU_CONST_NETWORK));
+	
+
+	int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
+	int totalDynamicSize = tempConstNet.dynamicSize * dataSize; 
+
+    // Allocate vectors in device memory
+    checkCudaErrors( cudaMalloc((void**)&deviceData, dataSize*sizeof(REAL)) );
+    checkCudaErrors( cudaMalloc((void**)&deviceDynamic, totalDynamicSize*sizeof(REAL)) );
+	checkCudaErrors( cudaMalloc((void**)&deviceErrors, data->recordCount * sizeof(float)) );
+	checkCudaErrors( cudaMalloc((void**)&deviceWeights, net->weightCount*sizeof(REAL)) );
 
     // Copy vectors from host memory to device memory
-    checkCudaErrors( cudaMemcpy(deviceNet, net, net->memorySize, cudaMemcpyHostToDevice) );   
-    checkCudaErrors( cudaMemcpy(deviceData, data, data->memorySize, cudaMemcpyHostToDevice) );
-
-	EncogGPULink<<<1,1>>>(deviceNet, deviceData);
+    checkCudaErrors( cudaMemcpy(deviceWeights, net->weights, net->weightCount * sizeof(REAL), cudaMemcpyHostToDevice) );   
+    checkCudaErrors( cudaMemcpy(deviceData, data->data, dataSize*sizeof(REAL), cudaMemcpyHostToDevice) );
 
     // Invoke kernel
     int threadsPerBlock = 256;
     int blocksPerGrid = (data->recordCount + threadsPerBlock - 1) / threadsPerBlock;
    
-	EncogGPUEval<<<blocksPerGrid, threadsPerBlock>>>(deviceNet,deviceData,deviceSums,deviceOutput,deviceErrors);
+	EncogGPUEval<<<blocksPerGrid, threadsPerBlock>>>(deviceData, deviceDynamic, deviceWeights, deviceErrors);
     
 	getLastCudaError("kernel launch failure");
 #ifdef _DEBUG
@@ -208,10 +229,9 @@ extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	//checkCudaErrors( cudaMemcpy(temp, deviceOutput, data->recordCount * net->neuronCount * sizeof(REAL), cudaMemcpyDeviceToHost) );
 
     cudaFree(deviceData);
-	cudaFree(deviceNet);
+	cudaFree(deviceDynamic);
 	cudaFree(deviceErrors);
-	cudaFree(deviceSums);
-	cudaFree(deviceOutput);
+	cudaFree(deviceWeights);
 #if (CUDA_VERSION > 4010 )        
     cudaDeviceReset();
 #endif	
@@ -229,6 +249,8 @@ extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	
 		sum+=errors[i];
 	}
+
+	//printf("Out:%f\n",*errors);
 
 	return sum/data->recordCount;   
 }

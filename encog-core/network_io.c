@@ -150,6 +150,7 @@ static void _LoadBasic(_PARSED_NETWORK *parse)
 		parse->network->layerCount = EncogStrCountValues(value);
 		parse->network->layerCounts = EncogStrParseIntList(value);
 		parse->network->activationFunctions = (ACTIVATION_FUNCTION*)EncogUtilAlloc(parse->network->layerCount,sizeof(ACTIVATION_FUNCTION));
+		parse->network->activationFunctionIDs = (INT*)EncogUtilAlloc(parse->network->layerCount,sizeof(INT));
 	}
 	else if(!strcmp(name,"layerFeedCounts") )
 	{
@@ -191,14 +192,17 @@ static void _LoadActivation(char *line, _PARSED_NETWORK *parse, int currentActiv
 	if( !strcmp(line,"ActivationLinear") )
 	{
 		parse->network->activationFunctions[currentActivation] = &EncogActivationLinear;
+		parse->network->activationFunctionIDs[currentActivation] = AF_LINEAR;
 	}
 	else if( !strcmp(line,"ActivationSigmoid") )
 	{
 		parse->network->activationFunctions[currentActivation] = &EncogActivationSigmoid;
+		parse->network->activationFunctionIDs[currentActivation] = AF_SIGMOID;
 	}
 	else if( !strcmp(line,"ActivationTANH") )
 	{
 		parse->network->activationFunctions[currentActivation] = EncogActivationTANH;
+		parse->network->activationFunctionIDs[currentActivation] = AF_TANH;
 	}
 }
 
@@ -247,7 +251,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 	}
 
 	fclose(parse.fp);
-	EncogUtilFree(parse.line);
+	EncogUtilFree(parse.line);				
 
 	parse.network->layerSums = (REAL*)EncogUtilAlloc(parse.network->neuronCount,sizeof(REAL));
 

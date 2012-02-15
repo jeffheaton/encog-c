@@ -4,6 +4,40 @@
 #include "encog.h"
 #include <cuda_runtime.h>
 
+#define MAX_CUDA_LAYERS 10
+
+typedef struct GPU_CONST_NETWORK
+{
+    INT layerCount;
+    INT neuronCount;
+    INT weightCount;
+    INT inputCount;
+    INT layerCounts[MAX_CUDA_LAYERS];
+    INT layerContextCount[MAX_CUDA_LAYERS];
+    INT layerFeedCounts[MAX_CUDA_LAYERS];
+    INT layerIndex[MAX_CUDA_LAYERS];
+    INT outputCount;
+    INT weightIndex[MAX_CUDA_LAYERS];
+	INT activationFunctionIDs[MAX_CUDA_LAYERS];
+    REAL biasActivation[MAX_CUDA_LAYERS];
+	INT beginTraining;
+	REAL connectionLimit;
+	INT contextTargetOffset[MAX_CUDA_LAYERS];
+	INT contextTargetSize[MAX_CUDA_LAYERS];
+	INT endTraining;
+	INT hasContext;
+	INT recordCount;
+	INT dynamicSize;
+} GPU_CONST_NETWORK;
+
+typedef struct GPU_DYNAMIC_NETWORK
+{
+    REAL *layerOutput;
+    REAL *layerSums;
+    REAL *weights;
+} GPU_DYNAMIC_NETWORK;
+
+
 // This will output the proper CUDA error strings in the event that a CUDA host call returns an error
 #define checkCudaErrors(err)  __checkCudaErrors (err, __FILE__, __LINE__)
 

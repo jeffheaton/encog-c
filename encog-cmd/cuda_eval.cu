@@ -135,7 +135,7 @@ __global__ void EncogGPUEval(REAL *data, REAL *dynamic, REAL *weights, float *er
     if (i < cnet.recordCount)
 	{
 		dnet.layerOutput = dynamic + (cnet.dynamicSize*i);
-		dnet.layerSums = dnet.layerOutput + cnet.layerCount;
+		dnet.layerSums = dnet.layerOutput + cnet.neuronCount;
 		dnet.weights = weights;
         REAL *input = EncogGPUDataGetInput(data,i);
 		REAL *ideal = EncogGPUDataGetIdeal(data,i);
@@ -225,32 +225,19 @@ extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
     // h_C contains the result in host memory
     checkCudaErrors( cudaMemcpy(errors, deviceErrors, data->recordCount * sizeof(float), cudaMemcpyDeviceToHost) );
 
-	//REAL *temp = (REAL*)EncogUtilAlloc(data->recordCount * net->neuronCount ,sizeof(REAL));
-	//checkCudaErrors( cudaMemcpy(temp, deviceOutput, data->recordCount * net->neuronCount * sizeof(REAL), cudaMemcpyDeviceToHost) );
-
     cudaFree(deviceData);
 	cudaFree(deviceDynamic);
 	cudaFree(deviceErrors);
 	cudaFree(deviceWeights);
+
 #if (CUDA_VERSION > 4010 )        
     cudaDeviceReset();
 #endif	
 
 	float sum = 0;
-	for(int i=0;i<data->recordCount;i++) {
-		
-		/*REAL *ptr = temp + (i*net->neuronCount);
-		for(int j=0;j<net->neuronCount;j++) {
-			printf("%f ",(float)*ptr);
-			ptr++; 
-		}*/
-		//printf("\n");
-		//printf("\n%f\n",errors[i]);
-	
+	for(int i=0;i<data->recordCount;i++) {	
 		sum+=errors[i];
 	}
-
-	//printf("Out:%f\n",*errors);
 
 	return sum/data->recordCount;   
 }

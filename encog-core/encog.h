@@ -344,7 +344,19 @@ void EncogFileWriteValueDouble(FILE *fp, char *name, REAL value);
 void EncogFileWriteValueDoubleArray(FILE *fp, char *name, REAL *a, INT count);
 
 #ifdef ENCOG_CUDA
-float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
+typedef struct GPU_DEVICE {
+	INT deviceID;
+	REAL *deviceData;
+	REAL *deviceDynamic;
+	float *deviceErrors;
+	REAL *deviceWeights;
+	float *errors;
+	INT recordCount;
+} GPU_DEVICE;
+
+GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
+void EncogGPUDeviceDelete(GPU_DEVICE *device);
+float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net);
 #endif
 
 #ifdef __cplusplus

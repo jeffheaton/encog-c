@@ -1,11 +1,6 @@
 #include "encog_cuda.h"
-
-
-
+#include "encog.h"
 __device__ __constant__ GPU_CONST_NETWORK cnet;
-
-
-
 
 // Device code
 
@@ -154,17 +149,12 @@ __global__ void EncogGPUEval(REAL *data, REAL *dynamic, REAL *weights, float *er
 	}
 }
 
-// Host code
-extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
-{    
+extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
+{
+	GPU_DEVICE *result;
 	GPU_CONST_NETWORK tempConstNet; 
-	REAL *deviceData;
-	REAL *deviceDynamic;
-	float *deviceErrors;
-	REAL *deviceWeights;
-	float *errors = (float*)EncogUtilAlloc(data->recordCount,sizeof(float));
 
-	// construct the temp const network
+		// construct the temp const network
 	tempConstNet.layerCount = net->layerCount;
     tempConstNet.neuronCount = net->neuronCount;
     tempConstNet.weightCount = net->weightCount;
@@ -202,49 +192,62 @@ extern "C" float EncogCUDAErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	}
 
 	cudaMemcpyToSymbol("cnet", &tempConstNet, sizeof(GPU_CONST_NETWORK));
-	
 
-	int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
+	result = (GPU_DEVICE*)EncogUtilAlloc(1,sizeof(GPU_DEVICE));
+
+		int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
 	int totalDynamicSize = tempConstNet.dynamicSize * dataSize; 
 
     // Allocate vectors in device memory
-    checkCudaErrors( cudaMalloc((void**)&deviceData, dataSize*sizeof(REAL)) );
-    checkCudaErrors( cudaMalloc((void**)&deviceDynamic, totalDynamicSize*sizeof(REAL)) );
-	checkCudaErrors( cudaMalloc((void**)&deviceErrors, data->recordCount * sizeof(float)) );
-	checkCudaErrors( cudaMalloc((void**)&deviceWeights, net->weightCount*sizeof(REAL)) );
+    checkCudaErrors( cudaMalloc((void**)&result->deviceData, dataSize*sizeof(REAL)) );
+    checkCudaErrors( cudaMalloc((void**)&result->deviceDynamic, totalDynamicSize*sizeof(REAL)) );
+	checkCudaErrors( cudaMalloc((void**)&result->deviceErrors, data->recordCount * sizeof(float)) );
+	checkCudaErrors( cudaMalloc((void**)&result->deviceWeights, net->weightCount*sizeof(REAL)) );
+	result->errors = (float*)EncogUtilAlloc(data->recordCount,sizeof(float));
+	result->recordCount = data->recordCount;
 
     // Copy vectors from host memory to device memory
-    checkCudaErrors( cudaMemcpy(deviceWeights, net->weights, net->weightCount * sizeof(REAL), cudaMemcpyHostToDevice) );   
-    checkCudaErrors( cudaMemcpy(deviceData, data->data, dataSize*sizeof(REAL), cudaMemcpyHostToDevice) );
+//    
+    checkCudaErrors( cudaMemcpy(result->deviceData, data->data, dataSize*sizeof(REAL), cudaMemcpyHostToDevice) );
 
-    // Invoke kernel
-    int threadsPerBlock = 256;
-    int blocksPerGrid = (data->recordCount + threadsPerBlock - 1) / threadsPerBlock;
-   
-	EncogGPUEval<<<blocksPerGrid, threadsPerBlock>>>(deviceData, deviceDynamic, deviceWeights, deviceErrors);
-    
-	getLastCudaError("kernel launch failure");
-#ifdef _DEBUG
-    checkCudaErrors( cudaDeviceSynchronize() );
-#endif
+	return result;
+}
 
-    // Copy result from device memory to host memory
-    // h_C contains the result in host memory
-    checkCudaErrors( cudaMemcpy(errors, deviceErrors, data->recordCount * sizeof(float), cudaMemcpyDeviceToHost) );
-
-    cudaFree(deviceData);
-	cudaFree(deviceDynamic);
-	cudaFree(deviceErrors);
-	cudaFree(deviceWeights);
-
-#if (CUDA_VERSION > 4010 )        
+extern "C" void EncogGPUDeviceDelete(GPU_DEVICE *device) {
+    cudaFree(device->deviceData);
+	cudaFree(device->deviceDynamic);
+	cudaFree(device->deviceErrors);
+	cudaFree(device->deviceWeights);
+	EncogUtilFree(device->errors);
+	EncogUtilFree(device);
+	#if (CUDA_VERSION > 4010 )        
     cudaDeviceReset();
 #endif	
 
+}
+
+// Host code
+extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net)
+{   
+	checkCudaErrors( cudaMemcpy(device->deviceWeights, net->weights, net->weightCount * sizeof(REAL), cudaMemcpyHostToDevice) );   
+
+    // Invoke kernel
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (device->recordCount + threadsPerBlock - 1) / threadsPerBlock;
+   
+	EncogGPUEval<<<blocksPerGrid, threadsPerBlock>>>(device->deviceData, device->deviceDynamic, device->deviceWeights, device->deviceErrors);
+    
+	getLastCudaError("kernel launch failure");
+    checkCudaErrors( cudaDeviceSynchronize() );
+
+    // Copy result from device memory to host memory
+    // h_C contains the result in host memory
+    checkCudaErrors( cudaMemcpy(device->errors, device->deviceErrors, device->recordCount * sizeof(float), cudaMemcpyDeviceToHost) );
+
 	float sum = 0;
-	for(int i=0;i<data->recordCount;i++) {	
-		sum+=errors[i];
+	for(int i=0;i<device->recordCount;i++) {	
+		sum+=device->errors[i];
 	}
 
-	return sum/data->recordCount;   
+	return sum/device->recordCount;   
 }

@@ -21,7 +21,9 @@
  * and trademarks visit:
  * http://www.heatonresearch.com/copyright
  */
+
 #include "encog.h"
+
 
 float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 {
@@ -48,6 +50,12 @@ float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 
     return (float)(sum/data->recordCount);
 #else
-	return EncogCUDAErrorSSE(net,data);
+	GPU_DEVICE *device;
+	float result;
+	
+	device = EncogGPUDeviceNew(0, net, data);
+	result = EncogCUDAErrorSSE(device, net);
+	EncogGPUDeviceDelete(device);
+	return result;
 #endif
 }

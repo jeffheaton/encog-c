@@ -280,6 +280,16 @@ int EncogUtilStrcmpi(char *s1, char *s2)
     ret = 1 ;
 
   return ret;
-
 }
 
+void EncogStrCatRuntime(char *base, time_t t,size_t len)
+{
+	INT seconds, minutes, hours;
+
+	seconds = (INT)t;
+	hours = seconds/360;
+	seconds -= hours*360;
+	minutes = seconds/60;
+	seconds -= minutes*60;
+	snprintf(base+strlen(base),len,"%02i:%02i:%02i",hours,minutes,seconds);
+}

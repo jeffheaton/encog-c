@@ -19,6 +19,7 @@ void Usage() {
 	puts("/records:## The number of ideals.");
 	puts("/iterations:## The number of ideals.");
 	puts("/threads:## The number of threads.");
+	puts("");
 }
 
 void ParseOption(char *str)
@@ -365,6 +366,7 @@ void RandomizeNetwork(char *egFile) {
 
 int main(int argc, char* argv[])
 {
+	time_t started, ended;
 	INT i;
 	INT inputCount = -1;
 	INT idealCount = -1;
@@ -378,6 +380,7 @@ int main(int argc, char* argv[])
 	char arg3[MAX_STR];
 	char *cudastr;
 	
+	time(&started);
 #ifdef ENCOG_CUDA
 	cudastr = ", CUDA";
 #else 
@@ -454,6 +457,14 @@ int main(int argc, char* argv[])
 	} else {
 		Usage();
 	}
+
+	time(&ended);
+
+	*command = 0;
+	EncogStrCatStr(command,"Encog Finished.  Run time ",sizeof(command));
+	EncogStrCatRuntime(command, ended-started, sizeof(command));
+	puts(command);
+
 
 
     return 0;

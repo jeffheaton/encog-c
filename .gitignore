@@ -1,4 +1,5 @@
 *.suo
+*.pdb
 *.sdf
 _ReSharper*
 *.o

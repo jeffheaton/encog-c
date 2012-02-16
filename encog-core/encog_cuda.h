@@ -37,16 +37,6 @@ typedef struct GPU_DYNAMIC_NETWORK
     REAL *weights;
 } GPU_DYNAMIC_NETWORK;
 
-typedef struct GPU_DEVICE {
-	INT deviceID;
-	REAL *deviceData;
-	REAL *deviceDynamic;
-	float *deviceErrors;
-	REAL *deviceWeights;
-	float *errors;
-	INT recordCount;
-} GPU_DEVICE;
-
 
 // This will output the proper CUDA error strings in the event that a CUDA host call returns an error
 #define checkCudaErrors(err)  __checkCudaErrors (err, __FILE__, __LINE__)

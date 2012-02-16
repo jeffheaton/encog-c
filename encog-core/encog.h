@@ -80,6 +80,16 @@ typedef void(*ENCOG_TASK)(void*);
 
 struct ENCOG_TRAIN_PSO;
 
+typedef struct GPU_DEVICE {
+	INT deviceID;
+	REAL *deviceData;
+	REAL *deviceDynamic;
+	float *deviceErrors;
+	REAL *deviceWeights;
+	float *errors;
+	INT recordCount;
+} GPU_DEVICE;
+
 typedef struct NETWORK_LAYER
 {
     struct NETWORK_LAYER *next;
@@ -243,6 +253,7 @@ typedef struct ENCOG_TRAIN_PSO
 
     REAL *bestVector;
     float bestError;
+	GPU_DEVICE *device;
 
     ENCOG_DATA *data;
 
@@ -345,15 +356,6 @@ void EncogFileWriteValueDouble(FILE *fp, char *name, REAL value);
 void EncogFileWriteValueDoubleArray(FILE *fp, char *name, REAL *a, INT count);
 
 #ifdef ENCOG_CUDA
-typedef struct GPU_DEVICE {
-	INT deviceID;
-	REAL *deviceData;
-	REAL *deviceDynamic;
-	float *deviceErrors;
-	REAL *deviceWeights;
-	float *errors;
-	INT recordCount;
-} GPU_DEVICE;
 
 GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 void EncogGPUDeviceDelete(GPU_DEVICE *device);

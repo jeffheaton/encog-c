@@ -23,6 +23,24 @@
  */
 #include "encog.h"
 
+
+static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *network) 
+{
+#ifdef ENCOG_CUDA
+	float result;
+	#pragma omp critical (pso_eval)
+	{
+	  result = EncogCUDAErrorSSE(pso->device, network);
+	//EncogGPUDeviceDelete(device);
+	}
+	return result;
+#else
+	return EncogErrorSSE( network, pso->data);
+#endif
+
+}
+
+
 /* Internal functions */
 /**
  * Update the personal best position of a particle.
@@ -37,7 +55,7 @@ static void _UpdatePersonalBestPosition(ENCOG_TRAIN_PSO *pso, int particleIndex)
 
     // set the network weights and biases from the vector
     particle = &pso->particles[particleIndex];
-    score = EncogErrorSSE( particle->network, pso->data);
+    score = _CalculatePSOError( pso, particle->network);
 
     // update the best vectors (g and i)
     if ( (particle->bestError == 0) || score<particle->bestError)
@@ -128,6 +146,11 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     /* construct the arrays */
 
     pso->particles = (ENCOG_PARTICLE*)EncogUtilAlloc(populationSize,sizeof(ENCOG_PARTICLE));
+
+#ifdef ENCOG_CUDA
+	pso->device = EncogGPUDeviceNew(0, model, data);
+#endif
+	
 
 	#pragma omp parallel for private(particle,clone)
     for(i=0; i<populationSize; i++)

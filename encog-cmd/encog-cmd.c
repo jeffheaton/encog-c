@@ -386,7 +386,7 @@ int main(int argc, char* argv[])
 
 	printf("\n* * Encog C/C++(%i bit%s) Command Line v0.1 * *\n",(int)(sizeof(void*)*8),cudastr);
 	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
-	printf("Basic Data Type: %s (%i bits)\n", (sizeof(REAL)==8)?"double":"float", sizeof(REAL)*8);
+	printf("Basic Data Type: %s (%i bits)\n", (sizeof(REAL)==8)?"double":"float", (int)sizeof(REAL)*8);
 
 
 	*arg1=*arg2=*arg3=0;

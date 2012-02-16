@@ -173,7 +173,6 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
     current = firstLayer;
     while(current!=NULL)
     {
-        NETWORK_LAYER *next = (NETWORK_LAYER *)current->next;
         result->layerCounts[index]=current->totalCount;
         result->layerFeedCounts[index]=current->feedCount;
         result->biasActivation[index]=current->bias;

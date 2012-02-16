@@ -104,11 +104,18 @@ __device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer)
         dnet->layerOutput[x] = sum;
     }
 
-	EncogGPUActivationSigmoid(
-        dnet->layerOutput+outputIndex, outputSize);
+	switch(cnet.activationFunctionIDs[currentLayer - 1]) {
+		case AF_LINEAR:
+			EncogGPUActivationLinear(dnet->layerOutput+outputIndex, outputSize);
+			break;
+		case AF_SIGMOID:
+			EncogGPUActivationSigmoid(dnet->layerOutput+outputIndex, outputSize);
+			break;
+		case AF_TANH:
+			EncogGPUActivationTANH(dnet->layerOutput+outputIndex, outputSize);
+			break;
+	}
 
-    //(*net->activationFunctions[currentLayer - 1])(
-    //    net->layerOutput+outputIndex, outputSize);
 }
 
 __device__ void EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input)

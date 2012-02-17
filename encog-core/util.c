@@ -291,5 +291,5 @@ void EncogStrCatRuntime(char *base, time_t t,size_t len)
 	seconds -= hours*360;
 	minutes = seconds/60;
 	seconds -= minutes*60;
-	snprintf(base+strlen(base),len,"%02i:%02i:%02i",hours,minutes,seconds);
+	sprintf(base+strlen(base),"%02i:%02i:%02i",hours,minutes,seconds);
 }

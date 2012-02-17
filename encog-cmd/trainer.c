@@ -43,5 +43,4 @@ void TrainNetwork(ENCOG_TRAIN_PSO *pso, float maxError,int updateSeconds)
 		}
         iteration++;
     } while(!done);
-
 }

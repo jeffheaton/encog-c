@@ -89,6 +89,8 @@ typedef struct GPU_DEVICE {
 	REAL *deviceWeights;
 	float *errors;
 	INT recordCount;
+	INT perfCount;
+	float perfKernelTime;
 } GPU_DEVICE;
 
 typedef struct NETWORK_LAYER
@@ -257,6 +259,10 @@ typedef struct ENCOG_TRAIN_PSO
 	GPU_DEVICE *device;
 
     ENCOG_DATA *data;
+	float cudaKernelTime;
+	INT cudaKernelCalls;
+	float cpuWorkUnitTime;
+	INT cpuWorkUnitCalls;
 
 } ENCOG_TRAIN_PSO;
 
@@ -327,11 +333,13 @@ void EncogVectorRandomiseDefault(REAL* v, int length);
 void EncogVectorClampComponents(REAL* v, REAL maxValue,int length);
 
 float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
+float EncogCPUErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 
 ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *model, ENCOG_DATA *data);
 void EncogTrainPSODelete(ENCOG_TRAIN_PSO *pso);
 float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso);
 void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net);
+void EncogTrainPSOFinish(ENCOG_TRAIN_PSO *pso);
 
 void EncogErrorClear();
 void EncogErrorSet(int e);

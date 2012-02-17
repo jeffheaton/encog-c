@@ -94,12 +94,17 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 		EncogTrainPSOIterate(pso);
 		EncogErrorCheck();
 	}
-
+	EncogTrainPSOFinish(pso);
 	endTime = time(NULL);
 	
 	elapsed = (int)(endTime - startTime);
 
+#ifdef ENCOG_CUDA
 	printf("Benchmark time(seconds): %i\n",elapsed);
+	printf("CUDA Stats: avg kernel time = %f ms, kernel calls = %i\n", pso->cudaKernelTime, pso->cudaKernelCalls);
+#endif
+	
+
 }
 
 void XORTest() {

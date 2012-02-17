@@ -27,7 +27,21 @@
 
 float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 {
-#ifndef ENCOG_CUDA
+#ifndef ENCOG_CUDA    
+    return EncogCPUErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
+#else
+	GPU_DEVICE *device;
+	float result;
+	
+	device = EncogGPUDeviceNew(0, net, data);
+	result = EncogCUDAErrorSSE(device, net);
+	EncogGPUDeviceDelete(device);
+	return result;
+#endif
+}
+
+float EncogCPUErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
+{
     INT i,j;
     REAL *input,*ideal,delta,sum;
 
@@ -49,13 +63,4 @@ float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
     }
 
     return (float)(sum/data->recordCount);
-#else
-	GPU_DEVICE *device;
-	float result;
-	
-	device = EncogGPUDeviceNew(0, net, data);
-	result = EncogCUDAErrorSSE(device, net);
-	EncogGPUDeviceDelete(device);
-	return result;
-#endif
 }

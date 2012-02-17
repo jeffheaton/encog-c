@@ -28,11 +28,15 @@ static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *netw
 {
 #ifdef ENCOG_CUDA
 	float result;
-	#pragma omp critical (pso_eval)
-	{
-	  result = EncogCUDAErrorSSE(pso->device, network);
-	//EncogGPUDeviceDelete(device);
+	//printf("Thread #%i\n",omp_get_thread_num());
+	if( omp_get_thread_num()==0 ) 
+	{		
+		result = EncogCUDAErrorSSE(pso->device, network);
 	}
+	else 
+	{
+		result = EncogCPUErrorSSE( network, pso->data);
+	}	
 	return result;
 #else
 	return EncogErrorSSE( network, pso->data);
@@ -253,4 +257,11 @@ void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net)
 
     particle = &pso->particles[pso->bestParticle];
     EncogNetworkImportWeights(net,particle->bestVector);
+}
+
+void EncogTrainPSOFinish(ENCOG_TRAIN_PSO *pso) {
+#ifdef ENCOG_CUDA
+	pso->cudaKernelTime=pso->device->perfKernelTime/pso->device->perfCount;
+	pso->cudaKernelCalls=pso->device->perfCount;
+#endif
 }

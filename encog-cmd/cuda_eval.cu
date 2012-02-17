@@ -229,25 +229,40 @@ extern "C" void EncogGPUDeviceDelete(GPU_DEVICE *device) {
 // Host code
 extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net)
 {   
+	cudaEvent_t start,stop;
+	float elapsed;
 	checkCudaErrors( cudaMemcpy(device->deviceWeights, net->weights, net->weightCount * sizeof(REAL), cudaMemcpyHostToDevice) );   
 
     // Invoke kernel
-    int threadsPerBlock = 256;
+    int threadsPerBlock = 64;
     int blocksPerGrid = (device->recordCount + threadsPerBlock - 1) / threadsPerBlock;
    
+   cudaEventCreate(&start);
+   cudaEventCreate(&stop);
+
+   checkCudaErrors( cudaEventRecord(start,0) );
 	EncogGPUEval<<<blocksPerGrid, threadsPerBlock>>>(device->deviceData, device->deviceDynamic, device->deviceWeights, device->deviceErrors);
+   checkCudaErrors( cudaEventRecord(stop,0) );
     
 	getLastCudaError("kernel launch failure");
-    checkCudaErrors( cudaDeviceSynchronize() );
+    checkCudaErrors( cudaEventSynchronize(stop) );
 
     // Copy result from device memory to host memory
     // h_C contains the result in host memory
     checkCudaErrors( cudaMemcpy(device->errors, device->deviceErrors, device->recordCount * sizeof(float), cudaMemcpyDeviceToHost) );
 
+	checkCudaErrors( cudaEventElapsedTime( &elapsed, start, stop ) );
+	
+	device->perfCount++;
+	device->perfKernelTime+=elapsed;
+	
 	float sum = 0;
 	for(int i=0;i<device->recordCount;i++) {	
 		sum+=device->errors[i];
 	}
+
+	checkCudaErrors( cudaEventDestroy( start ) );
+	checkCudaErrors( cudaEventDestroy( stop ) );
 
 	return sum/device->recordCount;   
 }

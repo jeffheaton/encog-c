@@ -1,5 +1,6 @@
 #include "encog.h"
 
+static char _arg[MAX_STR];
 static int _currentError = ENCOG_ERROR_OK;
 static char *_errorMessages[] = 
 {
@@ -26,6 +27,14 @@ void EncogErrorSet(int e) {
 	_currentError = e;
 }
 
+void EncogErrorSetArg(char *arg) {
+	strncpy(_arg,arg,sizeof(_arg));
+}
+
+char *EncogErrorArgument() {
+	return _arg;
+}
+
 int EncogErrorGet() {
 	return _currentError;
 }
@@ -33,9 +42,10 @@ int EncogErrorGet() {
 void EncogErrorCheck() {
 	if( EncogErrorGet() !=ENCOG_ERROR_OK ) {
 		printf("** Encog function failure **\n");
-		printf("Error Code: %i, Error Message: %s\n",
+		printf("Error Code: %i, Error Message: %s\n%s\n",
 			EncogErrorGet(),
-			EncogErrorMessage());
+			EncogErrorMessage(),
+			EncogErrorArgument());
 		exit(1);
 	}
 }

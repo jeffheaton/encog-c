@@ -342,10 +342,12 @@ void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net);
 void EncogTrainPSOFinish(ENCOG_TRAIN_PSO *pso);
 
 void EncogErrorClear();
-void EncogErrorSet(int e);
 int EncogErrorGet();
 void EncogErrorCheck();
 char *EncogErrorMessage();
+char *EncogErrorArgument();
+void EncogErrorSet(int e);
+void EncogErrorSetArg(char *arg);
 
 int EncogStrPopLine(char *line, char *arg, int start, int len);
 int EncogStrIsWhiteSpace(char ch);

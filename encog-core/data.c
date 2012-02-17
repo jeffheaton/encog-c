@@ -142,6 +142,7 @@ void EncogDataCSVSave(char *filename, ENCOG_DATA *data, int decimals)
 
 	if( fp==NULL ) {
 		EncogErrorSet(ENCOG_ERROR_FILE_NOT_FOUND);
+		EncogErrorSetArg(filename);
 		return;
 	}
 
@@ -211,6 +212,7 @@ ENCOG_DATA *EncogDataEGBLoad(char *f)
 
 	if( fp==NULL ) {
 		EncogErrorSet(ENCOG_ERROR_FILE_NOT_FOUND);
+		EncogErrorSetArg(f);
 		return NULL;
 	}
 
@@ -221,6 +223,7 @@ ENCOG_DATA *EncogDataEGBLoad(char *f)
 	if( memcmp(HEADER,header.ident,8) )
 	{
 		EncogErrorSet( ENCOG_ERROR_INVALID_EGB_FILE );
+		EncogErrorSetArg(f);
 		fclose(fp);
 		return NULL;
 	}
@@ -254,11 +257,13 @@ ENCOG_DATA *EncogDataEGBLoad(char *f)
 ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 {
 	FILE *fp;
-	char line [ MAX_STR ], lastNumber[MAX_STR];
+	char numBuffer[ MAX_STR ], ch;
 	int records,lineCount,lineSize;
 	ENCOG_DATA *result;
-	char *ptr, *nptr;
 	REAL *optr;
+	int lastCR;
+	int lastError;
+	int currentLine;
 
 	lineSize = inputCount+idealCount;
 
@@ -266,18 +271,26 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 	EncogErrorClear();
 
 	/* Open the file */
-	fp = fopen ( csvFile, "r" );
+	fp = fopen ( csvFile, "rb" );
 
 	if( fp==NULL ) {
 		EncogErrorSet(ENCOG_ERROR_FILE_NOT_FOUND);
+		EncogErrorSetArg(csvFile);
 		return NULL;
 	}
+
+	lastError = 0;
 	
 	/* initially count the lines (pass 1) */
 	records = 0;
-	while ( fgets ( line, sizeof line, fp ) != NULL ) 
+	lastCR = 0;
+	while ( (ch=fgetc(fp)) !=EOF ) 
 	{
-		records++;
+		if( ch==13 || (ch==10&&!lastCR) ) {
+			records++;
+		}  
+
+		lastCR = (ch==13);
 	}
 
 	/* allocate space to hold data */
@@ -290,47 +303,53 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 	fseek(fp,0,SEEK_SET);
 	optr = result->data;
 
-	while ( fgets ( line, sizeof line, fp ) != NULL ) 
+
+	lastCR = 0;
+	*numBuffer = 0;
+	lineCount = 0;
+
+	currentLine = 0;
+	while ( (ch=fgetc(fp)) !=EOF ) 
 	{
-		records++;
-		nptr  = lastNumber;
-		ptr = line;
-		*nptr = 0;
-		lineCount = 0;
+		if( ch==13 || (ch==10&&!lastCR) ) {
+			*(optr++) = (REAL)atof(numBuffer);
+			*numBuffer = 0;
+			lineCount++;
+
+			/* too much data for the line? */
+			if( ( lineCount>lineSize ) || ( lineCount<lineSize ) ) {
+				lastError = ENCOG_ERROR_SIZE_MISMATCH;
+				break;
+			}
 		
-		while(*ptr) {
-			if( *ptr==',' ) {
-				*(optr++) = (REAL)atof(lastNumber);
-				/* too much data for the line? */
-				if( lineCount++>lineSize ) {
-					EncogDataDelete(result);
-					EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);					
-					return NULL;
-				}
-				nptr = lastNumber;
-				*nptr = 0;
-			} else {
-				*(nptr++)=*ptr;
-				*nptr = 0;
+			lineCount = 0;
+			currentLine++;
+		} if( ch==',' ) {
+			/* too much data for the line? */
+			if( lineCount>=lineSize ) {
+				lastError = ENCOG_ERROR_SIZE_MISMATCH;
+				break;
 			}
 
-			ptr++;
+			*(optr++) = (REAL)atof(numBuffer);
+			*numBuffer = 0;
+			lineCount++;
+		}
+		else {
+			EncogStrCatChar(numBuffer, ch, sizeof(numBuffer));
 		}
 
-		/* too much or to little data for the line? */
-		if( ++lineCount!=lineSize ) {
-			EncogDataDelete(result);
-			EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);			
-			return NULL;
-		}
-
-		*(optr++) = (REAL)atof(lastNumber);
-
-		/* Skip significance */
-		*(optr++) = (REAL)1.0;
+		lastCR = (ch==13);
 	}
 
 	fclose(fp);
+
+	if( lastError ) {
+		EncogDataDelete(result);
+		EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);					
+		return NULL;
+	}
+
 
 	return result;
 }
@@ -349,6 +368,7 @@ void EncogDataEGBSave(char *egbFile,ENCOG_DATA *data)
 	/* Open the file */
 	if( (fp=fopen(egbFile,"wb"))==NULL ) {
 		EncogErrorSet(ENCOG_ERROR_FILE_NOT_FOUND);
+		EncogErrorSetArg(egbFile);
 		return;
 	}
 

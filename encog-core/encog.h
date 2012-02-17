@@ -305,7 +305,7 @@ void EncogStrCatDouble(char *base, double d, int decimals,size_t len);
 void EncogStrCatInt(char *base, INT i,size_t len);
 void EncogStrCatLong(char *base, long i,size_t len);
 void EncogStrCatNL(char *base, size_t len);
-void EncogStrCatRuntime(char *base, time_t t,size_t len);
+void EncogStrCatRuntime(char *base, double t,size_t len);
 char *EncogUtilStrlwr(char *string);
 char *EncogUtilStrupr(char *strint);
 int EncogUtilStrcmpi(char *s1, char *s2);

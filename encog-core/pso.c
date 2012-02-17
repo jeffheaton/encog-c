@@ -39,9 +39,19 @@ static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *netw
 	}	
 	return result;
 #else
-	return EncogErrorSSE( network, pso->data);
-#endif
+	float result;
+	double start,stop;
+	start = omp_get_wtime();
+	result = EncogErrorSSE( network, pso->data);
+	stop = omp_get_wtime();
+	#pragma omp critical 
+	{
+		pso->cpuWorkUnitTime+=(stop-start);
+		pso->cpuWorkUnitCalls++;
+	}
 
+	return result;
+#endif
 }
 
 
@@ -130,6 +140,7 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     ENCOG_PARTICLE *particle;
     ENCOG_TRAIN_PSO *pso;
     ENCOG_NEURAL_NETWORK *clone;
+    int cpuCount;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
@@ -156,12 +167,12 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
 #endif
 	
 
-	#pragma omp parallel for private(particle,clone)
+	#pragma omp parallel for private(particle,clone) 
     for(i=0; i<populationSize; i++)
     {
         particle = &pso->particles[i];
         clone  = EncogNetworkClone(model);
-		particle->index = i;
+	particle->index = i;
 		particle->pso = (struct ENCOG_TRAIN_PSO*)pso;
         particle->network = clone;
         particle->velocities = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));

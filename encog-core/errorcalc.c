@@ -28,7 +28,7 @@
 float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 {
 #ifndef ENCOG_CUDA    
-    return EncogCPUErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
+    return EncogCPUErrorSSE(net,data);
 #else
 	GPU_DEVICE *device;
 	float result;

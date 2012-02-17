@@ -47,9 +47,7 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	ENCOG_TRAIN_PSO *pso;
 	NETWORK_LAYER *layer;
 	INT i;
-	time_t startTime;
-	time_t endTime;
-	int elapsed;
+	double startTime, endTime, elapsed;
 
 	if( inputCount==-1 ) {
 		inputCount = 10;
@@ -70,6 +68,7 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	printf("\nPerforming benchmark\n");
 	printf("Input Count: %i\n",inputCount);
 	printf("Ideal Count: %i\n",idealCount);
+	printf("Particle Count: %i\n", 30);
 	printf("Records: %i\n",records);
 	printf("Iterations: %i\n",iterations);
 
@@ -88,22 +87,24 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	pso = EncogTrainPSONew(30, net, data);
 	EncogErrorCheck();
 
-	startTime = time(NULL);
+	startTime = omp_get_wtime();
 
 	for(i=0;i<iterations;i++) {
 		EncogTrainPSOIterate(pso);
 		EncogErrorCheck();
 	}
 	EncogTrainPSOFinish(pso);
-	endTime = time(NULL);
+	endTime = omp_get_wtime();
 	
-	elapsed = (int)(endTime - startTime);
+	elapsed = endTime - startTime;
+
+	printf("Benchmark time(seconds): %.4f\nBenchmark time includes only training time.\n\n",(float)elapsed);
 
 #ifdef ENCOG_CUDA
-	printf("Benchmark time(seconds): %i\n",elapsed);
-	printf("CUDA Stats: avg kernel time = %f ms, kernel calls = %i\n", pso->cudaKernelTime, pso->cudaKernelCalls);
+	printf("CUDA Stats: avg work unit time = %f ms, work unit calls = %i\n", pso->cudaKernelTime, pso->cudaKernelCalls);
 #endif
-	
+	printf("CPU Stats: avg work unit time = %f ms, work unit calls = %i\n", pso->cpuWorkUnitTime, pso->cpuWorkUnitCalls);
+
 
 }
 
@@ -371,7 +372,7 @@ void RandomizeNetwork(char *egFile) {
 
 int main(int argc, char* argv[])
 {
-	time_t started, ended;
+	double started, ended;
 	INT i;
 	INT inputCount = -1;
 	INT idealCount = -1;
@@ -385,7 +386,7 @@ int main(int argc, char* argv[])
 	char arg3[MAX_STR];
 	char *cudastr;
 	
-	time(&started);
+	started = omp_get_wtime( );
 #ifdef ENCOG_CUDA
 	cudastr = ", CUDA";
 #else 
@@ -463,7 +464,7 @@ int main(int argc, char* argv[])
 		Usage();
 	}
 
-	time(&ended);
+	ended = omp_get_wtime( );
 
 	*command = 0;
 	EncogStrCatStr(command,"Encog Finished.  Run time ",sizeof(command));

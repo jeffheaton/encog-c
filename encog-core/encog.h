@@ -63,6 +63,7 @@ extern "C" {
 /* Deal with Microsoft Visual C++ */
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )
+#define snprintf _snprintf
 #endif
 
 #define MAX_STR 200

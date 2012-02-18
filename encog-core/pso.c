@@ -26,21 +26,29 @@
 
 static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *network) 
 {
-#ifdef ENCOG_CUDA
 	float result;
-	//printf("Thread #%i\n",omp_get_thread_num());
+	double start,stop;
+
+#ifdef ENCOG_CUDA
 	if( omp_get_thread_num()==0 ) 
 	{		
 		result = EncogCUDAErrorSSE(pso->device, network);
 	}
 	else 
 	{
+		start = omp_get_wtime();
 		result = EncogCPUErrorSSE( network, pso->data);
+		stop = omp_get_wtime();
+
+		#pragma omp critical 
+		{
+			pso->cpuWorkUnitTime+=(stop-start);
+			pso->cpuWorkUnitCalls++;
+		}
+		return result;
 	}	
 	return result;
 #else
-	float result;
-	double start,stop;
 	start = omp_get_wtime();
 	result = EncogErrorSSE( network, pso->data);
 	stop = omp_get_wtime();

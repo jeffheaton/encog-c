@@ -308,22 +308,24 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 	*numBuffer = 0;
 	lineCount = 0;
 
-	currentLine = 0;
+	currentLine = 1;
 	while ( (ch=fgetc(fp)) !=EOF ) 
 	{
 		if( ch==13 || (ch==10&&!lastCR) ) {
-			*(optr++) = (REAL)atof(numBuffer);
-			*numBuffer = 0;
-			lineCount++;
+			if( lineCount ) {
+				*(optr++) = (REAL)atof(numBuffer);
+				*numBuffer = 0;
+				lineCount++;
 
-			/* too much data for the line? */
-			if( ( lineCount>lineSize ) || ( lineCount<lineSize ) ) {
-				lastError = ENCOG_ERROR_SIZE_MISMATCH;
-				break;
-			}
+				/* too much data for the line? */
+				if( ( lineCount>lineSize ) || ( lineCount<lineSize ) ) {
+					lastError = ENCOG_ERROR_SIZE_MISMATCH;
+					break;
+				}
 		
-			lineCount = 0;
-			currentLine++;
+				lineCount = 0;
+				currentLine++;
+			}
 		} if( ch==',' ) {
 			/* too much data for the line? */
 			if( lineCount>=lineSize ) {
@@ -345,8 +347,16 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 	fclose(fp);
 
 	if( lastError ) {
+		*numBuffer = 0;
+		EncogStrCatStr(numBuffer,"While processling line #",sizeof(numBuffer));
+		EncogStrCatInt(numBuffer,currentLine,sizeof(numBuffer));
+		EncogStrCatStr(numBuffer,", was expecting ",sizeof(numBuffer));
+		EncogStrCatInt(numBuffer,lineSize,sizeof(numBuffer));
+		EncogStrCatStr(numBuffer," columns.",sizeof(numBuffer));
+
 		EncogDataDelete(result);
-		EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);					
+		EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);
+		EncogErrorSetArg(numBuffer);
 		return NULL;
 	}
 

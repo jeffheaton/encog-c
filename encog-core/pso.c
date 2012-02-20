@@ -119,27 +119,6 @@ static void _UpdateGlobalBestPosition(ENCOG_TRAIN_PSO *pso)
     }
 }
 
-static void _UpdateVelocity(ENCOG_TRAIN_PSO *pso, ENCOG_PARTICLE *particle)
-{
-    EncogVectorMul(particle->velocities, pso->inertiaWeight, pso->dimensions);
-
-    // cognitive term
-    EncogVectorCopy(particle->vtemp, particle->bestVector, pso->dimensions);
-    EncogVectorSub(particle->vtemp, particle->network->weights, pso->dimensions);
-    EncogVectorMulRand(particle->vtemp, pso->c1, pso->dimensions);
-    EncogVectorAdd(particle->velocities, particle->vtemp, pso->dimensions);
-
-    // social term
-	if (particle->index != pso->bestParticle)
-    {
-        EncogVectorCopy(particle->vtemp, pso->bestVector, pso->dimensions);
-        EncogVectorSub(particle->vtemp, particle->network->weights, pso->dimensions);
-        EncogVectorMulRand(particle->vtemp, pso->c2, pso->dimensions);
-        EncogVectorAdd(particle->velocities, particle->vtemp, pso->dimensions);
-    }
-}
-
-
 /* API functions */
 
 ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *model, ENCOG_DATA *data)
@@ -228,22 +207,40 @@ static void _PSOTask(void *v)
 {
 	ENCOG_PARTICLE *particle;
 	ENCOG_TRAIN_PSO *pso;
+	INT i;
 
 	particle = (ENCOG_PARTICLE *)v;
 
-	//particle = &pso->particles[i];
 	pso = (ENCOG_TRAIN_PSO *)particle->pso;
-    _UpdateVelocity(pso,particle);
-        
-	// velocity clamping
-    EncogVectorClampComponents(particle->velocities, pso->maxVelocity,pso->dimensions);
 
-    // new position (Xt = Xt-1 + Vt)
-    EncogVectorAdd(particle->network->weights, particle->velocities,pso->dimensions);
+	for(i=0;i<pso->dimensions;i++) {
+		// update velocity
+		particle->velocities[i] *= pso->inertiaWeight;
 
-    // pin the particle against the boundary of the search space.
-    // (only for the components exceeding maxPosition)
-    EncogVectorClampComponents(particle->network->weights, pso->maxPosition,pso->dimensions);
+		// cognitive term
+		particle->velocities[i]+=(particle->bestVector[i]-particle->network->weights[i]) * pso->c1 *  ((REAL)rand()/(REAL)RAND_MAX);
+
+	    // social term
+		if (particle->index != pso->bestParticle)
+		{
+			particle->velocities[i]+=(pso->bestVector[i]-particle->network->weights[i]) * pso->c2 *  ((REAL)rand()/(REAL)RAND_MAX);
+		}
+
+		// clamp
+		if( pso->maxVelocity!=-1 ) {
+			particle->velocities[i] = MAX(particle->velocities[i],-pso->maxVelocity);
+			particle->velocities[i] = MIN(particle->velocities[i],pso->maxVelocity);
+		}
+
+
+		// update weights
+		particle->network->weights[i]+=particle->velocities[i];
+		if( pso->maxPosition!=-1 ) {
+			particle->network->weights[i] = MAX(particle->network->weights[i],-pso->maxPosition);
+			particle->network->weights[i] = MIN(particle->network->weights[i],pso->maxPosition);
+		}
+
+	}
 
 	_UpdatePersonalBestPosition(pso, particle->index);
 }

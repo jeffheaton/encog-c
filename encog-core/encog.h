@@ -91,6 +91,7 @@ typedef struct GPU_DEVICE {
 	INT recordCount;
 	INT perfCount;
 	float perfKernelTime;
+	INT blocksPerGrid;
 } GPU_DEVICE;
 
 typedef struct NETWORK_LAYER

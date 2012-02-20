@@ -2,6 +2,8 @@
 #include "encog.h"
 __device__ __constant__ GPU_CONST_NETWORK cnet;
 
+#define THREADS_PER_BLOCK 256
+
 // Device code
 
 __device__ void EncogGPUActivationLinear(REAL *d,int count)
@@ -131,29 +133,55 @@ __device__ void EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input)
 
 __global__ void EncogGPUEval(REAL *data, REAL *dynamic, REAL *weights, float *errors)
 {
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
+	__shared__ float cache[THREADS_PER_BLOCK];
+
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+	int cacheIndex = threadIdx.x;
+	float temp = 0;
+
 	GPU_DYNAMIC_NETWORK dnet;
 
-    if (i < cnet.recordCount)
-	{
-		dnet.layerOutput = dynamic + (cnet.dynamicSize*i);
+    while (tid < cnet.recordCount)
+	{	
+		dnet.layerOutput = dynamic + (cnet.dynamicSize*tid);
 		dnet.layerSums = dnet.layerOutput + cnet.neuronCount;
 		dnet.weights = weights;
-        REAL *input = EncogGPUDataGetInput(data,i);
-		REAL *ideal = EncogGPUDataGetIdeal(data,i);
+        REAL *input = EncogGPUDataGetInput(data,tid);
+		REAL *ideal = EncogGPUDataGetIdeal(data,tid);
 		//errors = cnet.dynamicSize;
 		EncogGPUNetworkClearContext(&dnet);
 		EncogGPUNetworkCompute(&dnet,input);
 		REAL delta = *dnet.layerOutput - *ideal;
-		errors[i] = delta*delta;
+
+		temp += delta*delta;
+		//errors[tid] = delta * delta;	
+		
+		tid+=blockDim.x*gridDim.x;	
+	}
+
+	cache[cacheIndex] = temp;
+
+	__syncthreads();
+
+	int i = blockDim.x/2;
+	while(i!=0) {
+		if( cacheIndex<i) {
+			cache[cacheIndex] += cache[cacheIndex+i];
+		}
+		__syncthreads();
+		i/=2;
+	}
+
+	if(cacheIndex==0) {
+		errors[blockIdx.x] = cache[0];
 	}
 }
 
 extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
-{
+{	
 	GPU_DEVICE *result;
-	GPU_CONST_NETWORK tempConstNet; 
-
+	GPU_CONST_NETWORK tempConstNet;
+	
 		// construct the temp const network
 	tempConstNet.layerCount = net->layerCount;
     tempConstNet.neuronCount = net->neuronCount;
@@ -195,13 +223,15 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
 
 	result = (GPU_DEVICE*)EncogUtilAlloc(1,sizeof(GPU_DEVICE));
 
-		int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
+	result->blocksPerGrid = MIN(32,(data->recordCount + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK);
+
+	int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
 	int totalDynamicSize = tempConstNet.dynamicSize * dataSize; 
 
     // Allocate vectors in device memory
     checkCudaErrors( cudaMalloc((void**)&result->deviceData, dataSize*sizeof(REAL)) );
     checkCudaErrors( cudaMalloc((void**)&result->deviceDynamic, totalDynamicSize*sizeof(REAL)) );
-	checkCudaErrors( cudaMalloc((void**)&result->deviceErrors, data->recordCount * sizeof(float)) );
+	checkCudaErrors( cudaMalloc((void**)&result->deviceErrors, result->blocksPerGrid * sizeof(float)) );
 	checkCudaErrors( cudaMalloc((void**)&result->deviceWeights, net->weightCount*sizeof(REAL)) );
 	result->errors = (float*)EncogUtilAlloc(data->recordCount,sizeof(float));
 	result->recordCount = data->recordCount;
@@ -232,16 +262,12 @@ extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net
 	cudaEvent_t start,stop;
 	float elapsed;
 	checkCudaErrors( cudaMemcpy(device->deviceWeights, net->weights, net->weightCount * sizeof(REAL), cudaMemcpyHostToDevice) );   
-
-    // Invoke kernel
-    int threadsPerBlock = 64;
-    int blocksPerGrid = (device->recordCount + threadsPerBlock - 1) / threadsPerBlock;
    
    cudaEventCreate(&start);
    cudaEventCreate(&stop);
 
    checkCudaErrors( cudaEventRecord(start,0) );
-	EncogGPUEval<<<blocksPerGrid, threadsPerBlock>>>(device->deviceData, device->deviceDynamic, device->deviceWeights, device->deviceErrors);
+	EncogGPUEval<<<device->blocksPerGrid, THREADS_PER_BLOCK>>>(device->deviceData, device->deviceDynamic, device->deviceWeights, device->deviceErrors);
    checkCudaErrors( cudaEventRecord(stop,0) );
     
 	getLastCudaError("kernel launch failure");
@@ -249,7 +275,7 @@ extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net
 
     // Copy result from device memory to host memory
     // h_C contains the result in host memory
-    checkCudaErrors( cudaMemcpy(device->errors, device->deviceErrors, device->recordCount * sizeof(float), cudaMemcpyDeviceToHost) );
+    checkCudaErrors( cudaMemcpy(device->errors, device->deviceErrors, device->blocksPerGrid * sizeof(float), cudaMemcpyDeviceToHost) );
 
 	checkCudaErrors( cudaEventElapsedTime( &elapsed, start, stop ) );
 	
@@ -257,7 +283,7 @@ extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net
 	device->perfKernelTime+=elapsed;
 	
 	float sum = 0;
-	for(int i=0;i<device->recordCount;i++) {	
+	for(int i=0;i<device->blocksPerGrid;i++) {	
 		sum+=device->errors[i];
 	}
 

@@ -29,26 +29,6 @@ static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *netw
 	float result;
 	double start,stop;
 
-#ifdef ENCOG_CUDA
-	if( omp_get_thread_num()==0 ) 
-	{		
-		result = EncogCUDAErrorSSE(pso->device, network);
-	}
-	else 
-	{
-		start = omp_get_wtime();
-		result = EncogCPUErrorSSE( network, pso->data);
-		stop = omp_get_wtime();
-
-		#pragma omp critical 
-		{
-			pso->cpuWorkUnitTime+=(stop-start);
-			pso->cpuWorkUnitCalls++;
-		}
-		return result;
-	}	
-	return result;
-#else
 	start = omp_get_wtime();
 	result = EncogErrorSSE( network, pso->data);
 	stop = omp_get_wtime();
@@ -59,7 +39,6 @@ static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *netw
 	}
 
 	return result;
-#endif
 }
 
 
@@ -245,7 +224,7 @@ static void _PSOTask(void *v)
 	_UpdatePersonalBestPosition(pso, particle->index);
 }
 
-float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso)
+static float _CPUIterate(ENCOG_TRAIN_PSO *pso)
 {
     int i;
     ENCOG_PARTICLE *particle;
@@ -262,6 +241,22 @@ float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso)
 
     _UpdateGlobalBestPosition(pso);
     return pso->bestError;
+}
+
+
+
+
+
+float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso)
+{
+#ifdef ENCOG_CUDA
+	if( encogContext.gpuEnabled ) {
+	} else {
+		return _CPUIterate(pso);
+	}
+#else
+    return _CPUIterate(pso);
+#endif
 }
 
 void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net)

@@ -22,6 +22,12 @@ void Usage() {
 	puts("");
 }
 
+void cudaNotCompiled() {
+	printf("CUDA is not available in this distribution od Encog\n");
+		printf("If you wish to use CUDA, please download a CUDA enabled version of Encog.\n");
+		exit(0);
+}
+
 void ParseOption(char *str)
 {
 	char *ptr;
@@ -370,6 +376,19 @@ void RandomizeNetwork(char *egFile) {
 	printf("Network randomized and saved.\n");
 }
 
+void enableGPU(char *str) {
+#ifdef ENCOG_CUDA
+	 if( !EncogUtilStrcmpi(str,"enable") ) {
+		 encogContext.gpuEnabled = 1;
+	 } else if( !EncogUtilStrcmpi(str,"disable") ) {
+		 encogContext.gpuEnabled = 0;
+	 } else {
+	 }
+#else
+	cudaNotCompiled();
+#endif
+}
+
 int main(int argc, char* argv[])
 {
 	double started, ended;
@@ -393,10 +412,10 @@ int main(int argc, char* argv[])
 	cudastr = "";
 #endif
 
-	printf("\n* * Encog C/C++(%i bit%s) Command Line v0.1 * *\n",(int)(sizeof(void*)*8),cudastr);
+	EncogInit();
+	printf("\n* * Encog C/C++(%i bit%s) Command Line v%s * *\n",(int)(sizeof(void*)*8),cudastr,encogContext.version);
 	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
 	printf("Basic Data Type: %s (%i bits)\n", (sizeof(REAL)==8)?"double":"float", (int)sizeof(REAL)*8);
-
 
 	*arg1=*arg2=*arg3=0;
 
@@ -415,6 +434,8 @@ int main(int argc, char* argv[])
 			} else if( !EncogUtilStrcmpi(parsedOption,"THREADS") ) {
 				threads = atoi(parsedArgument);
 				omp_set_num_threads(threads);
+			} else if( !EncogUtilStrcmpi(parsedOption,"GPU") ) {
+				enableGPU(parsedArgument);
 			}
 			
 		}
@@ -434,9 +455,11 @@ int main(int argc, char* argv[])
 			phase++;
 		}
 	}
-	
-	EncogUtilInitRandom();
-	
+
+#ifdef ENCOG_CUDA
+	printf("GPU: %s\n",encogContext.gpuEnabled?"enabled":"disabled");
+#endif
+
 	if(!EncogUtilStrcmpi(command,"xor") ) {
 		XORTest();
 	} else if (!EncogUtilStrcmpi(command,"benchmark") ) {
@@ -455,10 +478,13 @@ int main(int argc, char* argv[])
 		EvaluateError(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"cuda") ) {
 #ifdef ENCOG_CUDA
-		TestCUDA();
+		if( encogContext.gpuEnabled ) {
+			TestCUDA();
+		} else {
+			printf("CUDA has been disable, can't test it\n");
+		}
 #else
-		printf("CUDA is not available in this distribution od Encog\n");
-		printf("If you wish to use CUDA, please download a CUDA enabled version of Encog.\n");
+		cudaNotCompiled();
 #endif
 	} else {
 		Usage();
@@ -466,12 +492,14 @@ int main(int argc, char* argv[])
 
 	ended = omp_get_wtime( );
 
+	EncogShutdown();
+
 	*command = 0;
 	EncogStrCatStr(command,"Encog Finished.  Run time ",sizeof(command));
 	EncogStrCatRuntime(command, ended-started, sizeof(command));
 	puts(command);
 
-
+	
 
     return 0;
 }

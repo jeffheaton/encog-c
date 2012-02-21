@@ -81,6 +81,15 @@ typedef void(*ENCOG_TASK)(void*);
 
 struct ENCOG_TRAIN_PSO;
 
+typedef struct ENCOG_CONTEXT {
+#ifdef ENCOG_CUDA
+	INT gpuEnabled;
+#endif
+	char version[10];
+	INT versionMajor;
+	INT versionMinor;
+} ENCOG_CONTEXT;
+
 typedef struct GPU_DEVICE {
 	INT deviceID;
 	REAL *deviceData;
@@ -367,12 +376,18 @@ void EncogFileWriteValueIntArray(FILE *fp, char *name, INT *a, INT count);
 void EncogFileWriteValueDouble(FILE *fp, char *name, REAL value);
 void EncogFileWriteValueDoubleArray(FILE *fp, char *name, REAL *a, INT count);
 
+void EncogInit();
+void EncogShutdown();
+
 #ifdef ENCOG_CUDA
 
 GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 void EncogGPUDeviceDelete(GPU_DEVICE *device);
 float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net);
+float EncogCUDAPSOIterate(ENCOG_TRAIN_PSO *pso);
 #endif
+
+extern ENCOG_CONTEXT encogContext;
 
 #ifdef __cplusplus
 }

@@ -292,3 +292,8 @@ extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net
 
 	return sum/device->recordCount;   
 }
+
+
+extern "C" float EncogCUDAPSOIterate(ENCOG_TRAIN_PSO *pso) {
+	return 0;
+}

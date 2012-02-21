@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="activation.c" />
     <ClCompile Include="data.c" />
+    <ClCompile Include="encog.c" />
     <ClCompile Include="errorcalc.c" />
     <ClCompile Include="errors.c" />
     <ClCompile Include="network.c" />

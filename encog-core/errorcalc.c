@@ -34,7 +34,7 @@ float EncogErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	float result;
 	
 	if( encogContext.gpuEnabled ) {
-	device = EncogGPUDeviceNew(0, net, data);
+	device = EncogGPUDeviceNew(0, net, data,0);
 	result = EncogCUDAErrorSSE(device, net);
 	EncogGPUDeviceDelete(device);
 	return result;

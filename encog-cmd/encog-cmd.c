@@ -95,12 +95,10 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 
 	startTime = omp_get_wtime();
 
-	pso->currentReport.maxError = 0.00f;
-	pso->currentReport.maxIterations = iterations;
-	pso->currentReport.updateSeconds = 0;
-	pso->reportTarget = EncogTrainMinimalCallback;
-    EncogTrainPSORun(pso);
-
+	for(i=0;i<iterations;i++) {
+		EncogTrainPSOIterate(pso);
+		EncogErrorCheck();
+	}
 	EncogTrainPSOFinish(pso);
 	endTime = omp_get_wtime();
 	
@@ -145,10 +143,7 @@ void XORTest() {
 	EncogErrorCheck();
 
 /* Begin training, report progress. */
-	pso->currentReport.maxError = 0.01f;
-	pso->currentReport.updateSeconds = 0;
-	pso->reportTarget = EncogTrainStandardCallback;
-    EncogTrainPSORun(pso);
+    TrainNetwork(pso, 0.01f, 0);
 
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);
@@ -225,11 +220,7 @@ void train(char *egFile, char *egbFile) {
 	EncogErrorCheck();
 
 /* Begin training, report progress. */	
-	pso->currentReport.maxError = 0.00f;
-	pso->currentReport.maxIterations = 0;
-	pso->currentReport.updateSeconds = 1;
-	pso->reportTarget = EncogTrainStandardCallback;
-    EncogTrainPSORun(pso);
+    TrainNetwork(pso, 0.01f, 1);
 	
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);

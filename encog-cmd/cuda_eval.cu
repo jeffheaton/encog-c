@@ -177,7 +177,37 @@ __global__ void EncogGPUEval(REAL *data, REAL *dynamic, REAL *weights, float *er
 	}
 }
 
-extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
+__global__ void EncogGPUPSOTask(REAL *weights, REAL *velocities, REAL *localBest, REAL *globalBest) {
+
+    int tid = blockDim.x * blockIdx.x + threadIdx.x;
+	float temp = 0;
+	double c1 = 2.0;
+	double c2 = 2.0;
+
+	GPU_DYNAMIC_NETWORK dnet;
+
+    while (tid < cnet.weightCount)
+	{	
+		// update velocity
+		velocities[tid] *= 0.4;
+
+		// cognitive term
+		velocities[tid]+=(localBest[tid]-weights[tid]) * c1 *  ((REAL)rand()/(REAL)RAND_MAX);
+
+	    // social term		
+		velocities[tid]+=(globalBest[tid]-weights[tid]) * c2 *  ((REAL)rand()/(REAL)RAND_MAX);
+
+		// update weights
+		weights[tid]+=velocities[tid];
+		
+		tid+=blockDim.x*gridDim.x;
+	}
+
+}
+
+// Host code
+
+extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, int particles)
 {	
 	GPU_DEVICE *result;
 	GPU_CONST_NETWORK tempConstNet;
@@ -224,6 +254,7 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
 	result = (GPU_DEVICE*)EncogUtilAlloc(1,sizeof(GPU_DEVICE));
 
 	result->blocksPerGrid = MIN(32,(data->recordCount + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK);
+	result->particles = particles;
 
 	int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
 	int totalDynamicSize = tempConstNet.dynamicSize * dataSize; 
@@ -232,7 +263,14 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
     checkCudaErrors( cudaMalloc((void**)&result->deviceData, dataSize*sizeof(REAL)) );
     checkCudaErrors( cudaMalloc((void**)&result->deviceDynamic, totalDynamicSize*sizeof(REAL)) );
 	checkCudaErrors( cudaMalloc((void**)&result->deviceErrors, result->blocksPerGrid * sizeof(float)) );
-	checkCudaErrors( cudaMalloc((void**)&result->deviceWeights, net->weightCount*sizeof(REAL)) );
+	checkCudaErrors( cudaMalloc((void**)&result->deviceWeights, net->weightCount*sizeof(REAL)*MAX(particles,1)) );
+	
+	if( particles ) {
+		checkCudaErrors( cudaMalloc((void**)&result->deviceVelocities, particles*net->weightCount*sizeof(REAL)) );
+	} else {
+		result->deviceVelocities;
+	}
+
 	result->errors = (float*)EncogUtilAlloc(data->recordCount,sizeof(float));
 	result->recordCount = data->recordCount;
 
@@ -248,6 +286,11 @@ extern "C" void EncogGPUDeviceDelete(GPU_DEVICE *device) {
 	cudaFree(device->deviceDynamic);
 	cudaFree(device->deviceErrors);
 	cudaFree(device->deviceWeights);
+
+	if( device->deviceVelocities!=NULL ) {
+		cudaFree(device->deviceVelocities);
+	}
+
 	EncogUtilFree(device->errors);
 	EncogUtilFree(device);
 	#if (CUDA_VERSION > 4010 )        
@@ -256,7 +299,6 @@ extern "C" void EncogGPUDeviceDelete(GPU_DEVICE *device) {
 
 }
 
-// Host code
 extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net)
 {   
 	cudaEvent_t start,stop;
@@ -293,7 +335,55 @@ extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net
 	return sum/device->recordCount;   
 }
 
+extern "C" float EncogCUDAParticleErrorSSE(ENCOG_TRAIN_PSO *pso, int particle)
+{   
+	GPU_DEVICE *device = pso->device;
+	cudaEvent_t start,stop;
+	float elapsed;
+	ENCOG_PARTICLE *p;
+
+	p = &pso->particles[particle];
+    
+   cudaEventCreate(&start);
+   cudaEventCreate(&stop);
+
+   checkCudaErrors( cudaEventRecord(start,0) );
+	EncogGPUEval<<<device->blocksPerGrid, THREADS_PER_BLOCK>>>(device->deviceData, device->deviceDynamic, device->deviceWeights + (particle*p->network->weightCount), device->deviceErrors);
+   checkCudaErrors( cudaEventRecord(stop,0) );
+    
+	getLastCudaError("kernel launch failure");
+    checkCudaErrors( cudaEventSynchronize(stop) );
+
+    // Copy result from device memory to host memory
+    // h_C contains the result in host memory
+    checkCudaErrors( cudaMemcpy(device->errors, device->deviceErrors, device->blocksPerGrid * sizeof(float), cudaMemcpyDeviceToHost) );
+
+	checkCudaErrors( cudaEventElapsedTime( &elapsed, start, stop ) );
+	
+	device->perfCount++;
+	device->perfKernelTime+=elapsed;
+	
+	float sum = 0;
+	for(int i=0;i<device->blocksPerGrid;i++) {	
+		sum+=device->errors[i];
+	}
+
+	checkCudaErrors( cudaEventDestroy( start ) );
+	checkCudaErrors( cudaEventDestroy( stop ) );
+
+	return sum/device->recordCount;   
+}
+
 
 extern "C" float EncogCUDAPSOIterate(ENCOG_TRAIN_PSO *pso) {
 	return 0;
+}
+
+extern "C" void EncogCUDAPSOMoveParticle(ENCOG_TRAIN_PSO *pso, int particle)
+{   
+	ENCOG_PARTICLE *p;
+
+	p = &pso->particles[particle];
+	checkCudaErrors( cudaMemcpy(pso->device->deviceVelocities+(particle*p->network->weightCount),p->velocities,p->network->weightCount*sizeof(REAL), cudaMemcpyHostToDevice) );
+	checkCudaErrors( cudaMemcpy(pso->device->deviceWeights+(particle*p->network->weightCount),p->network->weights,p->network->weightCount*sizeof(REAL), cudaMemcpyHostToDevice) );
 }

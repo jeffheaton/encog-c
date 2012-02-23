@@ -24,32 +24,11 @@
 #include "encog.h"
 
 
-
 static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *network) 
 {
 	float result;
 	double start,stop;
 
-#ifdef ENCOG_CUDA
-	if( encogContext.gpuEnabled && omp_get_thread_num()==0 ) 
-	{		
-		result = EncogCUDAErrorSSE(pso->device, network);
-	}
-	else 
-	{
-		start = omp_get_wtime();
-		result = EncogCPUErrorSSE( network, pso->data);
-		stop = omp_get_wtime();
-
-		#pragma omp critical 
-		{
-			pso->cpuWorkUnitTime+=(stop-start);
-			pso->cpuWorkUnitCalls++;
-		}
-		return result;
-	}	
-	return result;
-#else
 	start = omp_get_wtime();
 	result = EncogErrorSSE( network, pso->data);
 	stop = omp_get_wtime();
@@ -60,7 +39,6 @@ static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *netw
 	}
 
 	return result;
-#endif
 }
 
 
@@ -120,6 +98,57 @@ static void _UpdateGlobalBestPosition(ENCOG_TRAIN_PSO *pso)
     }
 }
 
+static void _InitParticlesCPU(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *model) {
+	int i;
+	ENCOG_PARTICLE *particle;	    
+    ENCOG_NEURAL_NETWORK *clone;
+
+	#pragma omp parallel for private(particle,clone) 
+	for(i=0; i<pso->populationSize; i++)
+    {
+        particle = &pso->particles[i];
+        clone  = EncogNetworkClone(model);
+	particle->index = i;
+		particle->pso = (struct ENCOG_TRAIN_PSO*)pso;
+        particle->network = clone;
+        particle->velocities = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
+        particle->vtemp = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
+        particle->bestVector = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
+        particle->bestError = 0;
+		if( i>0 ) {
+			EncogNetworkRandomizeRange(particle->network,-1,1);
+		}
+        EncogNetworkExportWeights(particle->network,particle->bestVector);
+        EncogVectorRandomise(particle->velocities, pso->maxVelocity, clone->weightCount);
+        _UpdatePersonalBestPosition(pso, i);
+    }
+}
+
+static void _InitParticlesGPU(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *model) {
+	INT i;
+	ENCOG_PARTICLE *particle;	    
+    ENCOG_NEURAL_NETWORK *clone;
+
+	for(i=0; i<pso->populationSize; i++)
+    {
+        particle = &pso->particles[i];
+        clone  = EncogNetworkClone(model);
+		particle->index = i;
+		particle->pso = (struct ENCOG_TRAIN_PSO*)pso;
+        particle->network = clone;
+        particle->velocities = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
+        particle->vtemp = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
+        particle->bestVector = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
+		if( i>0 ) {
+			EncogNetworkRandomizeRange(particle->network,-1,1);
+		}
+        EncogNetworkExportWeights(particle->network,particle->bestVector);
+        EncogVectorRandomise(particle->velocities, pso->maxVelocity, clone->weightCount);
+		EncogCUDAPSOMoveParticle(pso, i);
+		particle->bestError =  EncogCUDAParticleErrorSSE(pso, i);
+    }
+}
+
 /* API functions */
 
 ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *model, ENCOG_DATA *data)
@@ -145,40 +174,24 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     pso->dimensions = model->weightCount;
     pso->data = data;
     pso->bestVector = (REAL*)EncogUtilAlloc(model->weightCount,sizeof(REAL));
-	pso->reportTarget = &EncogTrainStandardCallback;
-
-	memset(&pso->currentReport,0,sizeof(ENCOG_TRAINING_REPORT));
 
     /* construct the arrays */
 
     pso->particles = (ENCOG_PARTICLE*)EncogUtilAlloc(populationSize,sizeof(ENCOG_PARTICLE));
 
 #ifdef ENCOG_CUDA
-	if( encogContext.gpuEnabled ) {
-		pso->device = EncogGPUDeviceNew(0, model, data);
-	}
+	pso->device = EncogGPUDeviceNew(0, model, data,populationSize);
 #endif
 	
-
-	#pragma omp parallel for private(particle,clone) 
-    for(i=0; i<populationSize; i++)
-    {
-        particle = &pso->particles[i];
-        clone  = EncogNetworkClone(model);
-	particle->index = i;
-		particle->pso = (struct ENCOG_TRAIN_PSO*)pso;
-        particle->network = clone;
-        particle->velocities = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
-        particle->vtemp = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
-        particle->bestVector = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
-        particle->bestError = 0;
-		if( i>0 ) {
-			EncogNetworkRandomizeRange(particle->network,-1,1);
-		}
-        EncogNetworkExportWeights(particle->network,particle->bestVector);
-        EncogVectorRandomise(particle->velocities, pso->maxVelocity, clone->weightCount);
-        _UpdatePersonalBestPosition(pso, i);
-    }
+#ifdef ENCOG_CUDA
+	if( encogContext.gpuEnabled ) {
+		_InitParticlesGPU(pso, model);
+	} else {
+		_InitParticlesCPU(pso, model);
+	}
+#else 
+	_InitParticlesCPU(pso, model);
+#endif 
 
     _UpdateGlobalBestPosition(pso);
     return pso;
@@ -251,21 +264,13 @@ static void _PSOTask(void *v)
 	_UpdatePersonalBestPosition(pso, particle->index);
 }
 
-float EncogTrainPSORun(ENCOG_TRAIN_PSO *pso)
+static float _CPUIterate(ENCOG_TRAIN_PSO *pso)
 {
     int i;
     ENCOG_PARTICLE *particle;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
-
-	pso->currentReport.iterations = 0;
-	pso->currentReport.lastUpdate = 0;
-	pso->currentReport.stopRequested = 0;
-	pso->currentReport.trainingStarted = time(NULL);
-
-	do 
-	{
 
 	#pragma omp parallel for
     for(i=0; i<pso->populationSize; i++)
@@ -275,14 +280,23 @@ float EncogTrainPSORun(ENCOG_TRAIN_PSO *pso)
     }
 
     _UpdateGlobalBestPosition(pso);
-	
-	pso->currentReport.iterations++;
-	pso->currentReport.error = pso->bestError;
-	
-	pso->reportTarget(&pso->currentReport);
-	} while( !pso->currentReport.stopRequested );
-
     return pso->bestError;
+}
+
+
+
+
+
+float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso)
+{
+#ifdef ENCOG_CUDA
+	if( encogContext.gpuEnabled ) {
+	} else {
+		return _CPUIterate(pso);
+	}
+#else
+    return _CPUIterate(pso);
+#endif
 }
 
 void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net)

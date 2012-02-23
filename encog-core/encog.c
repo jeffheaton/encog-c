@@ -18,3 +18,46 @@ void EncogInit() {
 
 void EncogShutdown() {
 }
+
+void EncogTrainMinimalCallback(ENCOG_TRAINING_REPORT *report) {
+	if( report->error < report->maxError ) {
+		report->stopRequested = 1;
+	}
+
+	if( report->maxIterations!=0 && (report->iterations>report->maxIterations) ) {
+		report->stopRequested = 1;
+	}
+
+}
+
+void EncogTrainStandardCallback(ENCOG_TRAINING_REPORT *report) {
+	char line[MAX_STR];
+	time_t currentTime;
+	time_t sinceLastUpdate;
+
+	EncogTrainMinimalCallback(report);
+
+	currentTime = time(NULL);
+	sinceLastUpdate = currentTime-report->lastUpdate;
+
+	if( report->iterations==1 ) {
+		printf("Beginning training.\n");
+	}
+	
+	/* display every updateSeconds seconds, plus first and last iterations */
+	if( report->stopRequested || sinceLastUpdate>=report->updateSeconds || report->iterations==1 )
+	{
+		report->lastUpdate = time(NULL);
+		*line = 0;
+		EncogStrCatStr(line,"Iteration #",MAX_STR);
+		EncogStrCatInt(line,report->iterations,MAX_STR);
+		EncogStrCatStr(line,", Error: ",MAX_STR);
+		EncogStrCatDouble(line,report->error,4,MAX_STR);
+		puts(line);
+	}
+
+	if( report->stopRequested ) {
+		printf("Training complete.\n");
+	}
+
+}

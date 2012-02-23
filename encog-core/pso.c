@@ -145,6 +145,9 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     pso->dimensions = model->weightCount;
     pso->data = data;
     pso->bestVector = (REAL*)EncogUtilAlloc(model->weightCount,sizeof(REAL));
+	pso->reportTarget = &EncogTrainStandardCallback;
+
+	memset(&pso->currentReport,0,sizeof(ENCOG_TRAINING_REPORT));
 
     /* construct the arrays */
 
@@ -248,13 +251,21 @@ static void _PSOTask(void *v)
 	_UpdatePersonalBestPosition(pso, particle->index);
 }
 
-float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso)
+float EncogTrainPSORun(ENCOG_TRAIN_PSO *pso)
 {
     int i;
     ENCOG_PARTICLE *particle;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
+
+	pso->currentReport.iterations = 0;
+	pso->currentReport.lastUpdate = 0;
+	pso->currentReport.stopRequested = 0;
+	pso->currentReport.trainingStarted = time(NULL);
+
+	do 
+	{
 
 	#pragma omp parallel for
     for(i=0; i<pso->populationSize; i++)
@@ -264,6 +275,13 @@ float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso)
     }
 
     _UpdateGlobalBestPosition(pso);
+	
+	pso->currentReport.iterations++;
+	pso->currentReport.error = pso->bestError;
+	
+	pso->reportTarget(&pso->currentReport);
+	} while( !pso->currentReport.stopRequested );
+
     return pso->bestError;
 }
 

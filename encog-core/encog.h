@@ -60,6 +60,12 @@ extern "C" {
 #define SIZE_KILOBYTE (SIZE_BYTE*1024)
 #define SIZE_MEGABYTE (SIZE_KILOBYTE*1024)
 
+#define PARTICLE_STATE_MOVE			0
+#define PARTICLE_STATE_MOVING		1
+#define PARTICLE_STATE_CALC			2
+#define PARTICLE_STATE_CALCING		3
+#define PARTICLE_STATE_ITERATION	4
+
 /* Deal with Microsoft Visual C++ */
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )
@@ -76,10 +82,11 @@ extern "C" {
 typedef double REAL;
 typedef unsigned int INT;
 
+struct ENCOG_TRAIN_PSO;
+struct ENCOG_TRAINING_REPORT;
+
 typedef void(*ACTIVATION_FUNCTION)(REAL *,int);
 typedef void(*ENCOG_TASK)(void*);
-
-struct ENCOG_TRAIN_PSO;
 
 typedef struct ENCOG_CONTEXT {
 #ifdef ENCOG_CUDA
@@ -96,13 +103,11 @@ typedef struct GPU_DEVICE {
 	REAL *deviceDynamic;
 	float *deviceErrors;
 	REAL *deviceWeights;
-	REAL *deviceVelocities;
 	float *errors;
 	INT recordCount;
 	INT perfCount;
 	float perfKernelTime;
 	INT blocksPerGrid;
-	INT particles;
 } GPU_DEVICE;
 
 typedef struct NETWORK_LAYER
@@ -204,6 +209,19 @@ typedef struct
     REAL *data;
 } ENCOG_DATA;
 
+typedef struct ENCOG_TRAINING_REPORT {
+	float error;
+	INT iterations;
+	int stopRequested;
+	time_t lastUpdate;
+	time_t trainingStarted;
+	float maxError;
+	INT maxIterations;
+	INT updateSeconds;
+} ENCOG_TRAINING_REPORT;
+
+typedef void(*ENCOG_REPORT_FUNCTION)(ENCOG_TRAINING_REPORT *);
+
 typedef struct
 {
     ENCOG_NEURAL_NETWORK *network;
@@ -212,6 +230,7 @@ typedef struct
     REAL *vtemp;
     float bestError;
 	INT index;
+	INT particleState;
 	struct ENCOG_TRAIN_PSO *pso;
 } ENCOG_PARTICLE;
 
@@ -275,6 +294,8 @@ typedef struct ENCOG_TRAIN_PSO
 	INT cudaKernelCalls;
 	float cpuWorkUnitTime;
 	INT cpuWorkUnitCalls;
+	ENCOG_TRAINING_REPORT currentReport;
+	ENCOG_REPORT_FUNCTION reportTarget;
 
 } ENCOG_TRAIN_PSO;
 
@@ -349,7 +370,7 @@ float EncogCPUErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 
 ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *model, ENCOG_DATA *data);
 void EncogTrainPSODelete(ENCOG_TRAIN_PSO *pso);
-float EncogTrainPSOIterate(ENCOG_TRAIN_PSO *pso);
+float EncogTrainPSORun(ENCOG_TRAIN_PSO *pso);
 void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net);
 void EncogTrainPSOFinish(ENCOG_TRAIN_PSO *pso);
 
@@ -380,15 +401,15 @@ void EncogFileWriteValueDoubleArray(FILE *fp, char *name, REAL *a, INT count);
 
 void EncogInit();
 void EncogShutdown();
+void EncogTrainMinimalCallback(ENCOG_TRAINING_REPORT *report);
+void EncogTrainStandardCallback(ENCOG_TRAINING_REPORT *report);
 
 #ifdef ENCOG_CUDA
 
-GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, int particles);
+GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 void EncogGPUDeviceDelete(GPU_DEVICE *device);
 float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net);
 float EncogCUDAPSOIterate(ENCOG_TRAIN_PSO *pso);
-void EncogCUDAPSOMoveParticle(ENCOG_TRAIN_PSO *pso, int particle);
-float EncogCUDAParticleErrorSSE(ENCOG_TRAIN_PSO *pso, int particle);
 #endif
 
 extern ENCOG_CONTEXT encogContext;

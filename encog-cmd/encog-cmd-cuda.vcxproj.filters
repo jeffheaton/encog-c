@@ -24,9 +24,6 @@
     <ClCompile Include="encog-cmd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="trainer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="encog-cmd.h">

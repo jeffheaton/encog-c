@@ -344,7 +344,9 @@ void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net)
 
 void EncogTrainPSOFinish(ENCOG_TRAIN_PSO *pso) {
 #ifdef ENCOG_CUDA
-	pso->cudaKernelTime=pso->device->perfKernelTime/pso->device->perfCount;
-	pso->cudaKernelCalls=pso->device->perfCount;
+	if( encogContext.gpuEnabled ) {
+		pso->cudaKernelTime=pso->device->perfKernelTime/pso->device->perfCount;
+		pso->cudaKernelCalls=pso->device->perfCount;
+	}
 #endif
 }

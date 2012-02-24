@@ -65,43 +65,40 @@ __device__ void EncogGPUNetworkClearContext(GPU_DYNAMIC_NETWORK *dnet)
     }
 }
 
-__device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer)
+__device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer, REAL *input, REAL *output)
 {
     int x;
     int y;
-    int inputIndex = cnet.layerIndex[currentLayer];
-    int outputIndex = cnet.layerIndex[currentLayer - 1];
     int inputSize = cnet.layerCounts[currentLayer];
     int outputSize = cnet.layerFeedCounts[currentLayer - 1];
+	REAL *iptr;
 
     int index = cnet.weightIndex[currentLayer - 1];
 
-    int limitX = outputIndex + outputSize;
-    int limitY = inputIndex + inputSize;
-
     // weight values
-    for (x = outputIndex; x < limitX; x++)
+    while(outputSize--)
     {
         REAL sum = 0;
-        for (y = inputIndex; y < limitY; y++)
+		iptr = input;
+        for (y = 0; y < inputSize; y++)
         {
-            sum += dnet->weights[index++] * dnet->layerOutput[y];
+            sum += dnet->weights[index++] * *(iptr++);
         }
 
 		switch(cnet.activationFunctionIDs[currentLayer - 1]) 
 		{
 			case AF_LINEAR:
-				dnet->layerOutput[x] = EncogGPUActivationLinear(sum);
+				*(output++) = EncogGPUActivationLinear(sum);
 				break;
 			case AF_SIGMOID:
-				dnet->layerOutput[x] = EncogGPUActivationSigmoid(sum);
+				*(output++) = EncogGPUActivationSigmoid(sum);
 				break;
 			case AF_TANH:
-				dnet->layerOutput[x] = EncogGPUActivationTANH(sum);
+				*(output++) = EncogGPUActivationTANH(sum);
 				break;
 		}
 
-        dnet->layerSums[x] = sum;
+        //dnet->layerSums[x] = sum;
     }
 
 	
@@ -115,11 +112,14 @@ __device__ void EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input)
 	
 	sourceIndex = cnet.neuronCount - cnet.layerCounts[cnet.layerCount - 1];
 
-    memcpy(dnet->layerOutput+sourceIndex,input,cnet.inputCount*sizeof(REAL));
+    //memcpy(dnet->layerOutput+sourceIndex,input,cnet.inputCount*sizeof(REAL));
 
-    for (i = cnet.layerCount - 1; i > 0; i--)
+	i = cnet.layerCount-1;
+	_ComputeLayer(dnet,i,input,&dnet->layerOutput[i-1]);
+
+    for (i = cnet.layerCount - 2; i > 0; i--)
     {
-        _ComputeLayer(dnet,i);
+        _ComputeLayer(dnet,i,&dnet->layerOutput[i],&dnet->layerOutput[i-1]);
     }
 }
 

@@ -6,29 +6,19 @@ __device__ __constant__ GPU_CONST_NETWORK cnet;
 
 // Device code
 
-__device__ void EncogGPUActivationLinear(REAL *d,int count)
+__device__ REAL EncogGPUActivationLinear(REAL d)
 {
 }
 
-__device__ void EncogGPUActivationSigmoid(REAL *d,int count)
+__device__ REAL EncogGPUActivationSigmoid(REAL d)
 {
-    int i;
-
-    for(i=0; i<count; i++)
-    {
-        *d = 1.0 / (1.0 + exp(-1.0 * *d));
-        d++;
-    }
+    return 1.0 / (1.0 + exp(-1.0 * d));
 }
 
-__device__ void EncogGPUActivationTANH(REAL *d,int count)
+__device__ REAL EncogGPUActivationTANH(REAL d)
 {
-    int i;
-    for(i=0; i<count; i++)
-    {
-        *d = tanh(*d);
-        d++;
-    }
+    return tanh(d);
+       
 }
 
 
@@ -97,21 +87,24 @@ __device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer)
         {
             sum += dnet->weights[index++] * dnet->layerOutput[y];
         }
+
+		switch(cnet.activationFunctionIDs[currentLayer - 1]) 
+		{
+			case AF_LINEAR:
+				dnet->layerOutput[x] = EncogGPUActivationLinear(sum);
+				break;
+			case AF_SIGMOID:
+				dnet->layerOutput[x] = EncogGPUActivationSigmoid(sum);
+				break;
+			case AF_TANH:
+				dnet->layerOutput[x] = EncogGPUActivationTANH(sum);
+				break;
+		}
+
         dnet->layerSums[x] = sum;
-        dnet->layerOutput[x] = sum;
     }
 
-	switch(cnet.activationFunctionIDs[currentLayer - 1]) {
-		case AF_LINEAR:
-			EncogGPUActivationLinear(dnet->layerOutput+outputIndex, outputSize);
-			break;
-		case AF_SIGMOID:
-			EncogGPUActivationSigmoid(dnet->layerOutput+outputIndex, outputSize);
-			break;
-		case AF_TANH:
-			EncogGPUActivationTANH(dnet->layerOutput+outputIndex, outputSize);
-			break;
-	}
+	
 
 }
 

@@ -79,13 +79,14 @@ __device__ float _ComputeOutputError(GPU_DYNAMIC_NETWORK *dnet, int currentLayer
 {
     int x;
     int y;
-    int inputSize = cnet.layerCounts[currentLayer];
+    int inputSize = cnet.layerFeedCounts[currentLayer];
     int outputSize = cnet.layerFeedCounts[currentLayer - 1];
 	REAL *iptr;
 	REAL delta;
 	float result;
 
     int index = cnet.weightIndex[currentLayer - 1];
+	int hasBias = (cnet.layerContextCount[currentLayer] + cnet.layerFeedCounts[currentLayer]) != cnet.layerCounts[currentLayer];
 
 	result = 0;
 
@@ -98,6 +99,10 @@ __device__ float _ComputeOutputError(GPU_DYNAMIC_NETWORK *dnet, int currentLayer
         {
             sum += dnet->weights[index++] * *(iptr++);
         }
+
+		if( hasBias ) {
+			sum += dnet->weights[index++];
+		}
 
 		switch(cnet.activationFunctionIDs[currentLayer - 1]) 
 		{
@@ -134,9 +139,10 @@ __device__ float EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input, R
     // compute the input layer to first hidden layer (h1)
 	i = cnet.layerCount-1;
 	_ComputeLayer(dnet,i,input,outputPtr);
+	i--;
 
 	// compute h2 to hx (if they even exist)
-    for (i = cnet.layerCount - 2; i > 1; i--)
+    while(i>1)
     {
 		// swap the input ptr and output ptr
 		temp = inputPtr;
@@ -144,10 +150,10 @@ __device__ float EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input, R
 		outputPtr = temp;
 		// compute the layer
         _ComputeLayer(dnet,i,inputPtr,outputPtr);
+		i--;
     }
 
 	// compute hx to output
-	i = 0;
 	// use outputPtr even though we want inputPtr, we are just being efficient and not performing a final "swap"
 	return _ComputeOutputError(dnet,i,outputPtr, ideal);
 
@@ -238,6 +244,8 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
 	result = (GPU_DEVICE*)EncogUtilAlloc(1,sizeof(GPU_DEVICE));
 
 	result->blocksPerGrid = MIN(32,(data->recordCount + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK);
+
+	printf("Blocks per grid: %i\n", result->blocksPerGrid);
 
 	int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
 	int totalDynamicSize = tempConstNet.dynamicSize * dataSize; 

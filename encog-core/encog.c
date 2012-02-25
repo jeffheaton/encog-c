@@ -24,7 +24,7 @@ void EncogTrainMinimalCallback(ENCOG_TRAINING_REPORT *report) {
 		report->stopRequested = 1;
 	}
 
-	if( report->maxIterations!=0 && (report->iterations>report->maxIterations) ) {
+	if( report->maxIterations!=0 && (report->iterations>=report->maxIterations) ) {
 		report->stopRequested = 1;
 	}
 

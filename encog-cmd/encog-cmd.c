@@ -184,7 +184,7 @@ void XORTest() {
 
 }
 
-void train(char *egFile, char *egbFile) {
+void train(char *egFile, char *egbFile, int iterations) {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
 	ENCOG_TRAIN_PSO *pso;
@@ -192,6 +192,10 @@ void train(char *egFile, char *egbFile) {
 	if( *egFile==0 || *egbFile==0 ) {
 		printf("Usage: train [egFile] [egbFile]\n");
 		return;
+	}
+
+	if( iterations==-1 ) {
+		iterations = 0;
 	}
 
 	data = EncogDataEGBLoad(egbFile);
@@ -226,7 +230,7 @@ void train(char *egFile, char *egbFile) {
 
 /* Begin training, report progress. */	
 	pso->currentReport.maxError = 0.00f;
-	pso->currentReport.maxIterations = 0;
+	pso->currentReport.maxIterations = iterations;
 	pso->currentReport.updateSeconds = 1;
 	pso->currentReport.maxError = 0.01;
 	pso->reportTarget = EncogTrainStandardCallback;
@@ -475,7 +479,7 @@ int main(int argc, char* argv[])
 	} else if (!EncogUtilStrcmpi(command,"benchmark") ) {
 		RunBenchmark(inputCount,idealCount,records,iterations );
 	} else if (!EncogUtilStrcmpi(command,"train") ) {
-		train(arg1,arg2);
+		train(arg1,arg2,iterations);
 	} else if (!EncogUtilStrcmpi(command,"egb2csv") ) {
 		EGB2CSV(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"csv2egb") ) {

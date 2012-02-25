@@ -19,39 +19,23 @@
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network_io.c" caret="3190" fromTop="13" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:network.c" caret="5103" fromTop="17" />
       <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:util.c" caret="6161" fromTop="11" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.c" caret="678" fromTop="4" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="4044" fromTop="16" />
       <File id="d:Miscellaneous Files/f:read.c/l:C!?Program Files (x86)?Microsoft Visual Studio 10.0?VC?crt?src?read.c" caret="2908" fromTop="10" />
-      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="2053" fromTop="8" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="13232" fromTop="18" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_unix.c" caret="0" fromTop="0" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.h" caret="223" fromTop="13" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="108" fromTop="4" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="264" fromTop="13" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="0" fromTop="0" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_unix.c" caret="89" fromTop="7" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.c" caret="18" fromTop="0" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="0" fromTop="0" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:pso.c" caret="2921" fromTop="10" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="7209" fromTop="17" />
     </RecentFiles>
     <RecentEdits>
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="3922" fromTop="9" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="2533" fromTop="14" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="2494" fromTop="13" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="6300" fromTop="16" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="6300" fromTop="15" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="4" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="1" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="5" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="15" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="12" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="11" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="7" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="12" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="0" fromTop="20" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="17" fromTop="1" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="3308" fromTop="21" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="557" fromTop="13" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="827" fromTop="7" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="1382" fromTop="6" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="506" fromTop="9" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="2012" fromTop="11" />
-      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="13139" fromTop="15" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="14015" fromTop="15" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="3210" fromTop="18" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.h" caret="223" fromTop="13" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="2630" fromTop="6" />
@@ -60,6 +44,22 @@
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node.c" caret="108" fromTop="4" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="264" fromTop="21" />
       <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_windows.c" caret="264" fromTop="13" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:node_unix.c" caret="89" fromTop="7" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.h" caret="2279" fromTop="13" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="11451" fromTop="10" />
+      <File id="3DF9CEFF-41CA-46B9-A659-A63C6D19D204/f:encog.c" caret="1438" fromTop="14" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="11448" fromTop="16" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="13157" fromTop="19" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="169" fromTop="6" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="2916" fromTop="12" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="4125" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="13867" fromTop="13" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="1773" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="5538" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="2290" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="6035" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="6619" fromTop="11" />
+      <File id="CE50443B-9615-4C66-B9BE-57CD2A99F62A/f:encog-cmd.c" caret="12810" fromTop="6" />
     </RecentEdits>
   </RecentFiles>
   <NAntValidationSettings>

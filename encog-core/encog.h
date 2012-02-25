@@ -79,7 +79,7 @@ extern "C" {
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #endif
 
-typedef float REAL;
+typedef double REAL;
 typedef unsigned int INT;
 
 struct ENCOG_TRAIN_PSO;

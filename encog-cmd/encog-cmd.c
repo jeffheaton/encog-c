@@ -3,6 +3,10 @@
 
 char parsedOption[MAX_STR];
 char parsedArgument[MAX_STR];
+static int _particles = 30;
+static REAL _inertiaWeight = 0.4;
+static REAL _c1 = 2.0;
+static REAL _c2 = 2.0;
 
 void Usage() {
 	puts("\nUsage:\n");
@@ -89,7 +93,7 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	printf("\nPerforming benchmark\n");
 	printf("Input Count: %i\n",inputCount);
 	printf("Ideal Count: %i\n",idealCount);
-	printf("Particle Count: %i\n", 30);
+	printf("Particle Count: %i\n", _particles);
 	printf("Records: %i\n",records);
 	printf("Iterations: %i\n",iterations);
 
@@ -105,7 +109,10 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 
 	EncogNetworkRandomizeRange(net,-1,1);
 
-	pso = EncogTrainPSONew(30, net, data);
+	pso = EncogTrainPSONew(_particles, net, data);
+	pso->inertiaWeight = _inertiaWeight;
+	pso->c1 = _c1;
+	pso->c2 = _c2;
 	EncogErrorCheck();
 
 	startTime = omp_get_wtime();
@@ -152,7 +159,10 @@ void XORTest() {
 	EncogErrorCheck();
 
 /* Create a PSO trainer */
-    pso = EncogTrainPSONew(30, net, data);
+    pso = EncogTrainPSONew(_particles, net, data);
+	pso->inertiaWeight = _inertiaWeight;
+	pso->c1 = _c1;
+	pso->c2 = _c2;
 	EncogErrorCheck();
 
 /* Begin training, report progress. */
@@ -195,7 +205,7 @@ void XORTest() {
 
 }
 
-void train(char *egFile, char *egbFile, int iterations) {
+void train(char *egFile, char *egbFile, int iterations ) {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
 	ENCOG_TRAIN_PSO *pso;
@@ -216,6 +226,7 @@ void train(char *egFile, char *egbFile, int iterations) {
 	printf("Input Count: %i\n", data->inputCount);
 	printf("Ideal Count: %i\n", data->idealCount);
 	printf("Record Count: %ld\n", data->recordCount);	    
+	printf("Particles: %i\n", _particles);	    
 
 	net = EncogNetworkLoad(egFile);
 	EncogErrorCheck();
@@ -236,7 +247,10 @@ void train(char *egFile, char *egbFile, int iterations) {
 
 /* Create a PSO trainer */
 	printf("Please wait...creating particles.\n");
-    pso = EncogTrainPSONew(30, net, data);
+    pso = EncogTrainPSONew(_particles, net, data);
+	pso->inertiaWeight = _inertiaWeight;
+	pso->c1 = _c1;
+	pso->c2 = _c2;
 	EncogErrorCheck();
 
 /* Begin training, report progress. */	
@@ -422,12 +436,13 @@ int main(int argc, char* argv[])
 {
 	double started, ended;
 	INT i;
-	INT inputCount = -1;
-	INT idealCount = -1;
-	INT records = -1;
-	INT iterations = -1;
-	INT threads = 0;
-	INT phase = 0;
+	int inputCount = -1;
+	int idealCount = -1;
+	int records = -1;
+	int iterations = -1;
+	int threads = 0;
+	int phase = 0;
+	
 	char command[MAX_STR];
 	char arg1[MAX_STR];
 	char arg2[MAX_STR];
@@ -463,8 +478,19 @@ int main(int argc, char* argv[])
 			} else if( !EncogUtilStrcmpi(parsedOption,"THREADS") ) {
 				threads = atoi(parsedArgument);
 				omp_set_num_threads(threads);
+			} else if( !EncogUtilStrcmpi(parsedOption,"PARTICLES") ) {
+				_particles = atoi(parsedArgument);
+			} else if( !EncogUtilStrcmpi(parsedOption,"INERTIA") ) {
+				_inertiaWeight = atof(parsedArgument);
+			} else if( !EncogUtilStrcmpi(parsedOption,"C1") ) {
+				_c1 = atof(parsedArgument);
+			} else if( !EncogUtilStrcmpi(parsedOption,"C2") ) {
+				_c2 = atof(parsedArgument);
 			} else if( !EncogUtilStrcmpi(parsedOption,"GPU") ) {
 				enableGPU(parsedArgument);
+			} else {
+				printf("Unknown option: %s\n",parsedOption);
+				exit(0);
 			}
 			
 		}

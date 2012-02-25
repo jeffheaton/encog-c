@@ -54,7 +54,8 @@ void EncogTrainStandardCallback(ENCOG_TRAINING_REPORT *report) {
 		EncogStrCatStr(line,"Iteration #",MAX_STR);
 		EncogStrCatInt(line,report->iterations,MAX_STR);
 		EncogStrCatStr(line,", Error: ",MAX_STR);
-		EncogStrCatDouble(line,report->error,4,MAX_STR);
+		EncogStrCatDouble(line,report->error*100.0,4,MAX_STR);
+		EncogStrCatChar(line,'%',MAX_STR);
 		puts(line);
 	}
 

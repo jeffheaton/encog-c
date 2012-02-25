@@ -37,13 +37,13 @@ endif
 _LIB_DEPS = encog.h
 LIB_DEPS = $(patsubst %,$(LIB_IDIR)/%,$(_LIB_DEPS))
 
-_LIB_OBJ = activation.o errorcalc.o network_io.o util.o util_str.o data.o errors.o network.o pso.o util_file.o vector.o
+_LIB_OBJ = activation.o errorcalc.o network_io.o util.o util_str.o data.o errors.o network.o pso.o util_file.o vector.o encog.o 
 LIB_OBJ = $(patsubst %,$(LIB_ODIR)/%,$(_LIB_OBJ))
 
 _CMD_DEPS = encog-cmd.h
 CMD_DEPS = $(patsubst %,$(CMD_IDIR)/%,$(_CMD_DEPS))
 
-_CMD_OBJ = encog-cmd.o trainer.o cuda_test.o
+_CMD_OBJ = encog-cmd.o cuda_test.o node_unix.o
 CMD_OBJ = $(patsubst %,$(CMD_ODIR)/%,$(_CMD_OBJ))
 
 ifeq ($(CUDA),1) 

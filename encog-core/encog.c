@@ -63,3 +63,4 @@ void EncogTrainStandardCallback(ENCOG_TRAINING_REPORT *report) {
 	}
 
 }
+

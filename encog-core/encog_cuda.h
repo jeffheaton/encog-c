@@ -32,8 +32,6 @@ typedef struct GPU_CONST_NETWORK
 
 typedef struct GPU_DYNAMIC_NETWORK
 {
-    REAL *layerOutput;
-    REAL *layerSums;
     REAL *weights;
 } GPU_DYNAMIC_NETWORK;
 

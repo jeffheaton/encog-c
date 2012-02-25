@@ -34,46 +34,16 @@ __device__ REAL *EncogGPUDataGetIdeal(REAL *data, unsigned int index)
     return &data[i+cnet.inputCount];
 }
 
-__device__ void EncogGPUNetworkClearContext(GPU_DYNAMIC_NETWORK *dnet)
-{
-    INT index = 0;
-    INT hasBias;
-    INT i;
-    INT j;
-
-    for (i = 0; i < cnet.layerCount; i++)
-    {
-        hasBias = (cnet.layerContextCount[i] + cnet.layerFeedCounts[i]) != cnet.layerCounts[i];
-
-        // fill in regular neurons
-        for (j = 0; j < cnet.layerFeedCounts[i]; j++)
-        {
-            dnet->layerOutput[index++] = 0;
-        }
-
-        // fill in the bias
-        if (hasBias)
-        {
-            dnet->layerOutput[index++] = cnet.biasActivation[i];
-        }
-
-        // fill in context
-        for (j = 0; j < cnet.layerContextCount[i]; j++)
-        {
-            dnet->layerOutput[index++] = 0;
-        }
-    }
-}
-
 __device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer, REAL *input, REAL *output)
 {
     int x;
     int y;
-    int inputSize = cnet.layerCounts[currentLayer];
+    int inputSize = cnet.layerFeedCounts[currentLayer];
     int outputSize = cnet.layerFeedCounts[currentLayer - 1];
 	REAL *iptr;
 
     int index = cnet.weightIndex[currentLayer - 1];
+	int hasBias = (cnet.layerContextCount[currentLayer] + cnet.layerFeedCounts[currentLayer]) != cnet.layerCounts[currentLayer];
 
     // weight values
     while(outputSize--)
@@ -84,6 +54,10 @@ __device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer, REAL 
         {
             sum += dnet->weights[index++] * *(iptr++);
         }
+
+		if( hasBias ) {
+			sum += dnet->weights[index++];
+		}
 
 		switch(cnet.activationFunctionIDs[currentLayer - 1]) 
 		{
@@ -149,30 +123,40 @@ __device__ float EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input, R
 {
     int i;
     int sourceIndex;
+	REAL l1[1024];
+	REAL l2[1024];
+	REAL *inputPtr = l1;
+	REAL *outputPtr = l2;
+	REAL *temp;
 	
 	sourceIndex = cnet.neuronCount - cnet.layerCounts[cnet.layerCount - 1];
 
     // compute the input layer to first hidden layer (h1)
 	i = cnet.layerCount-1;
-	_ComputeLayer(dnet,i,input,&dnet->layerOutput[i-1]);
+	_ComputeLayer(dnet,i,input,outputPtr);
 
 	// compute h2 to hx (if they even exist)
     for (i = cnet.layerCount - 2; i > 1; i--)
     {
-        _ComputeLayer(dnet,i,&dnet->layerOutput[i],&dnet->layerOutput[i-1]);
+		// swap the input ptr and output ptr
+		temp = inputPtr;
+		inputPtr = outputPtr;
+		outputPtr = temp;
+		// compute the layer
+        _ComputeLayer(dnet,i,inputPtr,outputPtr);
     }
 
 	// compute hx to output
 	i = 0;
-	return _ComputeOutputError(dnet,i,input, ideal);
+	// use outputPtr even though we want inputPtr, we are just being efficient and not performing a final "swap"
+	return _ComputeOutputError(dnet,i,outputPtr, ideal);
 
 }
 
 
-__global__ void EncogGPUEval(REAL *data, REAL *dynamic, REAL *weights, float *errors)
+__global__ void EncogGPUEval(REAL *data, REAL *weights, float *errors)
 {
 	__shared__ float cache[THREADS_PER_BLOCK];
-
     int tid = blockDim.x * blockIdx.x + threadIdx.x;
 	int cacheIndex = threadIdx.x;
 	float temp = 0;
@@ -181,13 +165,10 @@ __global__ void EncogGPUEval(REAL *data, REAL *dynamic, REAL *weights, float *er
 
     while (tid < cnet.recordCount)
 	{	
-		dnet.layerOutput = dynamic + (cnet.dynamicSize*tid);
-		dnet.layerSums = dnet.layerOutput + cnet.neuronCount;
 		dnet.weights = weights;
         REAL *input = EncogGPUDataGetInput(data,tid);
 		REAL *ideal = EncogGPUDataGetIdeal(data,tid);
 		//errors = cnet.dynamicSize;
-		EncogGPUNetworkClearContext(&dnet);
 		temp += EncogGPUNetworkCompute(&dnet,input,ideal);		
 		tid+=blockDim.x*gridDim.x;	
 	}
@@ -263,7 +244,6 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
 
     // Allocate vectors in device memory
     checkCudaErrors( cudaMalloc((void**)&result->deviceData, dataSize*sizeof(REAL)) );
-    checkCudaErrors( cudaMalloc((void**)&result->deviceDynamic, totalDynamicSize*sizeof(REAL)) );
 	checkCudaErrors( cudaMalloc((void**)&result->deviceErrors, result->blocksPerGrid * sizeof(float)) );
 	checkCudaErrors( cudaMalloc((void**)&result->deviceWeights, net->weightCount*sizeof(REAL)) );
 	result->errors = (float*)EncogUtilAlloc(data->recordCount,sizeof(float));
@@ -278,7 +258,6 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
 
 extern "C" void EncogGPUDeviceDelete(GPU_DEVICE *device) {
     cudaFree(device->deviceData);
-	cudaFree(device->deviceDynamic);
 	cudaFree(device->deviceErrors);
 	cudaFree(device->deviceWeights);
 	EncogUtilFree(device->errors);
@@ -300,7 +279,7 @@ extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net
    cudaEventCreate(&stop);
 
    checkCudaErrors( cudaEventRecord(start,0) );
-	EncogGPUEval<<<device->blocksPerGrid, THREADS_PER_BLOCK>>>(device->deviceData, device->deviceDynamic, device->deviceWeights, device->deviceErrors);
+	EncogGPUEval<<<device->blocksPerGrid, THREADS_PER_BLOCK>>>(device->deviceData, device->deviceWeights, device->deviceErrors);
    checkCudaErrors( cudaEventRecord(stop,0) );
     
 	getLastCudaError("kernel launch failure");

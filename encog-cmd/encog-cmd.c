@@ -228,6 +228,7 @@ void train(char *egFile, char *egbFile) {
 	pso->currentReport.maxError = 0.00f;
 	pso->currentReport.maxIterations = 0;
 	pso->currentReport.updateSeconds = 1;
+	pso->currentReport.maxError = 0.01;
 	pso->reportTarget = EncogTrainStandardCallback;
     EncogTrainPSORun(pso);
 	

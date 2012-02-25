@@ -100,7 +100,7 @@ typedef struct ENCOG_CONTEXT {
 typedef struct GPU_DEVICE {
 	INT deviceID;
 	REAL *deviceData;
-	REAL *deviceDynamic;
+//	REAL *deviceDynamic;
 	float *deviceErrors;
 	REAL *deviceWeights;
 	float *errors;

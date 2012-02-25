@@ -10,6 +10,9 @@ extern "C" {
 int TestVectorAdd();
 void TestCUDA();
 
+void EncogNodeMain(int port);
+void EncogNodeRecv(unsigned char b);
+
 #ifdef __cplusplus
 }
 #endif 

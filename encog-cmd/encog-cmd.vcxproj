@@ -149,6 +149,9 @@
   <ItemGroup>
     <ClCompile Include="cuda_test.c" />
     <ClCompile Include="encog-cmd.c" />
+    <ClCompile Include="node.c" />
+    <ClCompile Include="node_unix.c" />
+    <ClCompile Include="node_windows.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="encog-cmd.h" />

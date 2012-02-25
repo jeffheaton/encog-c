@@ -485,7 +485,9 @@ int main(int argc, char* argv[])
 		RandomizeNetwork(arg1);
 	} else if (!EncogUtilStrcmpi(command,"error") ) {
 		EvaluateError(arg1,arg2);
-	} else if (!EncogUtilStrcmpi(command,"cuda") ) {
+	} else if (!EncogUtilStrcmpi(command,"node") ) {
+		EncogNodeMain(8080);
+	}else if (!EncogUtilStrcmpi(command,"cuda") ) {
 #ifdef ENCOG_CUDA
 		if( encogContext.gpuEnabled ) {
 			TestCUDA();

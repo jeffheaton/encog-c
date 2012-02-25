@@ -97,30 +97,75 @@ __device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer, REAL 
 				*(output++) = EncogGPUActivationTANH(sum);
 				break;
 		}
-
         //dnet->layerSums[x] = sum;
     }
-
-	
-
 }
 
-__device__ void EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input)
+__device__ float _ComputeOutputError(GPU_DYNAMIC_NETWORK *dnet, int currentLayer, REAL *input, REAL *ideal)
+{
+    int x;
+    int y;
+    int inputSize = cnet.layerCounts[currentLayer];
+    int outputSize = cnet.layerFeedCounts[currentLayer - 1];
+	REAL *iptr;
+	REAL delta;
+	float result;
+
+    int index = cnet.weightIndex[currentLayer - 1];
+
+	result = 0;
+
+    // weight values
+    while(outputSize--)
+    {
+        REAL sum = 0;
+		iptr = input;
+        for (y = 0; y < inputSize; y++)
+        {
+            sum += dnet->weights[index++] * *(iptr++);
+        }
+
+		switch(cnet.activationFunctionIDs[currentLayer - 1]) 
+		{
+			case AF_LINEAR:
+				delta = EncogGPUActivationLinear(sum);
+				break;
+			case AF_SIGMOID:
+				delta = EncogGPUActivationSigmoid(sum);
+				break;
+			case AF_TANH:
+				delta = EncogGPUActivationTANH(sum);
+				break;
+		}
+
+		delta-=*(ideal++);
+		result+=delta*delta;
+    }
+
+	return result;
+}
+
+__device__ float EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input, REAL *ideal)
 {
     int i;
     int sourceIndex;
 	
 	sourceIndex = cnet.neuronCount - cnet.layerCounts[cnet.layerCount - 1];
 
-    //memcpy(dnet->layerOutput+sourceIndex,input,cnet.inputCount*sizeof(REAL));
-
+    // compute the input layer to first hidden layer (h1)
 	i = cnet.layerCount-1;
 	_ComputeLayer(dnet,i,input,&dnet->layerOutput[i-1]);
 
-    for (i = cnet.layerCount - 2; i > 0; i--)
+	// compute h2 to hx (if they even exist)
+    for (i = cnet.layerCount - 2; i > 1; i--)
     {
         _ComputeLayer(dnet,i,&dnet->layerOutput[i],&dnet->layerOutput[i-1]);
     }
+
+	// compute hx to output
+	i = 0;
+	return _ComputeOutputError(dnet,i,input, ideal);
+
 }
 
 
@@ -143,12 +188,7 @@ __global__ void EncogGPUEval(REAL *data, REAL *dynamic, REAL *weights, float *er
 		REAL *ideal = EncogGPUDataGetIdeal(data,tid);
 		//errors = cnet.dynamicSize;
 		EncogGPUNetworkClearContext(&dnet);
-		EncogGPUNetworkCompute(&dnet,input);
-		REAL delta = *dnet.layerOutput - *ideal;
-
-		temp += delta*delta;
-		//errors[tid] = delta * delta;	
-		
+		temp += EncogGPUNetworkCompute(&dnet,input,ideal);		
 		tid+=blockDim.x*gridDim.x;	
 	}
 
@@ -283,7 +323,7 @@ extern "C" float EncogCUDAErrorSSE(GPU_DEVICE *device, ENCOG_NEURAL_NETWORK *net
 	checkCudaErrors( cudaEventDestroy( start ) );
 	checkCudaErrors( cudaEventDestroy( stop ) );
 
-	return sum/device->recordCount;   
+	return sum/(device->recordCount*net->outputCount);   
 }
 
 

@@ -162,8 +162,9 @@
     <ClInclude Include="encog_cuda.h" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="cuda_eval.cu" />
-    <CudaCompile Include="encog_cuda.cu" />
+    <CudaCompile Include="cuda_eval.cu">
+      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_20,sm_20</CodeGeneration>
+    </CudaCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

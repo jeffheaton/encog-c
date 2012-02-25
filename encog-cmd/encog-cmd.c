@@ -31,6 +31,7 @@ void cudaNotCompiled() {
 void ParseOption(char *str)
 {
 	char *ptr;
+	int l;
 
 	if( *str=='/' || *str=='-' ) {
 		str++;
@@ -39,12 +40,26 @@ void ParseOption(char *str)
 	ptr = strchr(str,':');
 
 	if( ptr!=NULL ) {
-		strncpy(parsedOption,str,MIN(MAX_STR,ptr-str));
+		l=ptr-str;
+		strncpy(parsedOption,str,MIN(MAX_STR,l));
+		*(parsedOption+l)=0;
 		strncpy(parsedArgument,ptr+1,MAX_STR);
 	} else {
 		strncpy(parsedOption,str,MAX_STR);
 		*parsedArgument = 0;
 	}
+}
+
+void displayStats(ENCOG_TRAIN_PSO *pso) {
+#ifdef ENCOG_CUDA
+	if( encogContext.gpuEnabled ) {
+		printf("CUDA Stats: avg work unit time = %f ms, work unit calls = %i\n", pso->cudaKernelTime, pso->cudaKernelCalls);
+	} else {
+		puts("CUDA Stats: GPU disabled\n");
+	}
+#endif
+	printf("CPU Stats: avg work unit time = %f ms, work unit calls = %i\n", pso->cpuWorkUnitTime, pso->cpuWorkUnitCalls);
+
 }
 
 void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) {
@@ -107,11 +122,7 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 	elapsed = endTime - startTime;
 
 	printf("Benchmark time(seconds): %.4f\nBenchmark time includes only training time.\n\n",(float)elapsed);
-
-#ifdef ENCOG_CUDA
-	printf("CUDA Stats: avg work unit time = %f ms, work unit calls = %i\n", pso->cudaKernelTime, pso->cudaKernelCalls);
-#endif
-	printf("CPU Stats: avg work unit time = %f ms, work unit calls = %i\n", pso->cpuWorkUnitTime, pso->cpuWorkUnitCalls);
+	displayStats(pso);
 
 
 }
@@ -235,6 +246,10 @@ void train(char *egFile, char *egbFile, int iterations) {
 	pso->currentReport.maxError = 0.01;
 	pso->reportTarget = EncogTrainStandardCallback;
     EncogTrainPSORun(pso);
+
+	EncogTrainPSOFinish(pso);
+
+	displayStats(pso);
 	
 /* Pull the best neural network that the PSO found */
     EncogTrainPSOImportBest(pso,net);

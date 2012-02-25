@@ -245,8 +245,6 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
 
 	result->blocksPerGrid = MIN(32,(data->recordCount + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK);
 
-	printf("Blocks per grid: %i\n", result->blocksPerGrid);
-
 	int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
 	int totalDynamicSize = tempConstNet.dynamicSize * dataSize; 
 

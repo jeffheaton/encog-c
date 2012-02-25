@@ -287,9 +287,13 @@ void EncogStrCatRuntime(char *base, double t,size_t len)
 	INT minutes, hours;
 	float seconds;
 	seconds = t;
-	hours = seconds/360;
-	seconds -= hours*360;
+	hours = seconds/3600;
+	seconds -= hours*3600;
 	minutes = seconds/60;
 	seconds -= minutes*60;
-	sprintf(base+strlen(base),"%02i:%02i:%02.4f",hours,minutes,seconds);
+	sprintf(base+strlen(base),"%02i:%02i:",hours,minutes);
+	if( seconds<10 ) {
+		EncogStrCatChar(base,'0',len);
+	}
+	sprintf(base+strlen(base),"%2.4f",seconds);
 }

@@ -24,6 +24,12 @@
     <ClCompile Include="encog-cmd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="node_windows.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="node.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="encog-cmd.h">

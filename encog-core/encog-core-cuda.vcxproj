@@ -140,10 +140,6 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="..\encog-cmd\cuda_eval.cu">
-      <FileType>Document</FileType>
-      <Include Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">c:\projects\encog-c\encog-core</Include>
-    </CudaCompile>
     <None Include="makefile" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
@@ -164,6 +160,10 @@
   <ItemGroup>
     <ClInclude Include="encog.h" />
     <ClInclude Include="encog_cuda.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="cuda_eval.cu" />
+    <CudaCompile Include="encog_cuda.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

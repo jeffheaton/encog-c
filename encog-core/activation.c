@@ -47,3 +47,18 @@ void EncogActivationTANH(REAL *d,int count)
         d++;
     }
 }
+
+REAL EncogDerivativeLinear(REAL b, REAL a)
+{
+	return 1;
+}
+
+REAL EncogDerivativeSigmoid(REAL b, REAL a)
+{
+	return a * (1.0 - a);
+}
+
+REAL EncogDerivativeTANH(REAL b, REAL a)
+{
+    return (1.0 - a * a);
+}

@@ -86,6 +86,7 @@ struct ENCOG_TRAIN_PSO;
 struct ENCOG_TRAINING_REPORT;
 
 typedef void(*ACTIVATION_FUNCTION)(REAL *,int);
+typedef REAL(*DERIVATIVE_FUNCTION)(REAL b, REAL a);
 typedef void(*ENCOG_TASK)(void*);
 
 typedef struct ENCOG_CONTEXT {
@@ -124,79 +125,26 @@ typedef struct
     INT layerCount;
     INT neuronCount;
     INT weightCount;
-
-    /**
-    	 * The number of input neurons in this network.
-    	 */
-    INT inputCount;
-
-    /**
-     * The number of neurons in each of the layers.
-     */
-    INT *layerCounts;
-
-    /**
-     * The number of context neurons in each layer. These context neurons will
-     * feed the next layer.
-     */
-    INT *layerContextCount;
-
-    /**
-     * The number of neurons in each layer that are actually fed by neurons in
-     * the previous layer. Bias neurons, as well as context neurons, are not fed
-     * from the previous layer.
-     */
-    INT *layerFeedCounts;
-
-    /**
-     * An index to where each layer begins (based on the number of neurons in
-     * each layer).
-     */
-    INT *layerIndex;
-
-    /**
-     * The outputs from each of the neurons.
-     */
-    REAL *layerOutput;
-
-    /**
-     * The sum of the layer, before the activation function is applied, producing the layerOutput.
-     */
-    REAL *layerSums;
-
-    /**
-     * The number of output neurons in this network.
-     */
-    INT outputCount;
-
-    /**
-     * The index to where the weights that are stored at for a given layer.
-     */
-    INT *weightIndex;
-
-    /**
-     * The weights for a neural network.
-     */
-    REAL *weights;
-
-    /**
-     * The activation types.
-     */
-    ACTIVATION_FUNCTION *activationFunctions;
+    INT inputCount; /* Input neuron count */
+    INT *layerCounts; /* neuron count per layer */
+    INT *layerContextCount; /* context neurons per layer */
+    INT *layerFeedCounts; /* number of neurons, per layer, fed by prev layer */
+    INT *layerIndex; /* index to begin of each layer */
+    REAL *layerOutput; /* The outputs from each of the neurons. */
+    REAL *layerSums; /* sum of each layer (before activ) */
+    INT outputCount; /* output neuron count */
+    INT *weightIndex; /* index to layer weights */
+    REAL *weights; /* neural network weights */
+    ACTIVATION_FUNCTION *activationFunctions; /* The activation types. */
+	DERIVATIVE_FUNCTION *derivativeFunctions;
 	INT *activationFunctionIDs;
-
-    /**
-     * The bias activation for each layer. This is usually either 1, for a bias,
-     * or zero for no bias.
-     */
-    REAL *biasActivation;
-
-		INT beginTraining;
+    REAL *biasActivation; /* bias activation, per layer, typically 1 */
+	INT beginTraining;
 	REAL connectionLimit;
 	INT *contextTargetOffset;
 	INT *contextTargetSize;
 	INT endTraining;
-	INT hasContext;
+	INT hasContext;	
 
 } ENCOG_NEURAL_NETWORK;
 
@@ -238,49 +186,12 @@ typedef struct ENCOG_TRAIN_PSO
 {
     ENCOG_PARTICLE *particles;
     int bestParticle;
-
-    // Typical range is 20 - 40 for many problems.
-    // More difficult problems may need much higher value.
-    // Must be low enough to keep the training process
-    // computationally efficient.
     int populationSize;
-
-    // Determines the size of the search space.
-    // The position components of particle will be bounded to
-    // [-maxPos, maxPos]
-    // A well chosen range can improve the performance.
-    // -1 is a special value that represents boundless search space.
     REAL maxPosition;
-
-    // Maximum change one particle can take during one iteration.
-    // Imposes a limit on the maximum absolute value of the velocity
-    // components of a particle.
-    // Affects the granularity of the search.
-    // If too high, particle can fly past optimum solution.
-    // If too low, particle can get stuck in local minima.
-    // Usually set to a fraction of the dynamic range of the search
-    // space (10% was shown to be good for high dimensional problems).
-    // -1 is a special value that represents boundless velocities.
     REAL maxVelocity;
-
-    // c1, cognitive learning rate >= 0
-    // tendency to return to personal best position
     REAL c1;
-
-    // c2, social learning rate >= 0
-    // tendency to move towards the swarm best position
     REAL c2;
-
-    // w, inertia weight.
-    // Controls global (higher value) vs local exploration
-    // of the search space.
-    // Analogous to temperature in simulated annealing.
-    // Must be chosen carefully or gradually decreased over time.
-    // Value usually between 0 and 1.
     REAL inertiaWeight;
-
-    // If true, the position of the previous global best position
-    // can be updated *before* the other particles have been modified.
     int pseudoAsynchronousUpdate;
 
     int dimensions;
@@ -299,6 +210,20 @@ typedef struct ENCOG_TRAIN_PSO
 
 } ENCOG_TRAIN_PSO;
 
+typedef struct ENCOG_TRAIN_RPROP
+{
+	ENCOG_DATA *data;
+	ENCOG_TRAINING_REPORT currentReport;
+	ENCOG_REPORT_FUNCTION reportTarget;
+	ENCOG_NEURAL_NETWORK *network;
+
+	REAL *gradients;
+	REAL *deltas;
+	REAL *layerDelta;
+	float errorSum;
+
+} ENCOG_TRAIN_RPROP;
+
 typedef struct {
 char ident[8];
 double input;
@@ -308,6 +233,10 @@ double ideal;
 void EncogActivationLinear(REAL *d,int count);
 void EncogActivationSigmoid(REAL *d,int count);
 void EncogActivationTANH(REAL *d,int count);
+
+REAL EncogDerivativeLinear(REAL b, REAL a);
+REAL EncogDerivativeSigmoid(REAL b, REAL a);
+REAL EncogDerivativeTANH(REAL b, REAL a);
 
 ENCOG_NEURAL_NETWORK *EncogNetworkNew();
 void EncogNetworkDelete(ENCOG_NEURAL_NETWORK *network);
@@ -324,6 +253,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name);
 void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network);
 ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int defaultInputCount, int defaultOutputCount);
 ACTIVATION_FUNCTION EncogNetworkResolveAF(INT af);
+DERIVATIVE_FUNCTION EncogNetworkResolveDR(INT af);
 
 void EncogUtilInitRandom();
 REAL EncogUtilRandomRange(REAL low, REAL high);

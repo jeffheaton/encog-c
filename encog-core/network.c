@@ -157,6 +157,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
 	result->layerCounts = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
     result->biasActivation = (REAL*)EncogUtilAlloc(result->layerCount,sizeof(REAL));
     result->activationFunctions = (ACTIVATION_FUNCTION*)EncogUtilAlloc(result->layerCount,sizeof(ACTIVATION_FUNCTION));
+	result->derivativeFunctions = (DERIVATIVE_FUNCTION*)EncogUtilAlloc(result->layerCount,sizeof(DERIVATIVE_FUNCTION));
 	result->activationFunctionIDs = (INT*)EncogUtilAlloc(result->layerCount,sizeof(ACTIVATION_FUNCTION));
     result->layerContextCount = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
     result->weightIndex = (INT*)EncogUtilAlloc(result->layerCount,sizeof(INT));
@@ -177,6 +178,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
         result->layerFeedCounts[index]=current->feedCount;
         result->biasActivation[index]=current->bias;
         result->activationFunctions[index]=EncogNetworkResolveAF(current->af);
+		result->derivativeFunctions[index]=EncogNetworkResolveDR(current->af);
 		result->activationFunctionIDs[index] = current->af;
 
         if (index == 0)
@@ -476,6 +478,16 @@ ACTIVATION_FUNCTION EncogNetworkResolveAF(INT af) {
 		case AF_LINEAR:return EncogActivationLinear;
 		case AF_SIGMOID:return EncogActivationSigmoid;
 		case AF_TANH:return EncogActivationTANH;
+		default:
+			return NULL;
+	}
+}
+
+DERIVATIVE_FUNCTION EncogNetworkResolveDR(INT af) {
+	switch(af) {
+		case AF_LINEAR:return EncogDerivativeLinear;
+		case AF_SIGMOID:return EncogDerivativeSigmoid;
+		case AF_TANH:return EncogDerivativeTANH;
 		default:
 			return NULL;
 	}

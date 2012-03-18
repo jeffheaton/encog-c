@@ -150,6 +150,7 @@ static void _LoadBasic(_PARSED_NETWORK *parse)
 		parse->network->layerCount = EncogStrCountValues(value);
 		parse->network->layerCounts = EncogStrParseIntList(value);
 		parse->network->activationFunctions = (ACTIVATION_FUNCTION*)EncogUtilAlloc(parse->network->layerCount,sizeof(ACTIVATION_FUNCTION));
+		parse->network->derivativeFunctions = (DERIVATIVE_FUNCTION*)EncogUtilAlloc(parse->network->layerCount,sizeof(DERIVATIVE_FUNCTION));
 		parse->network->activationFunctionIDs = (INT*)EncogUtilAlloc(parse->network->layerCount,sizeof(INT));
 	}
 	else if(!strcmp(name,"layerFeedCounts") )
@@ -192,16 +193,19 @@ static void _LoadActivation(char *line, _PARSED_NETWORK *parse, int currentActiv
 	if( !strcmp(line,"ActivationLinear") )
 	{
 		parse->network->activationFunctions[currentActivation] = &EncogActivationLinear;
+		parse->network->derivativeFunctions[currentActivation] = &EncogDerivativeLinear;
 		parse->network->activationFunctionIDs[currentActivation] = AF_LINEAR;
 	}
 	else if( !strcmp(line,"ActivationSigmoid") )
 	{
 		parse->network->activationFunctions[currentActivation] = &EncogActivationSigmoid;
+		parse->network->derivativeFunctions[currentActivation] = &EncogDerivativeSigmoid;
 		parse->network->activationFunctionIDs[currentActivation] = AF_SIGMOID;
 	}
 	else if( !strcmp(line,"ActivationTANH") )
 	{
 		parse->network->activationFunctions[currentActivation] = EncogActivationTANH;
+		parse->network->derivativeFunctions[currentActivation] = &EncogDerivativeTANH;
 		parse->network->activationFunctionIDs[currentActivation] = AF_TANH;
 	}
 }

@@ -370,6 +370,26 @@ ENCOG_NEURAL_NETWORK *result;
     return result;
 }
 
+ENCOG_NEURAL_NETWORK *EncogNetworkTransactionClone(ENCOG_NEURAL_NETWORK *net)
+{
+	ENCOG_NEURAL_NETWORK *result;
+
+	/* Clear out any previous errors */
+	EncogErrorClear();
+
+	if( net->weights == NULL ) {
+		EncogErrorSet(ENCOG_ERROR_NETWORK_NOT_FINALIZED);
+		return NULL;
+	}
+		
+	result = (ENCOG_NEURAL_NETWORK *)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
+
+    memcpy(result,net,sizeof(ENCOG_NEURAL_NETWORK));
+    result->layerOutput = (REAL*)EncogUtilDuplicateMemory(net->layerOutput,net->neuronCount,sizeof(REAL));
+    result->layerSums = (REAL*)EncogUtilDuplicateMemory(net->layerSums,net->neuronCount,sizeof(REAL));
+    return result;
+}
+
 ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int defaultInputCount, int defaultOutputCount)
 {
 	char line[MAX_STR];

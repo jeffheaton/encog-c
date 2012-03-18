@@ -42,6 +42,9 @@ extern "C" {
 #define AF_SIGMOID	1
 #define AF_TANH		2
 
+#define TRAIN_TYPE_PSO		0
+#define TRAIN_TYPE_RPROP	1
+
 #define ENCOG_ERROR_OK				0
 #define ENCOG_ERROR_FILE_NOT_FOUND	1
 #define ENCOG_ERROR_IO				2
@@ -215,11 +218,15 @@ typedef struct ENCOG_TRAIN_RPROP
 	ENCOG_DATA *data;
 	ENCOG_TRAINING_REPORT currentReport;
 	ENCOG_REPORT_FUNCTION reportTarget;
-	ENCOG_NEURAL_NETWORK *network;
+	ENCOG_NEURAL_NETWORK **network;
+	ENCOG_NEURAL_NETWORK *targetNetwork;
+
+	REAL *lastGradient;
+	REAL *updateValues;
+	REAL *lastWeightChange;
 
 	REAL *gradients;
-	REAL *deltas;
-	REAL *layerDelta;
+	REAL **layerDelta;
 	float errorSum;
 
 } ENCOG_TRAIN_RPROP;
@@ -249,6 +256,7 @@ void EncogNetworkExportWeights(ENCOG_NEURAL_NETWORK *net, REAL *weights);
 void EncogNetworkDump(ENCOG_NEURAL_NETWORK *net);
 void EncogNetworkClearContext(ENCOG_NEURAL_NETWORK *net);
 ENCOG_NEURAL_NETWORK *EncogNetworkClone(ENCOG_NEURAL_NETWORK *net);
+ENCOG_NEURAL_NETWORK *EncogNetworkTransactionClone(ENCOG_NEURAL_NETWORK *net);
 ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name);
 void EncogNetworkSave(char *name, ENCOG_NEURAL_NETWORK *network);
 ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int defaultInputCount, int defaultOutputCount);
@@ -303,6 +311,9 @@ void EncogTrainPSODelete(ENCOG_TRAIN_PSO *pso);
 float EncogTrainPSORun(ENCOG_TRAIN_PSO *pso);
 void EncogTrainPSOImportBest(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *net);
 void EncogTrainPSOFinish(ENCOG_TRAIN_PSO *pso);
+
+ENCOG_TRAIN_RPROP *EncogTrainRPROPNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data);
+float EncogTrainRPROPRun(ENCOG_TRAIN_RPROP *rprop);
 
 void EncogErrorClear();
 int EncogErrorGet();

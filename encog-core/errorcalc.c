@@ -67,5 +67,5 @@ float EncogCPUErrorSSE(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
         }
     }
 
-    return (float)(sum/data->recordCount);
+	return (float)(sum/(data->recordCount*data->idealCount));
 }

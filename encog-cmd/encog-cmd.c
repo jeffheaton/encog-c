@@ -7,6 +7,9 @@ static int _particles = 30;
 static REAL _inertiaWeight = 0.4;
 static REAL _c1 = 2.0;
 static REAL _c2 = 2.0;
+static int trainingType = TRAIN_TYPE_RPROP;
+
+void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 
 void Usage() {
 	puts("\nUsage:\n");
@@ -158,22 +161,7 @@ void XORTest() {
     net = EncogNetworkFactory("basic", "2:B->SIGMOID->2:B->SIGMOID->1", 0,0);
 	EncogErrorCheck();
 
-/* Create a PSO trainer */
-    pso = EncogTrainPSONew(_particles, net, data);
-	pso->inertiaWeight = _inertiaWeight;
-	pso->c1 = _c1;
-	pso->c2 = _c2;
-	EncogErrorCheck();
-
-/* Begin training, report progress. */
-	pso->currentReport.maxError = 0.01f;
-	pso->currentReport.updateSeconds = 0;
-	pso->reportTarget = EncogTrainStandardCallback;
-    EncogTrainPSORun(pso);
-
-/* Pull the best neural network that the PSO found */
-    EncogTrainPSOImportBest(pso,net);
-    EncogTrainPSODelete(pso);
+	PerformTrain(net, data, 0);
 
 /* Display the results from the neural network, see if it learned anything */
     printf("\nResults:\n");
@@ -208,7 +196,6 @@ void XORTest() {
 void train(char *egFile, char *egbFile, int iterations ) {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
-	ENCOG_TRAIN_PSO *pso;
 
 	if( *egFile==0 || *egbFile==0 ) {
 		printf("Usage: train [egFile] [egbFile]\n");
@@ -245,38 +232,67 @@ void train(char *egFile, char *egbFile, int iterations ) {
 		return;
 	}
 
-/* Create a PSO trainer */
-	printf("Please wait...creating particles.\n");
-    pso = EncogTrainPSONew(_particles, net, data);
-	pso->inertiaWeight = _inertiaWeight;
-	pso->c1 = _c1;
-	pso->c2 = _c2;
-	EncogErrorCheck();
-
-/* Begin training, report progress. */	
-	pso->currentReport.maxError = 0.00f;
-	pso->currentReport.maxIterations = iterations;
-	pso->currentReport.updateSeconds = 1;
-	pso->currentReport.maxError = 0.01;
-	pso->reportTarget = EncogTrainStandardCallback;
-    EncogTrainPSORun(pso);
-
-	EncogTrainPSOFinish(pso);
-
-	displayStats(pso);
-	
-/* Pull the best neural network that the PSO found */
-    EncogTrainPSOImportBest(pso,net);
-	EncogErrorCheck();
+	PerformTrain(net, data, iterations);
 
 	EncogNetworkSave(egFile,net);
 	EncogErrorCheck();
 
-    EncogTrainPSODelete(pso);
-	EncogErrorCheck();
-
 	EncogNetworkDelete(net);
 	EncogErrorCheck();
+
+}
+
+void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, int iterations) 
+{
+	ENCOG_TRAIN_PSO *pso;
+	ENCOG_TRAIN_RPROP *rprop;
+	ENCOG_TRAINING_REPORT *report;
+
+	if( trainingType==TRAIN_TYPE_PSO ) 
+	{
+/* Create a PSO trainer */
+		printf("Training PSO\n");
+		printf("Please wait...creating particles.\n");
+		pso = EncogTrainPSONew(_particles, net, data);
+		pso->inertiaWeight = _inertiaWeight;
+		pso->c1 = _c1;
+		pso->c2 = _c2;
+		EncogErrorCheck();
+		report = &pso->currentReport;
+		pso->reportTarget = EncogTrainStandardCallback;
+	}
+	else if( trainingType==TRAIN_TYPE_RPROP ) 
+	{
+		printf("Training RPROP\n");
+		rprop = EncogTrainRPROPNew(net,data);
+		report = &rprop->currentReport;
+	}
+
+/* Begin training, report progress. */	
+	report->maxError = 0.00f;
+	report->maxIterations = iterations;
+	report->updateSeconds = 1;
+	report->maxError = 0.01;
+	
+	if( trainingType==TRAIN_TYPE_PSO )
+	{
+	    EncogTrainPSORun(pso);
+
+		EncogTrainPSOFinish(pso);
+
+		displayStats(pso);
+	
+/* Pull the best neural network that the PSO found */
+		EncogTrainPSOImportBest(pso,net);
+		EncogErrorCheck();
+		EncogTrainPSODelete(pso);
+		EncogErrorCheck();
+	}
+	else if( trainingType==TRAIN_TYPE_RPROP )
+	{
+		EncogTrainRPROPRun(rprop);
+	}
+
 }
 
 void EGB2CSV(char *egbFile, char *csvFile) 
@@ -432,6 +448,15 @@ void enableGPU(char *str) {
 #endif
 }
 
+void selectTrainingType(char *t)
+{
+	if( !EncogUtilStrcmpi(t,"RPROP") ) {
+		trainingType = TRAIN_TYPE_RPROP;
+	} else if( !EncogUtilStrcmpi(t,"PSO") ) {
+		trainingType = TRAIN_TYPE_PSO;
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	double started, ended;
@@ -488,6 +513,8 @@ int main(int argc, char* argv[])
 				_c2 = atof(parsedArgument);
 			} else if( !EncogUtilStrcmpi(parsedOption,"GPU") ) {
 				enableGPU(parsedArgument);
+			} else if( !EncogUtilStrcmpi(parsedOption,"TRAIN") ) {
+				selectTrainingType(parsedArgument);
 			} else {
 				printf("Unknown option: %s\n",parsedOption);
 				exit(0);

@@ -297,3 +297,14 @@ void EncogStrCatRuntime(char *base, double t,size_t len)
 	}
 	sprintf(base+strlen(base),"%2.4f",seconds);
 }
+
+unsigned long EncogUtilHash(unsigned char *str)
+{
+        unsigned long hash = 5381;
+        int c;
+
+        while (c = *str++)
+            hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+        return hash;
+}

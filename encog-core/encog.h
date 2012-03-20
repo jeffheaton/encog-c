@@ -42,9 +42,6 @@ extern "C" {
 #define AF_SIGMOID	1
 #define AF_TANH		2
 
-#define TRAIN_TYPE_PSO		0
-#define TRAIN_TYPE_RPROP	1
-
 #define ENCOG_ERROR_OK				0
 #define ENCOG_ERROR_FILE_NOT_FOUND	1
 #define ENCOG_ERROR_IO				2
@@ -58,6 +55,15 @@ extern "C" {
 #define ENCOG_ERROR_FACTORY_INVALID_ACTIVATION 10
 #define ENCOG_ERROR_FACTORY_INVALID_BIAS 11
 #define ENCOG_ERROR_FACTORY_INVALID_COND 12
+#define ENCOG_ERROR_OBJECT	13
+#define ENCOG_ERROR_OBJECT_TYPE	14
+#define	ENCOG_ERROR_UNKNOWN_TRAINING 15
+
+#define ENCOG_TYPE_NEURAL_NETWORK	1
+#define ENCOG_TYPE_DATA				2
+#define ENCOG_TYPE_PSO				3
+#define ENCOG_TYPE_RPROP			4
+#define ENCOG_TYPE_HASH				5
 
 #define SIZE_BYTE 1
 #define SIZE_KILOBYTE (SIZE_BYTE*1024)
@@ -87,10 +93,16 @@ typedef unsigned int INT;
 
 struct ENCOG_TRAIN_PSO;
 struct ENCOG_TRAINING_REPORT;
+struct ENCOG_HASH;
 
 typedef void(*ACTIVATION_FUNCTION)(REAL *,int);
 typedef REAL(*DERIVATIVE_FUNCTION)(REAL b, REAL a);
 typedef void(*ENCOG_TASK)(void*);
+
+typedef struct ENCOG_OBJECT {
+	char id[2];
+	char type;
+} ENCOG_OBJECT;
 
 typedef struct ENCOG_CONTEXT {
 #ifdef ENCOG_CUDA
@@ -99,6 +111,7 @@ typedef struct ENCOG_CONTEXT {
 	char version[10];
 	INT versionMajor;
 	INT versionMinor;
+	struct ENCOG_HASH *config;
 } ENCOG_CONTEXT;
 
 typedef struct GPU_DEVICE {
@@ -123,8 +136,9 @@ typedef struct NETWORK_LAYER
     unsigned char bias;
 } NETWORK_LAYER;
 
-typedef struct
+typedef struct ENCOG_NEURAL_NETWORK
 {
+	ENCOG_OBJECT encog;
     INT layerCount;
     INT neuronCount;
     INT weightCount;
@@ -151,8 +165,9 @@ typedef struct
 
 } ENCOG_NEURAL_NETWORK;
 
-typedef struct
+typedef struct ENCOG_DATA
 {
+	ENCOG_OBJECT encog;
     INT inputCount;
     INT idealCount;
     unsigned long recordCount;
@@ -187,6 +202,7 @@ typedef struct
 
 typedef struct ENCOG_TRAIN_PSO
 {
+	ENCOG_OBJECT encog;
     ENCOG_PARTICLE *particles;
     int bestParticle;
     int populationSize;
@@ -215,6 +231,7 @@ typedef struct ENCOG_TRAIN_PSO
 
 typedef struct ENCOG_TRAIN_RPROP
 {
+	ENCOG_OBJECT encog;
 	ENCOG_DATA *data;
 	ENCOG_TRAINING_REPORT currentReport;
 	ENCOG_REPORT_FUNCTION reportTarget;
@@ -237,6 +254,21 @@ double input;
 double ideal;
 } EGB_HEADER;
 
+typedef struct ENCOG_HASH_NODE {
+	char *key;
+	void *value;
+	struct ENCOG_HASH_NODE *next;
+	int hashCode;
+} ENCOG_HASH_NODE;
+
+typedef struct ENCOG_HASH {
+	ENCOG_OBJECT encog;
+	INT tableSize;
+	INT ignoreCase;
+	ENCOG_HASH_NODE **table;
+} ENCOG_HASH;
+
+
 void EncogActivationLinear(REAL *d,int count);
 void EncogActivationSigmoid(REAL *d,int count);
 void EncogActivationTANH(REAL *d,int count);
@@ -246,7 +278,6 @@ REAL EncogDerivativeSigmoid(REAL b, REAL a);
 REAL EncogDerivativeTANH(REAL b, REAL a);
 
 ENCOG_NEURAL_NETWORK *EncogNetworkNew();
-void EncogNetworkDelete(ENCOG_NEURAL_NETWORK *network);
 ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, int freeLayers);
 NETWORK_LAYER *EncogNetworkCreateLayer(NETWORK_LAYER *prevLayer, int count, INT af, unsigned char bias);
 void EncogNetworkCompute(ENCOG_NEURAL_NETWORK *net,REAL *input, REAL *output);
@@ -280,11 +311,11 @@ void EncogStrCatRuntime(char *base, double t,size_t len);
 char *EncogUtilStrlwr(char *string);
 char *EncogUtilStrupr(char *strint);
 int EncogUtilStrcmpi(char *s1, char *s2);
+unsigned long EncogUtilHash(unsigned char *str);
 
 void EncogDataCSVSave(char *filename, ENCOG_DATA *data, int decimals);
 ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount);
 ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, unsigned long records);
-void EncogDataDelete(ENCOG_DATA *data);
 void EncogDataAddVar(ENCOG_DATA *data, ...);
 void EncogDataAdd(ENCOG_DATA *data,char *str);
 REAL *EncogDataGetInput(ENCOG_DATA *data, INT index);
@@ -340,10 +371,26 @@ void EncogFileWriteValueIntArray(FILE *fp, char *name, INT *a, INT count);
 void EncogFileWriteValueDouble(FILE *fp, char *name, REAL value);
 void EncogFileWriteValueDoubleArray(FILE *fp, char *name, REAL *a, INT count);
 
+ENCOG_HASH *EncogHashNew(INT tableSize, INT ignoreCase);
+void EncogHashPut(ENCOG_HASH *hashTable, char *key, void *obj);
+void *EncogHashGet(ENCOG_HASH *hashTable, char *key);
+void EncogHashDump(ENCOG_HASH *hashTable);
+int EncogHashGetInteger(ENCOG_HASH *hashTable, char *key, int defaultValue);
+float EncogHashGetFloat(ENCOG_HASH *hashTable, char *key, float defaultValue);
+
 void EncogInit();
 void EncogShutdown();
 void EncogTrainMinimalCallback(ENCOG_TRAINING_REPORT *report);
 void EncogTrainStandardCallback(ENCOG_TRAINING_REPORT *report);
+
+void EncogObjectRegister(void *obj, int type);
+void EncogObjectValidate(void *obj, int type);
+void EncogObjectFree(void *obj);
+int EncogObjectGetType(ENCOG_OBJECT *encogObject);
+
+ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
+void EncogTrainRun(ENCOG_OBJECT *train, ENCOG_NEURAL_NETWORK *net);
+ENCOG_TRAINING_REPORT *EncogTrainReport(ENCOG_OBJECT *train);
 
 #ifdef ENCOG_CUDA
 

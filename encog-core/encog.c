@@ -4,6 +4,7 @@ ENCOG_CONTEXT encogContext;
 
 void EncogInit() {
 	memset(&encogContext,0,sizeof(ENCOG_CONTEXT));
+	encogContext.config = EncogHashNew(5,1);
 
 #ifdef ENCOG_CUDA
 	encogContext.gpuEnabled = 1;

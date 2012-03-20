@@ -37,17 +37,11 @@ ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, un
     data->idealCount = idealCount;
     data->recordCount = records;
     data->data = (REAL*)EncogUtilAlloc(records*(inputCount+idealCount+1),sizeof(REAL));
-    data->cursor = data->data;    
+    data->cursor = data->data;  
+
+	EncogObjectRegister(data, ENCOG_TYPE_DATA);
+
 	return data;
-}
-
-void EncogDataDelete(ENCOG_DATA *data)
-{
-	/* Clear out any previous errors */
-	EncogErrorClear();
-
-    EncogUtilFree(data->data);
-    EncogUtilFree(data);
 }
 
 void EncogDataAdd(ENCOG_DATA *data,char *str)
@@ -354,7 +348,7 @@ ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount)
 		EncogStrCatInt(numBuffer,lineSize,sizeof(numBuffer));
 		EncogStrCatStr(numBuffer," columns.",sizeof(numBuffer));
 
-		EncogDataDelete(result);
+		EncogObjectFree(result);
 		EncogErrorSet(ENCOG_ERROR_SIZE_MISMATCH);
 		EncogErrorSetArg(numBuffer);
 		return NULL;

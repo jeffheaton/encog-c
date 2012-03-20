@@ -7,7 +7,6 @@ static int _particles = 30;
 static REAL _inertiaWeight = 0.4;
 static REAL _c1 = 2.0;
 static REAL _c2 = 2.0;
-static int trainingType = TRAIN_TYPE_RPROP;
 
 void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 
@@ -188,7 +187,7 @@ void XORTest() {
     puts(line);
 
 /* Delete the neural network */
-    EncogNetworkDelete(net);
+    EncogObjectFree(net);
 	EncogErrorCheck();
 
 }
@@ -219,14 +218,14 @@ void train(char *egFile, char *egbFile, int iterations ) {
 	EncogErrorCheck();
 
 	if( data->inputCount != net->inputCount ) {
-		EncogNetworkDelete(net);
+		EncogObjectFree(net);
 		EncogErrorCheck();
 		printf("Error: The network has a different input count than the training data.\n");
 		return;
 	}
 
 	if( data->idealCount != net->outputCount ) {
-		EncogNetworkDelete(net);
+		EncogObjectFree(net);
 		EncogErrorCheck();
 		printf("Error: The network has a different output count than the training data.\n");
 		return;
@@ -237,61 +236,29 @@ void train(char *egFile, char *egbFile, int iterations ) {
 	EncogNetworkSave(egFile,net);
 	EncogErrorCheck();
 
-	EncogNetworkDelete(net);
+	EncogObjectFree(net);
 	EncogErrorCheck();
 
 }
 
 void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, int iterations) 
 {
-	ENCOG_TRAIN_PSO *pso;
-	ENCOG_TRAIN_RPROP *rprop;
+	ENCOG_OBJECT *trainer;
 	ENCOG_TRAINING_REPORT *report;
 
-	if( trainingType==TRAIN_TYPE_PSO ) 
-	{
-/* Create a PSO trainer */
-		printf("Training PSO\n");
-		printf("Please wait...creating particles.\n");
-		pso = EncogTrainPSONew(_particles, net, data);
-		pso->inertiaWeight = _inertiaWeight;
-		pso->c1 = _c1;
-		pso->c2 = _c2;
-		EncogErrorCheck();
-		report = &pso->currentReport;
-		pso->reportTarget = EncogTrainStandardCallback;
-	}
-	else if( trainingType==TRAIN_TYPE_RPROP ) 
-	{
-		printf("Training RPROP\n");
-		rprop = EncogTrainRPROPNew(net,data);
-		report = &rprop->currentReport;
-	}
+	trainer = EncogTrainNew(net,data);
+	EncogErrorCheck();
+
+	report = EncogTrainReport(trainer);
+	EncogErrorCheck();
 
 /* Begin training, report progress. */	
 	report->maxError = 0.00f;
 	report->maxIterations = iterations;
 	report->updateSeconds = 1;
 	report->maxError = 0.01;
-	
-	if( trainingType==TRAIN_TYPE_PSO )
-	{
-	    EncogTrainPSORun(pso);
 
-		EncogTrainPSOFinish(pso);
-
-		displayStats(pso);
-	
-/* Pull the best neural network that the PSO found */
-		EncogTrainPSOImportBest(pso,net);
-		EncogErrorCheck();
-		EncogTrainPSODelete(pso);
-		EncogErrorCheck();
-	}
-	else if( trainingType==TRAIN_TYPE_RPROP )
-	{
-		EncogTrainRPROPRun(rprop);
-	}
+	EncogTrainRun(trainer,net);
 
 }
 
@@ -311,7 +278,7 @@ void EGB2CSV(char *egbFile, char *csvFile)
 
 	EncogDataCSVSave(csvFile,data,10);
 	EncogErrorCheck();
-	EncogDataDelete(data);
+	EncogObjectFree(data);
 	EncogErrorCheck();
 
 	printf("Conversion done.\n");
@@ -338,7 +305,7 @@ void CSV2EGB(char *csvFile, char *egbFile, int inputCount, int idealCount)
 
 	EncogDataEGBSave(egbFile,data);
 	EncogErrorCheck();
-	EncogDataDelete(data);
+	EncogObjectFree(data);
 	EncogErrorCheck();
 
 	printf("Conversion done.\n");
@@ -389,14 +356,14 @@ void EvaluateError(char *egFile, char *egbFile) {
 	EncogErrorCheck();
 
 	if( data->inputCount != net->inputCount ) {
-		EncogNetworkDelete(net);
+		EncogObjectFree(net);
 		EncogErrorCheck();
 		printf("Error: The network has a different input count than the training data.\n");
 		return;
 	}
 
 	if( data->idealCount != net->outputCount ) {
-		EncogNetworkDelete(net);
+		EncogObjectFree(net);
 		EncogErrorCheck();
 		printf("Error: The network has a different output count than the training data.\n");
 		return;
@@ -404,8 +371,8 @@ void EvaluateError(char *egFile, char *egbFile) {
 
 	error = EncogErrorSSE(net,data);
 
-	EncogNetworkDelete(net);
-	EncogDataDelete(data);
+	EncogObjectFree(net);
+	EncogObjectFree(data);
 
 	*line = 0;
 	EncogStrCatStr(line,"SSE Error: ",MAX_STR);
@@ -448,15 +415,6 @@ void enableGPU(char *str) {
 #endif
 }
 
-void selectTrainingType(char *t)
-{
-	if( !EncogUtilStrcmpi(t,"RPROP") ) {
-		trainingType = TRAIN_TYPE_RPROP;
-	} else if( !EncogUtilStrcmpi(t,"PSO") ) {
-		trainingType = TRAIN_TYPE_PSO;
-	}
-}
-
 int main(int argc, char* argv[])
 {
 	double started, ended;
@@ -492,6 +450,9 @@ int main(int argc, char* argv[])
 		if( *argv[i]=='/' || *argv[i]=='-' )
 		{
 			ParseOption(argv[i]);
+
+			EncogHashPut(encogContext.config,parsedOption,strdup(parsedArgument));
+
 			if( !EncogUtilStrcmpi(parsedOption,"INPUT") ) {
 				inputCount = atoi(parsedArgument);
 			} else if( !EncogUtilStrcmpi(parsedOption,"IDEAL") ) {
@@ -513,13 +474,7 @@ int main(int argc, char* argv[])
 				_c2 = atof(parsedArgument);
 			} else if( !EncogUtilStrcmpi(parsedOption,"GPU") ) {
 				enableGPU(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"TRAIN") ) {
-				selectTrainingType(parsedArgument);
-			} else {
-				printf("Unknown option: %s\n",parsedOption);
-				exit(0);
-			}
-			
+			} 			
 		}
 		else 
 		{
@@ -583,7 +538,18 @@ int main(int argc, char* argv[])
 	EncogStrCatRuntime(command, ended-started, sizeof(command));
 	puts(command);
 
-	
+	EncogHashPut(encogContext.config,"a","Hello");
+	EncogHashPut(encogContext.config,"b","Hello");
+	EncogHashPut(encogContext.config,"c","Hello");
+	EncogHashPut(encogContext.config,"d","Hello!");
+	EncogHashPut(encogContext.config,"e","Hello");
+	EncogHashPut(encogContext.config,"f","Hello");
+	EncogHashPut(encogContext.config,"g","Hello");
+	EncogHashPut(encogContext.config,"h","Hello");
+	EncogHashPut(encogContext.config,"i","Hello");
+	puts(EncogHashGet(encogContext.config,"d"));
+	puts(EncogHashGet(encogContext.config,"i"));
+	EncogHashDump(encogContext.config);
 
     return 0;
 }

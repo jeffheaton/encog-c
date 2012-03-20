@@ -157,33 +157,10 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
         EncogVectorRandomise(particle->velocities, pso->maxVelocity, clone->weightCount);
     }
 
+	EncogObjectRegister(pso, ENCOG_TYPE_PSO);
+
     _UpdateGlobalBestPosition(pso);
     return pso;
-}
-
-void EncogTrainPSODelete(ENCOG_TRAIN_PSO *pso)
-{
-    int i;
-    ENCOG_PARTICLE *particle;
-
-	/* Clear out any previous errors */
-	EncogErrorClear();
-
-    /* first delete the particles */
-    for(i=0;i<pso->populationSize;i++) {
-        particle = &pso->particles[i];
-        EncogNetworkDelete(particle->network);
-        EncogUtilFree(particle->velocities);
-        EncogUtilFree(particle->bestVector);
-        EncogUtilFree(particle->vtemp);
-    }
-
-    /* delete anything on the PSO, including particle structure */
-    EncogUtilFree(pso->particles);
-    EncogUtilFree(pso->bestVector);
-
-    /* finally, delete the PSO */
-    EncogUtilFree(pso);
 }
 
 /**

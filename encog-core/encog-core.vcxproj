@@ -140,10 +140,13 @@
     <ClCompile Include="encog.c" />
     <ClCompile Include="errorcalc.c" />
     <ClCompile Include="errors.c" />
+    <ClCompile Include="hash.c" />
     <ClCompile Include="network.c" />
     <ClCompile Include="network_io.c" />
+    <ClCompile Include="object.c" />
     <ClCompile Include="pso.c" />
     <ClCompile Include="rprop.c" />
+    <ClCompile Include="train.c" />
     <ClCompile Include="util.c" />
     <ClCompile Include="util_file.c" />
     <ClCompile Include="util_str.c" />

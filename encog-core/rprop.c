@@ -70,6 +70,8 @@ ENCOG_TRAIN_RPROP *EncogTrainRPROPNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA 
 		result->network[i] = (ENCOG_NEURAL_NETWORK*)EncogNetworkTransactionClone(network);
 	}
 
+	EncogObjectRegister(result, ENCOG_TYPE_RPROP);
+
 	return result;
 }
 

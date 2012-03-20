@@ -64,6 +64,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkNew()
 	EncogErrorClear();
 
     network = (ENCOG_NEURAL_NETWORK*)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
+	EncogObjectRegister(network, ENCOG_TYPE_NEURAL_NETWORK);
     return network;
 }
 
@@ -84,25 +85,6 @@ NETWORK_LAYER *EncogNetworkCreateLayer(NETWORK_LAYER *prevLayer, int count, INT 
 
 	return result;
 
-}
-
-void EncogNetworkDelete(ENCOG_NEURAL_NETWORK *net)
-{
-	/* Clear out any previous errors */
-	EncogErrorClear();
-	
-	EncogUtilFree(net->layerCounts);
-    EncogUtilFree(net->biasActivation);
-    EncogUtilFree(net->activationFunctions);
-	EncogUtilFree(net->activationFunctionIDs);
-    EncogUtilFree(net->layerContextCount);
-    EncogUtilFree(net->weightIndex);
-    EncogUtilFree(net->layerIndex);
-    EncogUtilFree(net->layerFeedCounts);
-	EncogUtilFree(net->contextTargetOffset);
-	EncogUtilFree(net->contextTargetSize);
-
-    EncogUtilFree(net);
 }
 
 ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, int freeLayers)
@@ -140,7 +122,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFinalizeStructure(NETWORK_LAYER *firstLayer, i
     /* Create the network and lineup internal pointers */
     index = 0;
 	result = (ENCOG_NEURAL_NETWORK*)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
-
+	EncogObjectRegister(result, ENCOG_TYPE_NEURAL_NETWORK);
 
 	/* Set initial values */
 	result->beginTraining = 0;
@@ -403,8 +385,6 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 	/* Clear out any previous errors */
 	EncogErrorClear();
 
-    network = EncogNetworkNew();
-
 	strncpy(line,architecture,MAX_STR);
 	EncogUtilStrupr(line);
 
@@ -432,8 +412,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 		
 			if( *ptrMid=='B' ) {
 				bias = 1;
-			} else {
-				EncogNetworkDelete(network);				
+			} else {				
 				EncogErrorSet(ENCOG_ERROR_FACTORY_INVALID_BIAS);				
 				return NULL;
 			}
@@ -451,8 +430,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 					neuronCount = defaultInputCount;
 				} else if(phase==1 ) {
 					neuronCount = defaultOutputCount;
-				} else {					
-					EncogNetworkDelete(network);				
+				} else {									
 					EncogErrorSet(ENCOG_ERROR_FACTORY_INVALID_COND);
 					return NULL;
 				}
@@ -462,14 +440,12 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 			}
 
 			if( neuronCount==0 ) {				
-				EncogNetworkDelete(network);
 				EncogErrorSet(ENCOG_ERROR_FACTORY_INVALID_ACTIVATION);
 				return NULL;
 			}
 
 			currentLayer = EncogNetworkCreateLayer(currentLayer,neuronCount,activation,bias);
 			if( EncogErrorGet()!=ENCOG_ERROR_OK ) {
-				EncogNetworkDelete(network);
 				return NULL;
 			}
 		}
@@ -486,7 +462,7 @@ ENCOG_NEURAL_NETWORK *EncogNetworkFactory(char *method, char *architecture, int 
 /* Randomize the neural network weights */
     EncogNetworkRandomizeRange(network,-1,1);
 	if( EncogErrorGet()!=ENCOG_ERROR_OK ) {
-		EncogNetworkDelete(network);
+		EncogObjectFree(network);
 		return NULL;
 	}
 

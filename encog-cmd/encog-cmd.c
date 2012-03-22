@@ -3,10 +3,6 @@
 
 char parsedOption[MAX_STR];
 char parsedArgument[MAX_STR];
-static int _particles = 30;
-static REAL _inertiaWeight = 0.4;
-static REAL _c1 = 2.0;
-static REAL _c2 = 2.0;
 
 void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 
@@ -68,34 +64,25 @@ void displayStats(ENCOG_TRAIN_PSO *pso) {
 
 }
 
-void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) {
+void RunBenchmark() {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
-	ENCOG_TRAIN_PSO *pso;
+	ENCOG_OBJECT *train;
 	NETWORK_LAYER *layer;
 	INT i;
 	double startTime, endTime, elapsed;
+	ENCOG_TRAINING_REPORT *report;
+	INT idealCount, inputCount, records, iterations;
 
-	if( inputCount==-1 ) {
-		inputCount = 10;
-	}
+	inputCount = EncogHashGetInteger(encogContext.config, PARAM_INPUT, 10);
+	idealCount = EncogHashGetInteger(encogContext.config, PARAM_IDEAL, 1);
+	records = EncogHashGetInteger(encogContext.config, PARAM_RECORDS, 10000);
+	iterations = EncogHashGetInteger(encogContext.config, PARAM_INPUT, 100);
 
-	if( idealCount==-1 ) {
-		idealCount = 1;
-	}
-
-	if( records==-1 ) {
-		records = 10000;
-	}
-
-	if( iterations==-1 ) {
-		iterations = 100;
-	}
-	
 	printf("\nPerforming benchmark\n");
 	printf("Input Count: %i\n",inputCount);
 	printf("Ideal Count: %i\n",idealCount);
-	printf("Particle Count: %i\n", _particles);
+	//printf("Particle Count: %i\n", _particles);
 	printf("Records: %i\n",records);
 	printf("Iterations: %i\n",iterations);
 
@@ -111,29 +98,29 @@ void RunBenchmark(INT inputCount, INT idealCount, INT records, INT iterations ) 
 
 	EncogNetworkRandomizeRange(net,-1,1);
 
-	pso = EncogTrainPSONew(_particles, net, data);
-	pso->inertiaWeight = _inertiaWeight;
-	pso->c1 = _c1;
-	pso->c2 = _c2;
+	train = EncogTrainNew(net, data);
 	EncogErrorCheck();
+
+	report = EncogTrainReport(train);
 
 	startTime = omp_get_wtime();
 
-	pso->currentReport.maxError = 0.00f;
-	pso->currentReport.maxIterations = iterations;
-	pso->currentReport.updateSeconds = 0;
-	pso->reportTarget = EncogTrainMinimalCallback;
-    EncogTrainPSORun(pso);
+	report->maxError = 0.00f;
+	report->maxIterations = iterations;
+	report->updateSeconds = 0;
+	
+	EncogTrainSetCallback(train, EncogTrainMinimalCallback);
+	EncogErrorCheck();
 
-	EncogTrainPSOFinish(pso);
+    EncogTrainRun(train, net);
+	EncogErrorCheck();
+
 	endTime = omp_get_wtime();
 	
 	elapsed = endTime - startTime;
 
 	printf("Benchmark time(seconds): %.4f\nBenchmark time includes only training time.\n\n",(float)elapsed);
-	displayStats(pso);
-
-
+	//displayStats(train);
 }
 
 void XORTest() {
@@ -192,18 +179,17 @@ void XORTest() {
 
 }
 
-void train(char *egFile, char *egbFile, int iterations ) {
+void train(char *egFile, char *egbFile ) {
 	ENCOG_DATA *data;
 	ENCOG_NEURAL_NETWORK *net;
+	INT iterations;
 
 	if( *egFile==0 || *egbFile==0 ) {
 		printf("Usage: train [egFile] [egbFile]\n");
 		return;
 	}
 
-	if( iterations==-1 ) {
-		iterations = 0;
-	}
+	iterations = EncogHashGetInteger(encogContext.config, PARAM_ITERATIONS, 0);
 
 	data = EncogDataEGBLoad(egbFile);
 	EncogErrorCheck();
@@ -212,7 +198,7 @@ void train(char *egFile, char *egbFile, int iterations ) {
 	printf("Input Count: %i\n", data->inputCount);
 	printf("Ideal Count: %i\n", data->idealCount);
 	printf("Record Count: %ld\n", data->recordCount);	    
-	printf("Particles: %i\n", _particles);	    
+	//printf("Particles: %i\n", _particles);	    
 
 	net = EncogNetworkLoad(egFile);
 	EncogErrorCheck();
@@ -284,14 +270,19 @@ void EGB2CSV(char *egbFile, char *csvFile)
 	printf("Conversion done.\n");
 }
 
-void CSV2EGB(char *csvFile, char *egbFile, int inputCount, int idealCount) 
+void CSV2EGB(char *csvFile, char *egbFile) 
 {
 	ENCOG_DATA *data;
+	int inputCount, idealCount;
 
-	if( inputCount==-1 || idealCount==-1 ) {
+	if( EncogHashGet(encogContext.config,PARAM_INPUT)==NULL 
+		|| EncogHashGet(encogContext.config,PARAM_IDEAL)==NULL ) {
 		printf("You must specify both input and ideal counts.\n");
 		exit(1);
 	}
+
+	inputCount = EncogHashGetInteger(encogContext.config,PARAM_INPUT,0);
+	idealCount = EncogHashGetInteger(encogContext.config,PARAM_IDEAL,0);
 
 	data = EncogDataCSVLoad(csvFile, inputCount, idealCount);
 	EncogErrorCheck();
@@ -311,13 +302,17 @@ void CSV2EGB(char *csvFile, char *egbFile, int inputCount, int idealCount)
 	printf("Conversion done.\n");
 }
 
-void CreateNetwork(char *egFile, char *method, char *architecture, int inputCount, int idealCount) {
+void CreateNetwork(char *egFile, char *method, char *architecture) {
 	ENCOG_NEURAL_NETWORK *network;
+	int inputCount, idealCount;
 
 	if( *egFile==0 || *method==0 || *architecture==0 ) {
 		printf("Must call with: create [egFile] [method] [architecture]\nNote: Because architecture includes < and > it must be includes in qutoes on most OS's.\n");
 		exit(1);
 	}
+
+	inputCount = EncogHashGetInteger(encogContext.config,PARAM_INPUT,0);
+	idealCount = EncogHashGetInteger(encogContext.config,PARAM_IDEAL,0);
 
 	printf("Creating neural network\n");
 	printf("Method: %s\n", method);
@@ -419,13 +414,7 @@ int main(int argc, char* argv[])
 {
 	double started, ended;
 	INT i;
-	int inputCount = -1;
-	int idealCount = -1;
-	int records = -1;
-	int iterations = -1;
-	int threads = 0;
 	int phase = 0;
-	
 	char command[MAX_STR];
 	char arg1[MAX_STR];
 	char arg2[MAX_STR];
@@ -450,31 +439,7 @@ int main(int argc, char* argv[])
 		if( *argv[i]=='/' || *argv[i]=='-' )
 		{
 			ParseOption(argv[i]);
-
-			EncogHashPut(encogContext.config,parsedOption,strdup(parsedArgument));
-
-			if( !EncogUtilStrcmpi(parsedOption,"INPUT") ) {
-				inputCount = atoi(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"IDEAL") ) {
-				idealCount = atoi(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"RECORDS") ) {
-				records = atoi(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"ITERATIONS") ) {
-				iterations = atoi(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"THREADS") ) {
-				threads = atoi(parsedArgument);
-				omp_set_num_threads(threads);
-			} else if( !EncogUtilStrcmpi(parsedOption,"PARTICLES") ) {
-				_particles = atoi(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"INERTIA") ) {
-				_inertiaWeight = atof(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"C1") ) {
-				_c1 = atof(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"C2") ) {
-				_c2 = atof(parsedArgument);
-			} else if( !EncogUtilStrcmpi(parsedOption,"GPU") ) {
-				enableGPU(parsedArgument);
-			} 			
+			EncogHashPut(encogContext.config,parsedOption,strdup(parsedArgument)); 			
 		}
 		else 
 		{
@@ -500,15 +465,15 @@ int main(int argc, char* argv[])
 	if(!EncogUtilStrcmpi(command,"xor") ) {
 		XORTest();
 	} else if (!EncogUtilStrcmpi(command,"benchmark") ) {
-		RunBenchmark(inputCount,idealCount,records,iterations );
+		RunBenchmark();
 	} else if (!EncogUtilStrcmpi(command,"train") ) {
-		train(arg1,arg2,iterations);
+		train(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"egb2csv") ) {
 		EGB2CSV(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"csv2egb") ) {
-		CSV2EGB(arg1,arg2,inputCount,idealCount);
+		CSV2EGB(arg1,arg2);
 	} else if (!EncogUtilStrcmpi(command,"create") ) {
-		CreateNetwork(arg1,arg2,arg3,inputCount,idealCount);
+		CreateNetwork(arg1,arg2,arg3);
 	} else if (!EncogUtilStrcmpi(command,"randomize") ) {
 		RandomizeNetwork(arg1);
 	} else if (!EncogUtilStrcmpi(command,"error") ) {
@@ -537,19 +502,6 @@ int main(int argc, char* argv[])
 	EncogStrCatStr(command,"Encog Finished.  Run time ",sizeof(command));
 	EncogStrCatRuntime(command, ended-started, sizeof(command));
 	puts(command);
-
-	EncogHashPut(encogContext.config,"a","Hello");
-	EncogHashPut(encogContext.config,"b","Hello");
-	EncogHashPut(encogContext.config,"c","Hello");
-	EncogHashPut(encogContext.config,"d","Hello!");
-	EncogHashPut(encogContext.config,"e","Hello");
-	EncogHashPut(encogContext.config,"f","Hello");
-	EncogHashPut(encogContext.config,"g","Hello");
-	EncogHashPut(encogContext.config,"h","Hello");
-	EncogHashPut(encogContext.config,"i","Hello");
-	puts(EncogHashGet(encogContext.config,"d"));
-	puts(EncogHashGet(encogContext.config,"i"));
-	EncogHashDump(encogContext.config);
 
     return 0;
 }

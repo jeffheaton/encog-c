@@ -8,7 +8,7 @@ ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	int particles;
 	float c1,c2;
 
-	ttype = (char*)EncogHashGet(encogContext.config,"TRAIN");
+	ttype = (char*)EncogHashGet(encogContext.config,PARAM_TRAIN);
 
 	if( !EncogUtilStrcmpi(ttype,"RPROP") )
 	{
@@ -17,11 +17,11 @@ ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	}
 	else if( !EncogUtilStrcmpi(ttype,"PSO") )
 	{
-		particles = EncogHashGetInteger(encogContext.config,"PARTICLES",30);
+		particles = EncogHashGetInteger(encogContext.config,PARAM_PARTICLES,30);
 		pso = EncogTrainPSONew(particles, net, data);
-		pso->inertiaWeight = EncogHashGetFloat(encogContext.config,"INERTIA",0.4);
-		pso->c1 = EncogHashGetFloat(encogContext.config,"C1",2.0);
-		pso->c2 = EncogHashGetFloat(encogContext.config,"C2",2.0);
+		pso->inertiaWeight = EncogHashGetFloat(encogContext.config,PARAM_INERTIA,0.4);
+		pso->c1 = EncogHashGetFloat(encogContext.config,PARAM_C1,2.0);
+		pso->c2 = EncogHashGetFloat(encogContext.config,PARAM_C2,2.0);
 		EncogErrorCheck();
 		pso->reportTarget = EncogTrainStandardCallback;
 		return &pso->encog;
@@ -70,6 +70,26 @@ void EncogTrainRun(ENCOG_OBJECT *train, ENCOG_NEURAL_NETWORK *net)
 	else if( t==ENCOG_TYPE_RPROP )
 	{
 		EncogTrainRPROPRun((ENCOG_TRAIN_RPROP*)train);
+	}
+	else {
+		EncogErrorSet(ENCOG_ERROR_OBJECT_TYPE);
+	}
+}
+
+void EncogTrainSetCallback(ENCOG_OBJECT *train, ENCOG_REPORT_FUNCTION callback)
+{
+	int t;
+
+	if( (t = EncogObjectGetType(train)) == -1 )
+		return;
+
+	if( t==ENCOG_TYPE_PSO )
+	{
+		((ENCOG_TRAIN_PSO*)train)->reportTarget = callback;
+	}
+	else if( t==ENCOG_TYPE_RPROP )
+	{
+		((ENCOG_TRAIN_RPROP*)train)->reportTarget = callback;
 	}
 	else {
 		EncogErrorSet(ENCOG_ERROR_OBJECT_TYPE);

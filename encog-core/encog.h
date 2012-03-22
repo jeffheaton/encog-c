@@ -59,6 +59,18 @@ extern "C" {
 #define ENCOG_ERROR_OBJECT_TYPE	14
 #define	ENCOG_ERROR_UNKNOWN_TRAINING 15
 
+#define PARAM_INPUT			"INPUT"
+#define PARAM_IDEAL			"IDEAL"
+#define PARAM_RECORDS		"RECORDS"
+#define PARAM_ITERATIONS	"ITERATIONS"
+#define PARAM_THREADS		"THREADS"
+#define PARAM_PARTICLES		"PARTICLES"
+#define PARAM_INERTIA		"INERTIA"
+#define PARAM_C1			"C1"
+#define PARAM_C2			"C2"
+#define PARAM_GPU			"GPU"
+#define PARAM_TRAIN			"TRAIN"
+
 #define ENCOG_TYPE_NEURAL_NETWORK	1
 #define ENCOG_TYPE_DATA				2
 #define ENCOG_TYPE_PSO				3
@@ -391,6 +403,7 @@ int EncogObjectGetType(ENCOG_OBJECT *encogObject);
 ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 void EncogTrainRun(ENCOG_OBJECT *train, ENCOG_NEURAL_NETWORK *net);
 ENCOG_TRAINING_REPORT *EncogTrainReport(ENCOG_OBJECT *train);
+void EncogTrainSetCallback(ENCOG_OBJECT *train, ENCOG_REPORT_FUNCTION callback);
 
 #ifdef ENCOG_CUDA
 

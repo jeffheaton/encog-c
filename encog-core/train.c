@@ -19,9 +19,6 @@ ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	{
 		particles = EncogHashGetInteger(encogContext.config,PARAM_PARTICLES,30);
 		pso = EncogTrainPSONew(particles, net, data);
-		pso->inertiaWeight = EncogHashGetFloat(encogContext.config,PARAM_INERTIA,0.4);
-		pso->c1 = EncogHashGetFloat(encogContext.config,PARAM_C1,2.0);
-		pso->c2 = EncogHashGetFloat(encogContext.config,PARAM_C2,2.0);
 		EncogErrorCheck();
 		pso->reportTarget = EncogTrainStandardCallback;
 		return &pso->encog;

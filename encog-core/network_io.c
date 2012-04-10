@@ -218,6 +218,13 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 
 	parse.fp = fopen(name,"r");
 
+	if( parse.fp==NULL )
+	{
+		EncogErrorSet(ENCOG_ERROR_FILE_NOT_FOUND);
+		EncogErrorSetArg(name);
+		return NULL;
+	}
+
 	if( _CheckNetwork(parse.fp) == -1 )
 	{
 		return NULL;

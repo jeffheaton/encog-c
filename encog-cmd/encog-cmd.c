@@ -411,6 +411,17 @@ void enableGPU(char *str) {
 #endif
 }
 
+void AdjustThreads() {
+	int threads;
+	
+	threads = EncogHashGetInteger(encogContext.config,PARAM_THREADS, 0);
+	if( threads!=0 ) 
+	{
+		omp_set_num_threads(threads);
+		printf("Thread count bounded to: %i\n",threads);
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	double started, ended;
@@ -462,6 +473,7 @@ int main(int argc, char* argv[])
 #ifdef ENCOG_CUDA
 	printf("GPU: %s\n",encogContext.gpuEnabled?"enabled":"disabled");
 #endif
+	AdjustThreads();
 
 	if(!EncogUtilStrcmpi(command,"xor") ) {
 		XORTest();

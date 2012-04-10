@@ -74,6 +74,8 @@ extern "C" {
 #define PARAM_C2			"C2"
 #define PARAM_GPU			"GPU"
 #define PARAM_TRAIN			"TRAIN"
+#define PARAM_MAXPOS		"MAXPOS"
+#define PARAM_MAXVEL		"MAXVEL"
 
 #define ENCOG_TYPE_NEURAL_NETWORK	1
 #define ENCOG_TYPE_DATA				2
@@ -229,7 +231,6 @@ typedef struct ENCOG_TRAIN_PSO
     REAL c1;
     REAL c2;
     REAL inertiaWeight;
-    int pseudoAsynchronousUpdate;
 
     int dimensions;
 

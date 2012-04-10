@@ -113,13 +113,12 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
 	EncogErrorClear();
 
     pso = (ENCOG_TRAIN_PSO*)EncogUtilAlloc(1,sizeof(ENCOG_TRAIN_PSO));
-    pso->c1 = 2.0;
-    pso->c2 = 2.0;
+	pso->inertiaWeight = EncogHashGetFloat(encogContext.config,PARAM_INERTIA,0.4);
+	pso->c1 = EncogHashGetFloat(encogContext.config,PARAM_C1,2.0);
+	pso->c2 = EncogHashGetFloat(encogContext.config,PARAM_C2,2.0);
     pso->populationSize = populationSize;
-    pso->inertiaWeight = (REAL)0.4;
-    pso->maxPosition = (REAL)-1;
-    pso->maxVelocity = (REAL)2;
-    pso->pseudoAsynchronousUpdate = 0;
+    pso->maxPosition = EncogHashGetFloat(encogContext.config,PARAM_MAXPOS,(float)-1);
+    pso->maxVelocity = EncogHashGetFloat(encogContext.config,PARAM_MAXVEL,(float)2);
     pso->bestParticle = -1;
     pso->dimensions = model->weightCount;
     pso->data = data;
@@ -148,7 +147,7 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
         particle->velocities = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
         particle->vtemp = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
         particle->bestVector = (REAL*)EncogUtilAlloc(clone->weightCount,sizeof(REAL));
-        particle->bestError = 0;
+        particle->bestError = 1.0;
 		particle->particleState = PARTICLE_STATE_CALC;
 		if( i>0 ) {
 			EncogNetworkRandomizeRange(particle->network,-1,1);
@@ -296,11 +295,11 @@ float EncogTrainPSORun(ENCOG_TRAIN_PSO *pso)
 
 			if( particle->particleState == PARTICLE_STATE_CALCING ) 
 			{
-				//printf("Calc: %i\n",particle->index);
+				//printf("##Calc: %i\n",particle->index);
 				_PSOPerformCalc(particle);
 			} else if( particle->particleState == PARTICLE_STATE_MOVING ) 
 			{
-				//printf("Move: %i\n",particle->index);
+				//printf("##Move: %i\n",particle->index);
 				_PSOPerformMove(particle);				
 			}
 		}

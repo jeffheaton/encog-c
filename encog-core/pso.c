@@ -158,6 +158,7 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     }
 
 	EncogObjectRegister(pso, ENCOG_TYPE_PSO);
+	pso->currentReport.trainer = (ENCOG_OBJECT*)pso;
 
     _UpdateGlobalBestPosition(pso);
     return pso;

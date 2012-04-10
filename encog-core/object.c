@@ -129,3 +129,22 @@ int EncogObjectGetType(ENCOG_OBJECT *encogObject)
 
 	return encogObject->type;
 }
+
+char *EncogObjectType(ENCOG_OBJECT *encogObject)
+{
+	switch(encogObject->type)
+	{
+		case ENCOG_TYPE_NEURAL_NETWORK:
+			return "NEURAL_NETWORK";
+		case ENCOG_TYPE_DATA:
+			return "ENCOG_DATA";
+		case ENCOG_TYPE_PSO:
+			return "ENCOG_TRAIN_PSO";
+		case ENCOG_TYPE_RPROP:
+			return "ENCOG_TRAIN_RPROP";
+		case ENCOG_TYPE_HASH:
+			return "ENCOG_HASH";
+	}
+}
+
+

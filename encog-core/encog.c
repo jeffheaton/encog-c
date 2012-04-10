@@ -44,7 +44,7 @@ void EncogTrainStandardCallback(ENCOG_TRAINING_REPORT *report) {
 	sinceLastUpdate = currentTime-report->lastUpdate;
 
 	if( report->iterations==1 ) {
-		printf("Beginning training.\n");
+		printf("Beginning training (%s).\n", EncogObjectType(report->trainer));
 	}
 	
 	/* display every updateSeconds seconds, plus first and last iterations */

@@ -50,7 +50,7 @@ void EncogHashPut(ENCOG_HASH *hashTable, char *key, void *obj)
 	}
 }
 
-void *EncogHashGet(ENCOG_HASH *hashTable, char *key)
+void *EncogHashGet(ENCOG_HASH *hashTable, char *key, void *defaultValue)
 {
 	char *key2;
 	int hashCode, cp;
@@ -82,7 +82,12 @@ void *EncogHashGet(ENCOG_HASH *hashTable, char *key)
 	}
 
 	free(key2);
-	return NULL;
+	return defaultValue;
+}
+
+int EncogHashContains(ENCOG_HASH *hashTable, char *key)
+{
+	return EncogHashGet(hashTable, key, NULL)==NULL;
 }
 
 void EncogHashDump(ENCOG_HASH *hashTable)
@@ -111,7 +116,7 @@ int EncogHashGetInteger(ENCOG_HASH *hashTable, char *key, int defaultValue)
 {
 	char *v;
 
-	v = (char*)EncogHashGet(hashTable,key);
+	v = (char*)EncogHashGet(hashTable,key,NULL);
 	if( v==NULL )
 		return defaultValue;
 	else
@@ -122,7 +127,7 @@ float EncogHashGetFloat(ENCOG_HASH *hashTable, char *key, float defaultValue)
 {
 	char *v;
 
-	v = (char*)EncogHashGet(hashTable,key);
+	v = (char*)EncogHashGet(hashTable,key,NULL);
 
 	if( v==NULL)
 		return defaultValue;

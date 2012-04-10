@@ -21,6 +21,7 @@ void Usage() {
 	puts("/records:## The number of ideals.");
 	puts("/iterations:## The number of ideals.");
 	puts("/threads:## The number of threads.");
+	puts("/train:type (where type is PSO or RPROP)");
 	puts("");
 }
 
@@ -275,8 +276,8 @@ void CSV2EGB(char *csvFile, char *egbFile)
 	ENCOG_DATA *data;
 	int inputCount, idealCount;
 
-	if( EncogHashGet(encogContext.config,PARAM_INPUT)==NULL 
-		|| EncogHashGet(encogContext.config,PARAM_IDEAL)==NULL ) {
+	if( !EncogHashContains(encogContext.config,PARAM_INPUT) 
+		|| !EncogHashContains(encogContext.config,PARAM_IDEAL) ) {
 		printf("You must specify both input and ideal counts.\n");
 		exit(1);
 	}

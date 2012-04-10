@@ -8,14 +8,14 @@ ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	int particles;
 	float c1,c2;
 
-	ttype = (char*)EncogHashGet(encogContext.config,PARAM_TRAIN);
+	ttype = (char*)EncogHashGet(encogContext.config,PARAM_TRAIN, "PSO");
 
-	if( !EncogUtilStrcmpi(ttype,"RPROP") )
+	if( !EncogUtilStrcmpi(ttype,TRAIN_TYPE_RPROP) )
 	{
 		rprop = EncogTrainRPROPNew(net,data);
 		return &rprop->encog;
 	}
-	else if( !EncogUtilStrcmpi(ttype,"PSO") )
+	else if( !EncogUtilStrcmpi(ttype,TRAIN_TYPE_PSO) )
 	{
 		particles = EncogHashGetInteger(encogContext.config,PARAM_PARTICLES,30);
 		pso = EncogTrainPSONew(particles, net, data);
@@ -43,7 +43,7 @@ ENCOG_TRAINING_REPORT *EncogTrainReport(ENCOG_OBJECT *train)
 	{
 		return &((ENCOG_TRAIN_PSO*)train)->currentReport;
 	}
-	else if( t==ENCOG_TYPE_PSO )
+	else if( t==ENCOG_TYPE_RPROP )
 	{
 		return &((ENCOG_TRAIN_RPROP*)train)->currentReport;
 	}

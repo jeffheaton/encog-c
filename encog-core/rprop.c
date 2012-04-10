@@ -71,6 +71,7 @@ ENCOG_TRAIN_RPROP *EncogTrainRPROPNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA 
 	}
 
 	EncogObjectRegister(result, ENCOG_TYPE_RPROP);
+	result->currentReport.trainer = (ENCOG_OBJECT*)result;
 
 	return result;
 }

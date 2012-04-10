@@ -16,7 +16,11 @@ static char *_errorMessages[] =
 	"Network must have at least two layers",	/* 9 */
 	"Invalid activation function name",	/* 10 */
 	"Expected a bias (b) to follow the :",	/* 11 */
-	"Invalid layer conditional (?), must have only two"	/* 12 */
+	"Invalid layer conditional (?), must have only two",	/* 12 */
+	"Encog object error", /* 13 */
+	"Encog object type error", /* 14 */
+	"Unknown training type error", /* 15 */
+
 };
 
 void EncogErrorClear() {

@@ -42,6 +42,9 @@ extern "C" {
 #define AF_SIGMOID	1
 #define AF_TANH		2
 
+#define TRAIN_TYPE_PSO "PSO"
+#define TRAIN_TYPE_RPROP "RPROP"
+
 #define ENCOG_ERROR_OK				0
 #define ENCOG_ERROR_FILE_NOT_FOUND	1
 #define ENCOG_ERROR_IO				2
@@ -196,6 +199,7 @@ typedef struct ENCOG_TRAINING_REPORT {
 	float maxError;
 	INT maxIterations;
 	INT updateSeconds;
+	ENCOG_OBJECT *trainer;
 } ENCOG_TRAINING_REPORT;
 
 typedef void(*ENCOG_REPORT_FUNCTION)(ENCOG_TRAINING_REPORT *);
@@ -385,10 +389,11 @@ void EncogFileWriteValueDoubleArray(FILE *fp, char *name, REAL *a, INT count);
 
 ENCOG_HASH *EncogHashNew(INT tableSize, INT ignoreCase);
 void EncogHashPut(ENCOG_HASH *hashTable, char *key, void *obj);
-void *EncogHashGet(ENCOG_HASH *hashTable, char *key);
+void *EncogHashGet(ENCOG_HASH *hashTable, char *key, void *defaultValue);
 void EncogHashDump(ENCOG_HASH *hashTable);
 int EncogHashGetInteger(ENCOG_HASH *hashTable, char *key, int defaultValue);
 float EncogHashGetFloat(ENCOG_HASH *hashTable, char *key, float defaultValue);
+int EncogHashContains(ENCOG_HASH *hashTable, char *key);
 
 void EncogInit();
 void EncogShutdown();
@@ -399,6 +404,7 @@ void EncogObjectRegister(void *obj, int type);
 void EncogObjectValidate(void *obj, int type);
 void EncogObjectFree(void *obj);
 int EncogObjectGetType(ENCOG_OBJECT *encogObject);
+char *EncogObjectType(ENCOG_OBJECT *encogObject);
 
 ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 void EncogTrainRun(ENCOG_OBJECT *train, ENCOG_NEURAL_NETWORK *net);

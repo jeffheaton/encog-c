@@ -144,6 +144,7 @@
     <ClCompile Include="hash.c" />
     <ClCompile Include="network.c" />
     <ClCompile Include="network_io.c" />
+    <ClCompile Include="nm.c" />
     <ClCompile Include="object.c" />
     <ClCompile Include="pso.c" />
     <ClCompile Include="rprop.c" />

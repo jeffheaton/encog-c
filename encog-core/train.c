@@ -44,6 +44,10 @@ ENCOG_TRAINING_REPORT *EncogTrainReport(ENCOG_OBJECT *train)
 	{
 		return &((ENCOG_TRAIN_RPROP*)train)->currentReport;
 	}
+	else if( t==ENCOG_TYPE_NM )
+	{
+		return &((ENCOG_TRAIN_NM*)train)->currentReport;
+	}
 	else
 	{
 		EncogErrorSet(ENCOG_ERROR_OBJECT_TYPE);
@@ -68,6 +72,10 @@ void EncogTrainRun(ENCOG_OBJECT *train, ENCOG_NEURAL_NETWORK *net)
 	{
 		EncogTrainRPROPRun((ENCOG_TRAIN_RPROP*)train);
 	}
+	else if( t==ENCOG_TYPE_NM )
+	{
+		EncogTrainNMRun((ENCOG_TRAIN_NM*)train);
+	}
 	else {
 		EncogErrorSet(ENCOG_ERROR_OBJECT_TYPE);
 	}
@@ -87,6 +95,10 @@ void EncogTrainSetCallback(ENCOG_OBJECT *train, ENCOG_REPORT_FUNCTION callback)
 	else if( t==ENCOG_TYPE_RPROP )
 	{
 		((ENCOG_TRAIN_RPROP*)train)->reportTarget = callback;
+	}
+	else if( t==ENCOG_TYPE_NM )
+	{
+		((ENCOG_TRAIN_NM*)train)->reportTarget = callback;
 	}
 	else {
 		EncogErrorSet(ENCOG_ERROR_OBJECT_TYPE);

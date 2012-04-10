@@ -267,6 +267,17 @@ typedef struct ENCOG_TRAIN_RPROP
 
 } ENCOG_TRAIN_RPROP;
 
+typedef struct ENCOG_NM
+{
+	ENCOG_OBJECT encog;
+	ENCOG_DATA *data;
+	ENCOG_TRAINING_REPORT currentReport;
+	ENCOG_REPORT_FUNCTION reportTarget;
+	ENCOG_NEURAL_NETWORK **network;
+	ENCOG_NEURAL_NETWORK *targetNetwork;
+
+} ENCOG_TRAIN_NM;
+
 typedef struct {
 char ident[8];
 double input;
@@ -413,6 +424,10 @@ ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
 void EncogTrainRun(ENCOG_OBJECT *train, ENCOG_NEURAL_NETWORK *net);
 ENCOG_TRAINING_REPORT *EncogTrainReport(ENCOG_OBJECT *train);
 void EncogTrainSetCallback(ENCOG_OBJECT *train, ENCOG_REPORT_FUNCTION callback);
+
+ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data);
+float EncogTrainNMRun(ENCOG_TRAIN_NM *nm);
+
 
 #ifdef ENCOG_CUDA
 

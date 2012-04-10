@@ -44,6 +44,7 @@ extern "C" {
 
 #define TRAIN_TYPE_PSO "PSO"
 #define TRAIN_TYPE_RPROP "RPROP"
+#define TRAIN_TYPE_NM "NELDERMEAD"
 
 #define ENCOG_ERROR_OK				0
 #define ENCOG_ERROR_FILE_NOT_FOUND	1
@@ -79,6 +80,7 @@ extern "C" {
 #define ENCOG_TYPE_PSO				3
 #define ENCOG_TYPE_RPROP			4
 #define ENCOG_TYPE_HASH				5
+#define ENCOG_TYPE_NM				6
 
 #define SIZE_BYTE 1
 #define SIZE_KILOBYTE (SIZE_BYTE*1024)

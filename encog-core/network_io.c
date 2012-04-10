@@ -224,7 +224,8 @@ ENCOG_NEURAL_NETWORK *EncogNetworkLoad(char *name)
 	}
 
 	parse.line = (char*)EncogUtilAlloc(SIZE_MEGABYTE,sizeof(char));
-	parse.network = (ENCOG_NEURAL_NETWORK*)EncogUtilAlloc(1,sizeof(ENCOG_NEURAL_NETWORK));
+	parse.network = EncogNetworkNew();
+	
 	mode = 0;
 	currentActivation = 0;
 

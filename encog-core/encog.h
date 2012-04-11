@@ -275,8 +275,13 @@ typedef struct ENCOG_NM
 	ENCOG_REPORT_FUNCTION reportTarget;
 	ENCOG_NEURAL_NETWORK *network;
 	ENCOG_NEURAL_NETWORK *targetNetwork;
-	double *step;
+	REAL step;
+	REAL reqmin;
+	float error;
 	int n;
+	int konvge; 
+	int numres; 
+	int ifault;
 } ENCOG_TRAIN_NM;
 
 typedef struct {

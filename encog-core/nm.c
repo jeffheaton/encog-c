@@ -1,118 +1,26 @@
 #include "encog.h"
-#include "asa047.h"
 
 
 static double _evaluate (ENCOG_TRAIN_NM *nm, double x[] )
 {
+	float result;
 	EncogNetworkImportWeights(nm->network, x);
-	return EncogErrorSSE(nm->network, nm->data);
+	result = EncogErrorSSE(nm->network, nm->data);
+	nm->error = nm->error;
+	nm->currentReport.error = nm->error;
+	nm->currentReport.iterations++;
+	nm->reportTarget(&nm->currentReport);
+	return result;
 }
 
-/******************************************************************************/
-
-static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[], 
-  double *ynewlo, double reqmin, double step[], int konvge, int kcount, 
-  int *icount, int *numres, int *ifault )
-
-/******************************************************************************/
-/*
-  Purpose:
-
-    NELMIN minimizes a function using the Nelder-Mead algorithm.
-
-  Discussion:
-
-    This routine seeks the minimum value of a user-specified function.
-
-    Simplex function minimisation procedure due to Nelder+Mead(1965),
-    as implemented by O'Neill(1971, Appl.Statist. 20, 338-45), with
-    subsequent comments by Chambers+Ertel(1974, 23, 250-1), Benyon(1976,
-    25, 97) and Hill(1978, 27, 380-2)
-
-    The function to be minimized must be defined by a function of
-    the form
-
-      function fn ( x, f )
-      double fn
-      double x(*)
-
-    and the name of this subroutine must be declared EXTERNAL in the
-    calling routine and passed as the argument FN.
-
-    This routine does not include a termination test using the
-    fitting of a quadratic surface.
-
-  Licensing:
-
-    This code is distributed under the GNU LGPL license. 
-
-  Modified:
-
-    28 October 2010
-
-  Author:
-
-    Original FORTRAN77 version by R ONeill.
-    C version by John Burkardt.
-
-  Reference:
-
-    John Nelder, Roger Mead,
-    A simplex method for function minimization,
-    Computer Journal,
-    Volume 7, 1965, pages 308-313.
-
-    R ONeill,
-    Algorithm AS 47:
-    Function Minimization Using a Simplex Procedure,
-    Applied Statistics,
-    Volume 20, Number 3, 1971, pages 338-345.
-
-  Parameters:
-
-    Input, double FN ( double x[] ), the name of the routine which evaluates
-    the function to be minimized.
-
-    Input, int N, the number of variables.
-
-    Input/output, double START[N].  On input, a starting point
-    for the iteration.  On output, this data may have been overwritten.
-
-    Output, double XMIN[N], the coordinates of the point which
-    is estimated to minimize the function.
-
-    Output, double YNEWLO, the minimum value of the function.
-
-    Input, double REQMIN, the terminating limit for the variance
-    of function values.
-
-    Input, double STEP[N], determines the size and shape of the
-    initial simplex.  The relative magnitudes of its elements should reflect
-    the units of the variables.
-
-    Input, int KONVGE, the convergence check is carried out 
-    every KONVGE iterations.
-
-    Input, int KCOUNT, the maximum number of function 
-    evaluations.
-
-    Output, int *ICOUNT, the number of function evaluations 
-    used.
-
-    Output, int *NUMRES, the number of restarts.
-
-    Output, int *IFAULT, error indicator.
-    0, no errors detected.
-    1, REQMIN, N, or KONVGE has an illegal value.
-    2, iteration terminated because KCOUNT was exceeded without convergence.
-*/
+static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
 {
-  double ccoeff = 0.5;
-  double del;
-  double dn;
-  double dnn;
-  double ecoeff = 2.0;
-  double eps = 0.001;
+  REAL ccoeff = 0.5;
+  REAL del;
+  REAL dn;
+  REAL dnn;
+  REAL ecoeff = 2.0;
+  REAL eps = 0.001;
   int i;
   int ihi;
   int ilo;
@@ -120,36 +28,39 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
   int jcount;
   int l;
   int nn;
-  double *p;
-  double *p2star;
-  double *pbar;
-  double *pstar;
-  double rcoeff = 1.0;
-  double rq;
-  double x;
-  double *y;
-  double y2star;
-  double ylo;
-  double ystar;
-  double z;
+  int n;
+  REAL *p;
+  REAL *p2star;
+  REAL *pbar;
+  REAL *pstar;
+  REAL rcoeff = 1.0;
+  REAL rq;
+  REAL x;
+  REAL *y;
+  REAL y2star;
+  REAL ylo;
+  REAL ystar;
+  REAL z;
+
+  n = nm->n;
 /*
   Check the input parameters.
 */
-  if ( reqmin <= 0.0 )
+  if ( nm->reqmin <= 0.0 )
   {
-    *ifault = 1;
+    nm->ifault = 1;
     return;
   }
 
   if ( n < 1 )
   {
-    *ifault = 1;
+    nm->ifault = 1;
     return;
   }
 
-  if ( konvge < 1 )
+  if ( nm->konvge < 1 )
   {
-    *ifault = 1;
+    nm->ifault = 1;
     return;
   }
 
@@ -159,15 +70,14 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
   pbar = ( double * ) malloc ( n * sizeof ( double ) );
   y = ( double * ) malloc ( ( n + 1 ) * sizeof ( double ) );
 
-  *icount = 0;
-  *numres = 0;
+  nm->numres = 0;
 
-  jcount = konvge; 
+  jcount = nm->konvge; 
   dn = ( double ) ( n );
   nn = n + 1;
   dnn = ( double ) ( nn );
   del = 1.0;
-  rq = reqmin * dn;
+  rq = nm->reqmin * dn;
 /*
   Initial or restarted loop.
 */
@@ -178,18 +88,16 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
       p[i+n*n] = start[i];
     }
     y[n] = _evaluate ( nm, start );
-    *icount = *icount + 1;
 
     for ( j = 0; j < n; j++ )
     {
       x = start[j];
-      start[j] = start[j] + step[j] * del;
+	  start[j] = start[j] + nm->step * del;
       for ( i = 0; i < n; i++ )
       {
         p[i+j*n] = start[i];
       }
       y[j] = _evaluate ( nm, start );
-      *icount = *icount + 1;
       start[j] = x;
     }
 /*                 
@@ -214,18 +122,18 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
 */
     for ( ; ; )
     {
-      if ( kcount <= *icount )
+		if ( nm->currentReport.stopRequested )
       {
         break;
       }
-      *ynewlo = y[0];
+		nm->error = y[0];
       ihi = 0;
 
       for ( i = 1; i < nn; i++ )
       {
-        if ( *ynewlo < y[i] )
+		  if ( nm->error < y[i] )
         {
-          *ynewlo = y[i];
+			nm->error = y[i];
           ihi = i;
         }
       }
@@ -251,7 +159,6 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
         pstar[i] = pbar[i] + rcoeff * ( pbar[i] - p[i+ihi*n] );
       }
       ystar = _evaluate ( nm, pstar );
-      *icount = *icount + 1;
 /*
   Successful reflection, so extension.
 */
@@ -262,7 +169,6 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
           p2star[i] = pbar[i] + ecoeff * ( pstar[i] - pbar[i] );
         }
         y2star = _evaluate ( nm, p2star );
-        *icount = *icount + 1;
 /*
   Check extension.
 */
@@ -318,7 +224,6 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
             p2star[i] = pbar[i] + ccoeff * ( p[i+ihi*n] - pbar[i] );
           }
           y2star = _evaluate ( nm, p2star );
-          *icount = *icount + 1;
 /*
   Contract the whole simplex.
 */
@@ -332,7 +237,6 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
                 xmin[i] = p[i+j*n];
               }
               y[j] = _evaluate ( nm, xmin );
-              *icount = *icount + 1;
             }
             ylo = y[0];
             ilo = 0;
@@ -369,7 +273,6 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
             p2star[i] = pbar[i] + ccoeff * ( pstar[i] - pbar[i] );
           }
           y2star = _evaluate ( nm, p2star );
-          *icount = *icount + 1;
 /*
   Retain reflection?
 */
@@ -408,9 +311,9 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
 /*
   Check to see if minimum reached.
 */
-      if ( *icount <= kcount )
+	  if ( !nm->currentReport.stopRequested )
       {
-        jcount = konvge;
+        jcount = nm->konvge;
 
         z = 0.0;
         for ( i = 0; i < nn; i++ )
@@ -438,42 +341,36 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
     {
       xmin[i] = p[i+ilo*n];
     }
-    *ynewlo = y[ilo];
-	nm->currentReport.error = *ynewlo;
-	nm->currentReport.iterations++;
-	nm->reportTarget(&nm->currentReport);
 
-    if ( kcount < *icount )
+	if ( nm->currentReport.stopRequested )
     {
-      *ifault = 2;
+      nm->ifault = 2;
       break;
     }
 
-    *ifault = 0;
+    nm->ifault = 0;
 
     for ( i = 0; i < n; i++ )
     {
-      del = step[i] * eps;
+		del = nm->step * eps;
       xmin[i] = xmin[i] + del;
       z = _evaluate ( nm, xmin );
-      *icount = *icount + 1;
-      if ( z < *ynewlo )
+	  if ( z < nm->error )
       {
-        *ifault = 2;
+        nm->ifault = 2;
         break;
       }
       xmin[i] = xmin[i] - del - del;
       z = _evaluate ( nm, xmin );
-      *icount = *icount + 1;
-      if ( z < *ynewlo )
+	  if ( z < nm->error )
       {
-        *ifault = 2;
+        nm->ifault = 2;
         break;
       }
       xmin[i] = xmin[i] + del;
     }
 
-    if ( *ifault == 0 )
+    if ( nm->ifault == 0 )
     {
       break;
     }
@@ -485,14 +382,13 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int n, double start[], double xmin[],
       start[i] = xmin[i];
     }
     del = eps;
-    *numres = *numres + 1;
+    nm->numres++;
   }
 
 
-  nm->currentReport.error = *ynewlo;
+  nm->currentReport.error = nm->error;
   nm->currentReport.iterations++;
   nm->reportTarget(&nm->currentReport);
-  printf("%f\n",*ynewlo);
 
   free ( p );
   free ( pstar );
@@ -516,14 +412,18 @@ ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 	result->data = data;
 	result->targetNetwork = network;	
 	result->reportTarget = &EncogTrainStandardCallback;
+	result->error = 100;
 	result->network = network;
+	result->reqmin = 0.01;
+	result->konvge = 100;
+	result->ifault = 0;
 	memset(&result->currentReport,0,sizeof(ENCOG_TRAINING_REPORT));
 
 	EncogNetworkRandomizeRange(network,-1,1);
 	
 
 	result->n = result->network->weightCount;
-	result->step = (double*)EncogUtilAlloc(result->n,sizeof(double));
+	result->step = 1;
 
 	EncogObjectRegister(result, ENCOG_TYPE_NM);
 	result->currentReport.trainer = (ENCOG_OBJECT*)result;
@@ -537,15 +437,10 @@ float EncogTrainNMRun(ENCOG_TRAIN_NM *nm)
     REAL *input,*ideal,delta;
 	float errorSum;
 	ENCOG_DATA *data;
-	double ynewlo;
 	double reqmin;
 	double *start;
 	double *xmin;
-	int konvge; 
-	int kcount;
-	int icount; 
-	int numres; 
-	int ifault;
+
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
@@ -558,19 +453,14 @@ float EncogTrainNMRun(ENCOG_TRAIN_NM *nm)
 	data = nm->data;
 	n = nm->network->weightCount;
 	start = (double*)EncogUtilDuplicateMemory(nm->network->weights,n,sizeof(REAL));
-	reqmin = 0.01;
+	reqmin = 0.001;
 	xmin = (double*)EncogUtilAlloc(n,sizeof(double));
-	konvge = 10000;
-	kcount = 500000000000;
 
-	for(i=0;i<n;i++) 
-	{
-		nm->step[i] = 1;
-	}
+	nm->step = 1;
 
-	_nelmin ( nm, n, start, xmin, &ynewlo, reqmin, nm->step, konvge, kcount, &icount, &numres, &ifault );
+	_nelmin ( nm, start, xmin );
 
-	nm->currentReport.error = ynewlo;
+	nm->currentReport.error = nm->error;
 
     return nm->currentReport.error;
 }

@@ -136,7 +136,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="activation.c" />
-    <ClCompile Include="asa047.c" />
     <ClCompile Include="data.c" />
     <ClCompile Include="encog.c" />
     <ClCompile Include="errorcalc.c" />
@@ -155,7 +154,6 @@
     <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="asa047.h" />
     <ClInclude Include="encog.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

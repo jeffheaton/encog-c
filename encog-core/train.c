@@ -5,6 +5,7 @@ ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	char *ttype;
 	ENCOG_TRAIN_PSO *pso;
 	ENCOG_TRAIN_RPROP *rprop;
+	ENCOG_TRAIN_NM *nm;
 	int particles;
 	float c1,c2;
 
@@ -22,6 +23,11 @@ ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 		EncogErrorCheck();
 		pso->reportTarget = EncogTrainStandardCallback;
 		return &pso->encog;
+	}
+	else if( !EncogUtilStrcmpi(ttype,TRAIN_TYPE_NM) )
+	{
+		nm = EncogTrainNMNew(net,data);
+		return &nm->encog;
 	}
 	else {
 		EncogErrorSet(ENCOG_ERROR_UNKNOWN_TRAINING);

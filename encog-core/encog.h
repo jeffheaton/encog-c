@@ -44,7 +44,7 @@ extern "C" {
 
 #define TRAIN_TYPE_PSO "PSO"
 #define TRAIN_TYPE_RPROP "RPROP"
-#define TRAIN_TYPE_NM "NELDERMEAD"
+#define TRAIN_TYPE_NM "NM"
 
 #define ENCOG_ERROR_OK				0
 #define ENCOG_ERROR_FILE_NOT_FOUND	1
@@ -273,9 +273,10 @@ typedef struct ENCOG_NM
 	ENCOG_DATA *data;
 	ENCOG_TRAINING_REPORT currentReport;
 	ENCOG_REPORT_FUNCTION reportTarget;
-	ENCOG_NEURAL_NETWORK **network;
+	ENCOG_NEURAL_NETWORK *network;
 	ENCOG_NEURAL_NETWORK *targetNetwork;
-
+	double *step;
+	int n;
 } ENCOG_TRAIN_NM;
 
 typedef struct {

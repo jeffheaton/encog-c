@@ -406,7 +406,7 @@ ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 	/* Clear out any previous errors */
 	EncogErrorClear();
 
-	result = (ENCOG_TRAIN_NM *)EncogUtilAlloc(1,sizeof(ENCOG_TRAIN_RPROP));
+	result = (ENCOG_TRAIN_NM *)EncogUtilAlloc(1,sizeof(ENCOG_TRAIN_NM));
 
 	result->data = data;
 	result->targetNetwork = network;	

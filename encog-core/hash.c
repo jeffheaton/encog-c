@@ -54,7 +54,7 @@ void *EncogHashGet(ENCOG_HASH *hashTable, char *key, void *defaultValue)
 {
 	char *key2;
 	int hashCode, cp;
-	ENCOG_HASH_NODE *newNode,*current, *prev;
+	ENCOG_HASH_NODE *current;
 
 	key2 = strdup(key);
 	if( hashTable->ignoreCase ) 
@@ -92,7 +92,7 @@ int EncogHashContains(ENCOG_HASH *hashTable, char *key)
 
 void EncogHashDump(ENCOG_HASH *hashTable)
 {
-	int i;
+	INT i;
 	ENCOG_HASH_NODE *current;
 
 	for(i=0;i<hashTable->tableSize;i++)
@@ -132,6 +132,6 @@ float EncogHashGetFloat(ENCOG_HASH *hashTable, char *key, float defaultValue)
 	if( v==NULL)
 		return defaultValue;
 	else
-		return atof(v);
+		return (float)atof(v);
 }
 

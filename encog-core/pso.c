@@ -28,7 +28,7 @@
 static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *network) 
 {
 	float result;
-	double start,stop;
+	float start,stop;
 
 #ifdef ENCOG_CUDA
 	if( encogContext.gpuEnabled && omp_get_thread_num()==0 ) 
@@ -50,9 +50,9 @@ static float _CalculatePSOError(ENCOG_TRAIN_PSO *pso, ENCOG_NEURAL_NETWORK *netw
 	}	
 	return result;
 #else
-	start = omp_get_wtime();
+	start = (float)omp_get_wtime();
 	result = EncogErrorSSE( network, pso->data);
-	stop = omp_get_wtime();
+	stop = (float)omp_get_wtime();
 	#pragma omp critical 
 	{
 		pso->cpuWorkUnitTime+=(stop-start);
@@ -107,13 +107,12 @@ ENCOG_TRAIN_PSO *EncogTrainPSONew(int populationSize, ENCOG_NEURAL_NETWORK *mode
     ENCOG_PARTICLE *particle;
     ENCOG_TRAIN_PSO *pso;
     ENCOG_NEURAL_NETWORK *clone;
-    int cpuCount;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
 
     pso = (ENCOG_TRAIN_PSO*)EncogUtilAlloc(1,sizeof(ENCOG_TRAIN_PSO));
-	pso->inertiaWeight = EncogHashGetFloat(encogContext.config,PARAM_INERTIA,0.4);
+	pso->inertiaWeight = EncogHashGetFloat(encogContext.config,PARAM_INERTIA,(float)0.4);
 	pso->c1 = EncogHashGetFloat(encogContext.config,PARAM_C1,2.0);
 	pso->c2 = EncogHashGetFloat(encogContext.config,PARAM_C2,2.0);
     pso->populationSize = populationSize;
@@ -202,7 +201,7 @@ static void _PSOPerformMove(ENCOG_PARTICLE *particle)
 
 	pso = (ENCOG_TRAIN_PSO *)particle->pso;
 
-	for(i=0;i<pso->dimensions;i++) {
+	for(i=0;i<(INT)pso->dimensions;i++) {
 		// update velocity
 		particle->velocities[i] *= pso->inertiaWeight;
 
@@ -273,7 +272,6 @@ ENCOG_PARTICLE *_getNextParticle(ENCOG_TRAIN_PSO *pso)
 
 float EncogTrainPSORun(ENCOG_TRAIN_PSO *pso)
 {
-    int i;
     ENCOG_PARTICLE *particle;
 
 	/* Clear out any previous errors */

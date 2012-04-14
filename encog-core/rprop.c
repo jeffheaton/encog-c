@@ -37,7 +37,7 @@ const double DEFAULT_MAX_STEP = 50;
 ENCOG_TRAIN_RPROP *EncogTrainRPROPNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 {
 	ENCOG_TRAIN_RPROP *result;
-	int i,maxThread;
+	INT i,maxThread;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
@@ -137,7 +137,7 @@ float _Process(ENCOG_TRAIN_RPROP *rprop,
 	for(i=0; i<net->outputCount; i++)
 	{
 		delta = ideal[i] - net->layerOutput[i];
-		errorSum += delta*delta;
+		errorSum += (float)(delta*delta);
 		layerDelta[i] = (*net->derivativeFunctions)(net->layerSums[i],net->layerOutput[i])*delta;
 	}
 
@@ -221,8 +221,8 @@ void _UpdateRPROPWeight(int index, ENCOG_TRAIN_RPROP *rprop)
 
 float EncogTrainRPROPRun(ENCOG_TRAIN_RPROP *rprop)
 {
-	int i,j, tid;
-    REAL *input,*ideal,delta;
+	int i, tid;
+    REAL *input,*ideal;
 	float errorSum;
 	ENCOG_DATA *data;
 
@@ -242,7 +242,7 @@ float EncogTrainRPROPRun(ENCOG_TRAIN_RPROP *rprop)
 		memset(rprop->gradients,0, sizeof(REAL)*rprop->targetNetwork->weightCount);
 
 		#pragma omp parallel for private(i,input,ideal, tid) reduction(+:errorSum) default(shared)
-		for(i=0; i<data->recordCount; i++)
+		for(i=0; i<(int)data->recordCount; i++)
 		{
 			tid = omp_get_thread_num();
 	        input = EncogDataGetInput(data,i);
@@ -255,7 +255,7 @@ float EncogTrainRPROPRun(ENCOG_TRAIN_RPROP *rprop)
 
 		// now learn!
 
-		for(i=0;i<rprop->targetNetwork->weightCount;i++) {
+		for(i=0;i<(int)rprop->targetNetwork->weightCount;i++) {
 			_UpdateRPROPWeight(i,rprop);
 			//net->weights[i]+=rprop->gradients[i]*0.7;
 		}

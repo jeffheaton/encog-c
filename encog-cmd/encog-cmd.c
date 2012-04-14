@@ -4,7 +4,7 @@
 char parsedOption[MAX_STR];
 char parsedArgument[MAX_STR];
 
-void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data);
+void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, int iterations);
 
 void Usage() {
 	puts("\nUsage:\n");
@@ -70,7 +70,6 @@ void RunBenchmark() {
 	ENCOG_NEURAL_NETWORK *net;
 	ENCOG_OBJECT *train;
 	NETWORK_LAYER *layer;
-	INT i;
 	double startTime, endTime, elapsed;
 	ENCOG_TRAINING_REPORT *report;
 	INT idealCount, inputCount, records, iterations;
@@ -133,7 +132,6 @@ void XORTest() {
     float error;
     ENCOG_DATA *data;
     ENCOG_NEURAL_NETWORK *net;
-    ENCOG_TRAIN_PSO *pso;
 
 /* Load the data for XOR */
     data = EncogDataCreate(2, 1, 4);
@@ -243,7 +241,7 @@ void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, int iterations)
 	report->maxError = 0.00f;
 	report->maxIterations = iterations;
 	report->updateSeconds = 1;
-	report->maxError = 0.01;
+	report->maxError = (float)0.01;
 
 	EncogTrainRun(trainer,net);
 

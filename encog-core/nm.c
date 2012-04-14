@@ -126,14 +126,14 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
       {
         break;
       }
-		nm->error = y[0];
+		nm->error = (float)y[0];
       ihi = 0;
 
       for ( i = 1; i < nn; i++ )
       {
 		  if ( nm->error < y[i] )
         {
-			nm->error = y[i];
+			nm->error = (float)y[i];
           ihi = i;
         }
       }
@@ -402,7 +402,6 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
 ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 {
 	ENCOG_TRAIN_NM *result;
-	int i;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
@@ -433,9 +432,7 @@ ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 
 float EncogTrainNMRun(ENCOG_TRAIN_NM *nm)
 {
-	int n,i;
-    REAL *input,*ideal,delta;
-	float errorSum;
+	int n;
 	ENCOG_DATA *data;
 	double reqmin;
 	double *start;

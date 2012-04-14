@@ -146,6 +146,8 @@ char *EncogObjectType(ENCOG_OBJECT *encogObject)
 			return "ENCOG_HASH";
 		case ENCOG_TYPE_NM:
 			return "ENCOG_TRAIN_NM";
+		default:
+			return "unknown";
 	}
 }
 

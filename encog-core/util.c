@@ -285,11 +285,11 @@ int EncogUtilStrcmpi(char *s1, char *s2)
 void EncogStrCatRuntime(char *base, double t,size_t len)
 {
 	INT minutes, hours;
-	float seconds;
+	double seconds;
 	seconds = t;
-	hours = seconds/3600;
+	hours = (INT)(seconds/3600);
 	seconds -= hours*3600;
-	minutes = seconds/60;
+	minutes = (INT)seconds/60;
 	seconds -= minutes*60;
 	sprintf(base+strlen(base),"%02i:%02i:",hours,minutes);
 	if( seconds<10 ) {

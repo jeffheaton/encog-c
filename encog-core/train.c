@@ -7,7 +7,6 @@ ENCOG_OBJECT *EncogTrainNew(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data)
 	ENCOG_TRAIN_RPROP *rprop;
 	ENCOG_TRAIN_NM *nm;
 	int particles;
-	float c1,c2;
 
 	ttype = (char*)EncogHashGet(encogContext.config,PARAM_TRAIN, "PSO");
 

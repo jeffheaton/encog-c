@@ -374,6 +374,7 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
     {
       break;
     }
+
 /*
   Restart the procedure.
 */
@@ -411,15 +412,13 @@ ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 	result->data = data;
 	result->targetNetwork = network;	
 	result->reportTarget = &EncogTrainStandardCallback;
-	result->error = 100;
+	result->error = 1.0;
 	result->network = network;
-	result->reqmin = 0.01;
-	result->konvge = 100;
+	result->step = EncogHashGetFloat(encogContext.config,PARAM_STEP,10.0);
+	result->reqmin = EncogHashGetFloat(encogContext.config,PARAM_REQMIN, 1.0e-16);
+	result->konvge = EncogHashGetInteger(encogContext.config,PARAM_KONVERGE,100);
 	result->ifault = 0;
 	memset(&result->currentReport,0,sizeof(ENCOG_TRAINING_REPORT));
-
-	EncogNetworkRandomizeRange(network,-1,1);
-	
 
 	result->n = result->network->weightCount;
 	result->step = 1;
@@ -434,7 +433,6 @@ float EncogTrainNMRun(ENCOG_TRAIN_NM *nm)
 {
 	int n;
 	ENCOG_DATA *data;
-	double reqmin;
 	double *start;
 	double *xmin;
 
@@ -450,10 +448,7 @@ float EncogTrainNMRun(ENCOG_TRAIN_NM *nm)
 	data = nm->data;
 	n = nm->network->weightCount;
 	start = (double*)EncogUtilDuplicateMemory(nm->network->weights,n,sizeof(REAL));
-	reqmin = 0.001;
 	xmin = (double*)EncogUtilAlloc(n,sizeof(double));
-
-	nm->step = 1;
 
 	_nelmin ( nm, start, xmin );
 

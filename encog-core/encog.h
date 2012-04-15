@@ -77,6 +77,11 @@ extern "C" {
 #define PARAM_MAXPOS		"MAXPOS"
 #define PARAM_MAXVEL		"MAXVEL"
 
+/* Nelder Mead */
+#define PARAM_STEP			"STEP"
+#define PARAM_KONVERGE		"KONVERGE"
+#define PARAM_REQMIN		"REQMIN"
+
 #define ENCOG_TYPE_NEURAL_NETWORK	1
 #define ENCOG_TYPE_DATA				2
 #define ENCOG_TYPE_PSO				3

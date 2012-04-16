@@ -79,12 +79,12 @@ void RunBenchmark() {
 	records = EncogHashGetInteger(encogContext.config, PARAM_RECORDS, 10000);
 	iterations = EncogHashGetInteger(encogContext.config, PARAM_INPUT, 100);
 
-	printf("\nPerforming benchmark\n");
 	printf("Input Count: %i\n",inputCount);
 	printf("Ideal Count: %i\n",idealCount);
 	//printf("Particle Count: %i\n", _particles);
 	printf("Records: %i\n",records);
 	printf("Iterations: %i\n",iterations);
+	printf("\nPerforming benchmark...please w\n");
 
 	data = EncogDataGenerateRandom(inputCount,idealCount,records,-1,1);
 

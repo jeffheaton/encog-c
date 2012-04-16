@@ -278,7 +278,7 @@ typedef struct ENCOG_NM
 	ENCOG_DATA *data;
 	ENCOG_TRAINING_REPORT currentReport;
 	ENCOG_REPORT_FUNCTION reportTarget;
-	ENCOG_NEURAL_NETWORK *network;
+	ENCOG_NEURAL_NETWORK **network;
 	ENCOG_NEURAL_NETWORK *targetNetwork;
 	REAL step;
 	REAL reqmin;

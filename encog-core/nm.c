@@ -1,11 +1,39 @@
 #include "encog.h"
 
 
-static double _evaluate (ENCOG_TRAIN_NM *nm, double x[] )
+static double _evaluate (ENCOG_TRAIN_NM *nm, int thread, double x[] )
 {
+	int i, tid;
 	float result;
-	EncogNetworkImportWeights(nm->network, x);
-	result = EncogErrorSSE(nm->network, nm->data);
+	ENCOG_DATA *data;
+	REAL *input, *ideal;
+	REAL delta;
+	int j;
+	double errorSum;
+
+	EncogNetworkImportWeights(nm->targetNetwork, x);
+	data = nm->data;
+
+	errorSum = 0;
+
+	#pragma omp parallel for private(i,j,input,ideal, tid, delta) reduction(+:errorSum) default(shared)
+	for(i=0; i<(int)nm->data->recordCount; i++)
+	{
+		tid = omp_get_thread_num();
+
+		input = EncogDataGetInput(data,i);
+		ideal = EncogDataGetIdeal(data,i);
+
+		EncogNetworkCompute(nm->network[tid],input,NULL);
+		for(j=0; j<nm->targetNetwork->outputCount; j++)
+        {
+			delta = nm->network[tid]->layerOutput[j] - ideal[j];
+            errorSum+=delta*delta;
+        }
+	}
+
+	result =  (float)(errorSum/(data->recordCount*data->idealCount));
+	
 	nm->error = nm->error;
 	nm->currentReport.error = nm->error;
 	nm->currentReport.iterations++;
@@ -13,7 +41,7 @@ static double _evaluate (ENCOG_TRAIN_NM *nm, double x[] )
 	return result;
 }
 
-static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
+static void _nelmin ( ENCOG_TRAIN_NM *nm, int thread, double start[], double xmin[] )
 {
   REAL ccoeff = 0.5;
   REAL del;
@@ -87,7 +115,7 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
     { 
       p[i+n*n] = start[i];
     }
-    y[n] = _evaluate ( nm, start );
+    y[n] = _evaluate ( nm, thread, start );
 
     for ( j = 0; j < n; j++ )
     {
@@ -97,7 +125,7 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
       {
         p[i+j*n] = start[i];
       }
-      y[j] = _evaluate ( nm, start );
+      y[j] = _evaluate ( nm, thread, start );
       start[j] = x;
     }
 /*                 
@@ -158,7 +186,7 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
       {
         pstar[i] = pbar[i] + rcoeff * ( pbar[i] - p[i+ihi*n] );
       }
-      ystar = _evaluate ( nm, pstar );
+      ystar = _evaluate ( nm, thread, pstar );
 /*
   Successful reflection, so extension.
 */
@@ -168,7 +196,7 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
         {
           p2star[i] = pbar[i] + ecoeff * ( pstar[i] - pbar[i] );
         }
-        y2star = _evaluate ( nm, p2star );
+        y2star = _evaluate ( nm, thread, p2star );
 /*
   Check extension.
 */
@@ -223,7 +251,7 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
           {
             p2star[i] = pbar[i] + ccoeff * ( p[i+ihi*n] - pbar[i] );
           }
-          y2star = _evaluate ( nm, p2star );
+          y2star = _evaluate ( nm, thread, p2star );
 /*
   Contract the whole simplex.
 */
@@ -236,7 +264,7 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
                 p[i+j*n] = ( p[i+j*n] + p[i+ilo*n] ) * 0.5;
                 xmin[i] = p[i+j*n];
               }
-              y[j] = _evaluate ( nm, xmin );
+              y[j] = _evaluate ( nm, thread, xmin );
             }
             ylo = y[0];
             ilo = 0;
@@ -272,7 +300,7 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
           {
             p2star[i] = pbar[i] + ccoeff * ( pstar[i] - pbar[i] );
           }
-          y2star = _evaluate ( nm, p2star );
+          y2star = _evaluate ( nm, thread, p2star );
 /*
   Retain reflection?
 */
@@ -354,14 +382,14 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
     {
 		del = nm->step * eps;
       xmin[i] = xmin[i] + del;
-      z = _evaluate ( nm, xmin );
+      z = _evaluate ( nm,thread, xmin );
 	  if ( z < nm->error )
       {
         nm->ifault = 2;
         break;
       }
       xmin[i] = xmin[i] - del - del;
-      z = _evaluate ( nm, xmin );
+      z = _evaluate ( nm,thread, xmin );
 	  if ( z < nm->error )
       {
         nm->ifault = 2;
@@ -403,9 +431,12 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, double start[], double xmin[] )
 ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 {
 	ENCOG_TRAIN_NM *result;
+	int maxThread, i;
 
 	/* Clear out any previous errors */
 	EncogErrorClear();
+	
+	maxThread = omp_get_max_threads();
 
 	result = (ENCOG_TRAIN_NM *)EncogUtilAlloc(1,sizeof(ENCOG_TRAIN_NM));
 
@@ -413,15 +444,20 @@ ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 	result->targetNetwork = network;	
 	result->reportTarget = &EncogTrainStandardCallback;
 	result->error = 1.0;
-	result->network = network;
+	result->network = (ENCOG_NEURAL_NETWORK**)EncogUtilAlloc(maxThread,sizeof(ENCOG_NEURAL_NETWORK*));
 	result->step = EncogHashGetFloat(encogContext.config,PARAM_STEP,10.0);
 	result->reqmin = EncogHashGetFloat(encogContext.config,PARAM_REQMIN, 1.0e-16);
 	result->konvge = EncogHashGetInteger(encogContext.config,PARAM_KONVERGE,100);
 	result->ifault = 0;
 	memset(&result->currentReport,0,sizeof(ENCOG_TRAINING_REPORT));
 
-	result->n = result->network->weightCount;
+	result->n = result->targetNetwork->weightCount;
 	result->step = 1;
+
+	for(i=0;i<maxThread;i++) 
+	{
+		result->network[i] = (ENCOG_NEURAL_NETWORK*)EncogNetworkTransactionClone(network);
+	}
 
 	EncogObjectRegister(result, ENCOG_TYPE_NM);
 	result->currentReport.trainer = (ENCOG_OBJECT*)result;
@@ -446,11 +482,11 @@ float EncogTrainNMRun(ENCOG_TRAIN_NM *nm)
 	nm->currentReport.trainingStarted = time(NULL);
 
 	data = nm->data;
-	n = nm->network->weightCount;
-	start = (double*)EncogUtilDuplicateMemory(nm->network->weights,n,sizeof(REAL));
+	n = nm->targetNetwork->weightCount;
+	start = (double*)EncogUtilDuplicateMemory(nm->targetNetwork->weights,n,sizeof(REAL));
 	xmin = (double*)EncogUtilAlloc(n,sizeof(double));
 
-	_nelmin ( nm, start, xmin );
+	_nelmin ( nm, 0, start, xmin );
 
 	nm->currentReport.error = nm->error;
 

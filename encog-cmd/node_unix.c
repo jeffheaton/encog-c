@@ -6,3 +6,4 @@ void EncogNodeMain(int port)
 }
 
 #endif
+

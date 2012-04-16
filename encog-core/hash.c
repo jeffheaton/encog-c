@@ -1,4 +1,5 @@
 #include "encog.h"
+#include <string.h>
 
 ENCOG_HASH *EncogHashNew(INT tableSize, INT ignoreCase)
 {

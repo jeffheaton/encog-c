@@ -1,9 +1,9 @@
+#include "encog-cmd.h"
 #ifdef ENCOG_CUDA
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 #include <string.h>
 #include <stdio.h>
-#include "encog-cmd.h"
 
 		const char *sComputeMode[] = {
             "Default (multiple host threads can use ::cudaSetDevice() with device simultaneously)",
@@ -115,4 +115,9 @@ void TestCUDA()
 	TestVectorAdd();
 }
 
+#else
+void TestCUDA()
+{
+	puts("CUDA is not supported in this build of Encog.");
+}
 #endif

@@ -84,7 +84,7 @@ void RunBenchmark() {
 	//printf("Particle Count: %i\n", _particles);
 	printf("Records: %i\n",records);
 	printf("Iterations: %i\n",iterations);
-	printf("\nPerforming benchmark...please w\n");
+	printf("\nPerforming benchmark...please wait\n");
 
 	data = EncogDataGenerateRandom(inputCount,idealCount,records,-1,1);
 

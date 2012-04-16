@@ -492,3 +492,4 @@ float EncogTrainNMRun(ENCOG_TRAIN_NM *nm)
 
     return nm->currentReport.error;
 }
+

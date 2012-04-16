@@ -6,6 +6,7 @@ _ReSharper*
 *.a
 *.sdf
 *.user
+encog
 encog-core/_ReSharper*
 encog-core/Debug/
 encog-core/Release/

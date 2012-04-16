@@ -37,7 +37,7 @@ endif
 _LIB_DEPS = encog.h
 LIB_DEPS = $(patsubst %,$(LIB_IDIR)/%,$(_LIB_DEPS))
 
-_LIB_OBJ = activation.o errorcalc.o network_io.o util.o util_str.o data.o errors.o network.o pso.o util_file.o vector.o encog.o 
+_LIB_OBJ = activation.o errorcalc.o network_io.o util.o util_str.o data.o errors.o network.o pso.o util_file.o vector.o encog.o nm.o object.o rprop.o hash.o train.o
 LIB_OBJ = $(patsubst %,$(LIB_ODIR)/%,$(_LIB_OBJ))
 
 _CMD_DEPS = encog-cmd.h

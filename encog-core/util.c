@@ -31,7 +31,10 @@
 
 #include "encog.h"
 
+#ifndef _MSC_VER
 static struct termios oldterm, newterm;
+#endif
+
 
 #ifdef _MSC_VER
 int isnan(double x) 

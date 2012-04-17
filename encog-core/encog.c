@@ -57,7 +57,14 @@ void EncogTrainStandardCallback(ENCOG_TRAINING_REPORT *report) {
 		EncogStrCatStr(line,", Error: ",MAX_STR);
 		EncogStrCatDouble(line,report->error*100.0,4,MAX_STR);
 		EncogStrCatChar(line,'%',MAX_STR);
+		EncogStrCatStr(line,", press [Enter] to quit and save.", MAX_STR);
 		puts(line);
+
+		if( kbhit() )
+		{
+			puts("Stopping at user request.");				
+			report->stopRequested = 1;	
+		}
 	}
 
 	if( report->stopRequested ) {

@@ -21,7 +21,17 @@
  * and trademarks visit:
  * http://www.heatonresearch.com/copyright
  */
+
+#ifndef _MSC_VER
+#include <stdio.h>
+#include <termios.h>
+#include <unistd.h>
+#include <sys/select.h>
+#endif
+
 #include "encog.h"
+
+static struct termios oldterm, newterm;
 
 #ifdef _MSC_VER
 int isnan(double x) 
@@ -311,4 +321,37 @@ unsigned long EncogUtilHash(unsigned char *str)
         return hash;
 }
 
+#ifndef _MSC_VER
+static void set_unbuffered ( void ) 
+{
+  tcgetattr( STDIN_FILENO, &oldterm );
+  newterm = oldterm;
+  newterm.c_lflag &= ~( ICANON | ECHO );
+  tcsetattr( STDIN_FILENO, TCSANOW, &newterm );
+}
+
+static void set_buffered ( void ) 
+{
+  tcsetattr( STDIN_FILENO, TCSANOW, &oldterm );
+}
+
+int kbhit ( void ) 
+{
+    int result;
+    fd_set  set;
+    struct timeval tv;
+
+    FD_ZERO(&set);
+    FD_SET(STDIN_FILENO,&set);  /* watch stdin */
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;             /* don't wait */
+
+    /* quick peek at the input, to see if anything is there */
+    set_unbuffered();
+    result = select( STDIN_FILENO+1,&set,NULL,NULL,&tv);
+    set_buffered();
+
+    return result == 1;
+}
+#endif
 

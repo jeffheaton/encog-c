@@ -37,6 +37,10 @@ extern "C" {
 #include <ctype.h>
 #include <omp.h>
 #include <assert.h>
+#ifdef _MSC_VER
+#include <conio.h>
+#endif
+
 
 #define AF_LINEAR	0
 #define AF_SIGMOID	1
@@ -353,6 +357,9 @@ char *EncogUtilStrlwr(char *string);
 char *EncogUtilStrupr(char *strint);
 int EncogUtilStrcmpi(char *s1, char *s2);
 unsigned long EncogUtilHash(unsigned char *str);
+#ifndef _MSC_VER
+int kbhit(void);
+#endif
 
 void EncogDataCSVSave(char *filename, ENCOG_DATA *data, int decimals);
 ENCOG_DATA *EncogDataCSVLoad(char *csvFile, INT inputCount, INT idealCount);

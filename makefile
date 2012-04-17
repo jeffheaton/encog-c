@@ -55,7 +55,7 @@ ENCOG_LIB = $(LDIR)/encog.a
 
 CC=gcc
 NVCC       := $(CUDA_INSTALL_PATH)/bin/nvcc 
-CFLAGS=-I$(LIB_IDIR) -fopenmp -std=c99 -pedantic -Wall $(CPP_FLAGS_$(ARCH))
+CFLAGS=-I$(LIB_IDIR) -fopenmp -std=gnu99 -pedantic -O3 -Wall $(CPP_FLAGS_$(ARCH))
 NVCCFLAGS = -I$(LIB_IDIR) $(CPP_FLAGS_$(ARCH))
 
 LIBS=-lm

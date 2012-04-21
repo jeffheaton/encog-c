@@ -35,9 +35,13 @@ static double _evaluate (ENCOG_TRAIN_NM *nm, int thread, double x[] )
 	result =  (float)(errorSum/(data->recordCount*data->idealCount));
 	
 	nm->error = nm->error;
-	nm->currentReport.error = nm->error;
-	nm->currentReport.iterations++;
-	nm->reportTarget(&nm->currentReport);
+
+	if( !nm->currentReport.stopRequested )
+	{
+		nm->currentReport.error = nm->error;
+		nm->currentReport.iterations++;
+		nm->reportTarget(&nm->currentReport);
+	}
 	return result;
 }
 
@@ -415,9 +419,13 @@ static void _nelmin ( ENCOG_TRAIN_NM *nm, int thread, double start[], double xmi
   }
 
 
-  nm->currentReport.error = nm->error;
-  nm->currentReport.iterations++;
-  nm->reportTarget(&nm->currentReport);
+  if( !nm->currentReport.stopRequested )
+  {
+	nm->currentReport.error = nm->error;
+	nm->currentReport.iterations++;
+	nm->currentReport.stopRequested = 1;
+	nm->reportTarget(&nm->currentReport);
+  }
 
   free ( p );
   free ( pstar );
@@ -437,8 +445,9 @@ ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 	EncogErrorClear();
 	
 	maxThread = omp_get_max_threads();
-
+	
 	result = (ENCOG_TRAIN_NM *)EncogUtilAlloc(1,sizeof(ENCOG_TRAIN_NM));
+	result->threadCount = maxThread;
 
 	result->data = data;
 	result->targetNetwork = network;	

@@ -43,9 +43,9 @@ ENCOG_TRAIN_RPROP *EncogTrainRPROPNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA 
 	EncogErrorClear();
 
 	maxThread = omp_get_max_threads();
-
+	
 	result = (ENCOG_TRAIN_RPROP *)EncogUtilAlloc(1,sizeof(ENCOG_TRAIN_RPROP));
-
+	result->threadCount = maxThread;
 	result->data = data;
 	result->targetNetwork = network;	
 	result->reportTarget = &EncogTrainStandardCallback;

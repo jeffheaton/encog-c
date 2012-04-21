@@ -273,6 +273,7 @@ typedef struct ENCOG_TRAIN_RPROP
 	REAL *gradients;
 	REAL **layerDelta;
 	float errorSum;
+	int threadCount;
 
 } ENCOG_TRAIN_RPROP;
 
@@ -291,6 +292,7 @@ typedef struct ENCOG_NM
 	int konvge; 
 	int numres; 
 	int ifault;
+	int threadCount;
 } ENCOG_TRAIN_NM;
 
 typedef struct {

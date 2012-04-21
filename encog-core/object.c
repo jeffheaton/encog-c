@@ -49,11 +49,43 @@ static void _freePSO(ENCOG_TRAIN_PSO *pso)
 
 static void _freeHash(ENCOG_HASH *hash)
 {
+	int i;
+	ENCOG_HASH_NODE *node,*temp;
+
+	for(i=0;i<hash->tableSize;i++)
+	{
+		node = hash->table[i];
+		while( node!=NULL )
+		{
+			EncogUtilFree(node->value);
+			EncogUtilFree(node->key);
+			temp = node->next;
+			EncogUtilFree(temp);
+			node = temp;
+		}
+	}
+
+	EncogUtilFree(hash);
 }
 
 
-static void _freeRPROP(ENCOG_TRAIN_RPROP *hash)
+static void _freeRPROP(ENCOG_TRAIN_RPROP *rprop)
 {
+	int i = 0;
+
+	EncogUtilFree(rprop->gradients);
+	EncogUtilFree(rprop->lastGradient);
+	EncogUtilFree(rprop->lastWeightChange);
+	EncogUtilFree(rprop->updateValues);
+	
+	for(i=0;i<rprop->threadCount;i++)
+	{
+		EncogUtilFree(rprop->layerDelta[i]);
+		EncogUtilFree(rprop->network[i]);
+		
+	}
+
+	EncogUtilFree(rprop);
 }
 
 void EncogObjectRegister(void *obj, int type) 

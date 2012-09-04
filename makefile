@@ -12,6 +12,7 @@ endif
 # Define arch to use
 ARCH := $(shell getconf LONG_BIT)
 
+RPI_FLAGS :=
 CPP_FLAGS_32 := -m32
 CPP_FLAGS_64 := -m64
 #use CUDA?

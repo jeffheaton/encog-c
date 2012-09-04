@@ -57,7 +57,7 @@ CC=gcc
 NVCC       := $(CUDA_INSTALL_PATH)/bin/nvcc 
 CFLAGS=-I$(LIB_IDIR) -fopenmp -std=gnu99 -pedantic -O3 -Wall $(CPP_FLAGS_$(ARCH))
 NVCCFLAGS = -I$(LIB_IDIR) $(CPP_FLAGS_$(ARCH))
-
+MKDIR_P = mkdir -p
 LIBS=-lm
 
 ifeq ($(CUDA),1) 
@@ -81,19 +81,23 @@ LIB+= -lcudart
 endif
 
 $(CMD_ODIR)/%.cu.o : ./encog-cmd/%.cu $(CMD_DEPS)
+	${MKDIR_P} $(CMD_ODIR)
 	$(NVCC) -o $@ -c $< $(NVCCFLAGS)
 
 
 $(LIB_ODIR)/%.o: ./encog-core/%.c $(LIB_DEPS)
+	${MKDIR_P} $(LIB_ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(CMD_ODIR)/%.o: ./encog-cmd/%.c $(CMD_DEPS)
+	${MKDIR_P} $(CMD_ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 encog: $(CMD_OBJ) $(CMD_CUOBJ) $(ENCOG_LIB)
 	$(CC) -o $@ $^ $(CFLAGS) -lm $(ENCOG_LIB) $(LIB)
 
 $(ENCOG_LIB): $(LIB_OBJ)
+	${MKDIR_P} $(LDIR)
 	ar rcs $(ENCOG_LIB) $(LIB_OBJ)
 
 .PHONY: clean

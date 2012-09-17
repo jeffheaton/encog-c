@@ -46,7 +46,7 @@ void EncogHashPut(ENCOG_HASH *hashTable, char *key, void *obj)
 		newNode->next = current;
 		hashTable->table[hashCode] = newNode;
 	}
-	else if( prev!=NULL )
+	else if( priv!=NULL )
 	{
 		newNode->next = prev->next;
 		prev->next = newNode;

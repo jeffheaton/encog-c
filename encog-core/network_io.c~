@@ -76,9 +76,7 @@ static int _CheckNetwork(FILE *fp)
 	char line[MAX_STR];
 	char arg[MAX_STR];
 
-	if( fgets(line,sizeof(line),fp)==NULL ) {
-		*line = 0;
-	}
+	fgets(line,sizeof(line),fp);
 
 	index = 0;
 

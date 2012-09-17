@@ -234,7 +234,7 @@ static void _PSOPerformMove(ENCOG_PARTICLE *particle)
 
 ENCOG_PARTICLE *_getNextParticle(ENCOG_TRAIN_PSO *pso)
 {
-	ENCOG_PARTICLE *result = NULL;
+	ENCOG_PARTICLE *result;
 	int i;
 
 	/* First preference is to move */

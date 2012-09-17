@@ -163,7 +163,7 @@ void XORTest() {
         EncogStrCatStr(line,"] = ",MAX_STR);
         EncogStrCatDouble(line,output[0],8,MAX_STR);
 	EncogStrCatStr(line," (ideal=", MAX_STR);
-        EncogStrCatDouble(line,ideal[0],8,MAX_STR);
+        EncogStrCatDouble(line,output[0],8,MAX_STR);
 	EncogStrCatStr(line," )", MAX_STR);
         puts(line);
     }

@@ -214,7 +214,7 @@ ENCOG_DATA *EncogDataEGBLoad(char *f)
 	s = ftell(fp);
 	fseek(fp,0,SEEK_SET);
 
-	if( (fread(&header,sizeof(EGB_HEADER),1,fp) != 1) || memcmp(HEADER,header.ident,8) ) {
+	if( fread(&header,sizeof(EGB_HEADER),1,fp) != 1 || memcmp(HEADER,header.ident,8) ) {
 		EncogErrorSet( ENCOG_ERROR_INVALID_EGB_FILE );
 		EncogErrorSetArg(f);
 		fclose(fp);

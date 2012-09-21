@@ -8,7 +8,7 @@ static double _evaluate (ENCOG_TRAIN_NM *nm, int thread, double x[] )
 	ENCOG_DATA *data;
 	REAL *input, *ideal;
 	REAL delta;
-	int j;
+	unsigned int j;
 	double errorSum;
 
 	EncogNetworkImportWeights(nm->targetNetwork, x);
@@ -455,7 +455,7 @@ ENCOG_TRAIN_NM *EncogTrainNMNew(ENCOG_NEURAL_NETWORK *network, ENCOG_DATA *data)
 	result->error = 1.0;
 	result->network = (ENCOG_NEURAL_NETWORK**)EncogUtilAlloc(maxThread,sizeof(ENCOG_NEURAL_NETWORK*));
 	result->step = EncogHashGetFloat(encogContext.config,PARAM_STEP,10.0);
-	result->reqmin = EncogHashGetFloat(encogContext.config,PARAM_REQMIN, 1.0e-16);
+	result->reqmin = EncogHashGetFloat(encogContext.config,PARAM_REQMIN, 1.0e-16f);
 	result->konvge = EncogHashGetInteger(encogContext.config,PARAM_KONVERGE,100);
 	result->ifault = 0;
 	memset(&result->currentReport,0,sizeof(ENCOG_TRAINING_REPORT));

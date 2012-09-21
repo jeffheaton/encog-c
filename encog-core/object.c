@@ -49,7 +49,7 @@ static void _freePSO(ENCOG_TRAIN_PSO *pso)
 
 static void _freeHash(ENCOG_HASH *hash)
 {
-	int i;
+	unsigned int i;
 	ENCOG_HASH_NODE *node,*temp;
 
 	for(i=0;i<hash->tableSize;i++)

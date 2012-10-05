@@ -49,7 +49,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.1.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -82,7 +82,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>ENCOG_CUDA;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\encog-core;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\encog-core;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -115,7 +115,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>ENCOG_CUDA;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\encog-core;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\encog-core;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -137,7 +137,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>ENCOG_CUDA;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\encog-core;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\encog-core;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v4.2\include</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -173,6 +173,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.1.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 4.2.targets" />
   </ImportGroup>
 </Project>

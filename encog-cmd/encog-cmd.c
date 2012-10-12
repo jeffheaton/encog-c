@@ -479,7 +479,7 @@ int main(int argc, char* argv[])
 #endif
 
 	EncogInit();
-	printf("\n* * Encog C/C++ 1.0(%i bit%s) Command Line v%s * *\n",(int)(sizeof(void*)*8),cudastr,encogContext.version);
+	printf("\n* * Encog C/C++ (%i bit%s) Command Line v%s * *\n",(int)(sizeof(void*)*8),cudastr,encogContext.version);
 	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
 	printf("Basic Data Type: %s (%i bits)\n", (sizeof(REAL)==8)?"double":"float", (int)sizeof(REAL)*8);
 

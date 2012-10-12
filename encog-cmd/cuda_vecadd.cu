@@ -98,7 +98,7 @@ extern "C" int TestVectorAdd()
 }
 
 // Allocates an array with random float entries.
-static void RandomInit(float* data, int n)
+void RandomInit(float* data, int n)
 {
     for (int i = 0; i < n; ++i)
         data[i] = rand() / (float)RAND_MAX;

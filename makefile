@@ -38,7 +38,7 @@ endif
 _LIB_DEPS = encog.h
 LIB_DEPS = $(patsubst %,$(LIB_IDIR)/%,$(_LIB_DEPS))
 
-_LIB_OBJ = activation.o errorcalc.o network_io.o util.o util_str.o data.o errors.o network.o pso.o util_file.o vector.o encog.o nm.o object.o rprop.o hash.o train.o
+_LIB_OBJ = activation.o errorcalc.o network_io.o util.o util_str.o data.o errors.o network.o pso.o util_file.o vector.o encog.o nm.o object.o rprop.o hash.o train.o 
 LIB_OBJ = $(patsubst %,$(LIB_ODIR)/%,$(_LIB_OBJ))
 
 _CMD_DEPS = encog-cmd.h
@@ -49,7 +49,9 @@ CMD_OBJ = $(patsubst %,$(CMD_ODIR)/%,$(_CMD_OBJ))
 
 ifeq ($(CUDA),1) 
 	_CMD_CUOBJ = cuda_vecadd.cu.o
+	_LIB_CUOBJ = encog_cuda.cu.o cuda_eval.cu.o
 	CMD_CUOBJ = $(patsubst %,$(CMD_ODIR)/%,$(_CMD_CUOBJ))
+	LIB_CUOBJ = $(patsubst %,$(LIB_ODIR)/%,$(_LIB_CUOBJ))
 endif
 
 ENCOG_LIB = $(LDIR)/encog.a
@@ -85,6 +87,9 @@ $(CMD_ODIR)/%.cu.o : ./encog-cmd/%.cu $(CMD_DEPS)
 	${MKDIR_P} $(CMD_ODIR)
 	$(NVCC) -o $@ -c $< $(NVCCFLAGS)
 
+$(LIB_ODIR)/%.cu.o : ./encog-core/%.cu $(LIB_DEPS)
+	${MKDIR_P} $(LIB_ODIR)
+	$(NVCC) -o $@ -c $< $(NVCCFLAGS)
 
 $(LIB_ODIR)/%.o: ./encog-core/%.c $(LIB_DEPS)
 	${MKDIR_P} $(LIB_ODIR)
@@ -97,9 +102,9 @@ $(CMD_ODIR)/%.o: ./encog-cmd/%.c $(CMD_DEPS)
 encog: $(CMD_OBJ) $(CMD_CUOBJ) $(ENCOG_LIB)
 	$(CC) -o $@ $^ $(CFLAGS) -lm $(ENCOG_LIB) $(LIB)
 
-$(ENCOG_LIB): $(LIB_OBJ)
+$(ENCOG_LIB): $(LIB_OBJ) $(LIB_CUOBJ)
 	${MKDIR_P} $(LDIR)
-	ar rcs $(ENCOG_LIB) $(LIB_OBJ)
+	ar rcs $(ENCOG_LIB) $(LIB_OBJ) $(LIB_CUOBJ)
 
 .PHONY: clean
 clean:

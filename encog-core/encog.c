@@ -35,7 +35,7 @@ void EncogInit() {
 	
 	encogContext.versionMajor = 0;
 	encogContext.versionMajor = 1;
-	strncpy(encogContext.version,"0.1",sizeof(encogContext.version));
+	strncpy(encogContext.version,"1.0",sizeof(encogContext.version));
 
 	EncogUtilInitRandom();
 }

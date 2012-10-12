@@ -1,5 +1,5 @@
 /*
- * Encog(tm) Core v0.5 - ANSI C Version
+ * Encog(tm) Core v1.0 - ANSI C Version
  * http://www.heatonresearch.com/encog/
  * http://code.google.com/p/encog-java/
 

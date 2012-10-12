@@ -132,7 +132,6 @@
       <Include Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">c:\projects\encog-c\encog-core</Include>
     </CudaCompile>
     <None Include="makefile" />
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="activation.c" />

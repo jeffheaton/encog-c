@@ -139,9 +139,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\encog-core\encog-core.vcxproj">
       <Project>{3df9ceff-41ca-46b9-a659-a63c6d19d204}</Project>
     </ProjectReference>

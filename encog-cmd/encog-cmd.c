@@ -8,11 +8,14 @@ void PerformTrain(ENCOG_NEURAL_NETWORK *net, ENCOG_DATA *data, int iterations);
 
 void Usage() {
 	puts("\nUsage:\n");
-	puts("encog xor");
-	puts("encog benchmark");
-	puts("encog train [eg file] [egb file]");
-	puts("encog egb2csv [egb file] [csv file]");
-	puts("encog csv2egb [csv file] [egb file]");
+	puts("encog xor - perform a simple XOR train");
+	puts("encog benchmark - perform a benchmark");
+	puts("encog train [eg file] [egb file] - train");
+	puts("encog egb2csv [egb file] [csv file] - convert egb to csv");
+	puts("encog csv2egb [csv file] [egb file] - convert csv to egb");
+	puts("encog cuda - Test to see if CUDA(GPU) is working");
+	puts("encog randomize [eg file] - Randomize the neural network in this file");
+	puts("encog error [eg file] [egb file] - Calculate the error for this network with the training file");
 	puts("");
 	puts("Options:");
 	puts("");

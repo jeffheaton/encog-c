@@ -16,12 +16,23 @@ void Usage() {
 	puts("");
 	puts("Options:");
 	puts("");
-	puts("/input:## The number of inputs.");
-	puts("/ideal:## The number of ideals.");
-	puts("/records:## The number of ideals.");
-	puts("/iterations:## The number of ideals.");
-	puts("/threads:## The number of threads.");
-	puts("/train:type (where type is PSO or RPROP)");
+	puts("/input:## The number of inputs, default=10.");
+	puts("/ideal:## The number of ideals, default=1.");
+	puts("/records:## The number of records, default=10000.");
+	puts("/iterations:## The number of iterations, default=100.");
+	puts("/threads:## The number of threads, default=0 (match core count).");
+	puts("/train:type (where type is PSO, NM or RPROP), default=pso.");
+	puts("/gpu: enable/disable, default=enable.");
+	puts("/particles:## Particle Swarm Optimization(PSO): particle count, default=30.");
+	puts("/inertia:## PSO: The inertia, default: 0.4.");
+	puts("/c1:## PSO: C1, default: 2.0.");
+	puts("/c2:## PSO: C2, default: 2.0.");
+	puts("/maxpos:## PSO: Maximum position, default=-1 (no max pos).");
+	puts("/maxvel:## PSO: Maximum velocity, default=2.");
+	puts("/step:## Nelder Mead (NM): The step value, default:10.0.");
+	puts("/konverge:## NM: The konverge value, default:100.");
+	puts("/reqmin:## NM: The required minimum, default:1.0e-16f.");
+
 	puts("");
 }
 
@@ -77,7 +88,7 @@ void RunBenchmark() {
 	inputCount = EncogHashGetInteger(encogContext.config, PARAM_INPUT, 10);
 	idealCount = EncogHashGetInteger(encogContext.config, PARAM_IDEAL, 1);
 	records = EncogHashGetInteger(encogContext.config, PARAM_RECORDS, 10000);
-	iterations = EncogHashGetInteger(encogContext.config, PARAM_INPUT, 100);
+	iterations = EncogHashGetInteger(encogContext.config, PARAM_ITERATIONS, 100);
 
 	printf("Input Count: %i\n",inputCount);
 	printf("Ideal Count: %i\n",idealCount);
@@ -442,7 +453,7 @@ int main(int argc, char* argv[])
 #endif
 
 	EncogInit();
-	printf("\n* * Encog C/C++(%i bit%s) Command Line v%s * *\n",(int)(sizeof(void*)*8),cudastr,encogContext.version);
+	printf("\n* * Encog C/C++ 1.0(%i bit%s) Command Line v%s * *\n",(int)(sizeof(void*)*8),cudastr,encogContext.version);
 	printf("Processor/Core Count: %i\n", (int)omp_get_num_procs());
 	printf("Basic Data Type: %s (%i bits)\n", (sizeof(REAL)==8)?"double":"float", (int)sizeof(REAL)*8);
 

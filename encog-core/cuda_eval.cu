@@ -8,6 +8,7 @@ __device__ __constant__ GPU_CONST_NETWORK cnet;
 
 __device__ REAL EncogGPUActivationLinear(REAL d)
 {
+	return d;
 }
 
 __device__ REAL EncogGPUActivationSigmoid(REAL d)
@@ -36,7 +37,6 @@ __device__ REAL *EncogGPUDataGetIdeal(REAL *data, unsigned int index)
 
 __device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer, REAL *input, REAL *output)
 {
-    int x;
     int y;
     int inputSize = cnet.layerFeedCounts[currentLayer];
     int outputSize = cnet.layerFeedCounts[currentLayer - 1];
@@ -77,7 +77,6 @@ __device__ void _ComputeLayer(GPU_DYNAMIC_NETWORK *dnet, int currentLayer, REAL 
 
 __device__ float _ComputeOutputError(GPU_DYNAMIC_NETWORK *dnet, int currentLayer, REAL *input, REAL *ideal)
 {
-    int x;
     int y;
     int inputSize = cnet.layerFeedCounts[currentLayer];
     int outputSize = cnet.layerFeedCounts[currentLayer - 1];
@@ -127,14 +126,11 @@ __device__ float _ComputeOutputError(GPU_DYNAMIC_NETWORK *dnet, int currentLayer
 __device__ float EncogGPUNetworkCompute(GPU_DYNAMIC_NETWORK *dnet,REAL *input, REAL *ideal)
 {
     int i;
-    int sourceIndex;
 	REAL l1[1024];
 	REAL l2[1024];
 	REAL *inputPtr = l1;
 	REAL *outputPtr = l2;
 	REAL *temp;
-	
-	sourceIndex = cnet.neuronCount - cnet.layerCounts[cnet.layerCount - 1];
 
     // compute the input layer to first hidden layer (h1)
 	i = cnet.layerCount-1;
@@ -246,7 +242,6 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
 	result->blocksPerGrid = MIN(32,(data->recordCount + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK);
 
 	int dataSize = (data->inputCount + data->idealCount + 1) * data->recordCount;
-	int totalDynamicSize = tempConstNet.dynamicSize * dataSize; 
 
     // Allocate vectors in device memory
     checkCudaErrors( cudaMalloc((void**)&result->deviceData, dataSize*sizeof(REAL)) );

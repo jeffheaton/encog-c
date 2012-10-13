@@ -48,7 +48,7 @@ void Usage() {
 	puts("/iterations:## The number of iterations, default=100.");
 	puts("/threads:## The number of threads, default=0 (match core count).");
 	puts("/train:type (where type is PSO, NM or RPROP), default=pso.");
-	puts("/gpu: enable/disable, default=enable.");
+	puts("/gpu: 1=enable/0=disable, default=1.");
 	puts("/particles:## Particle Swarm Optimization(PSO): particle count, default=30.");
 	puts("/inertia:## PSO: The inertia, default: 0.4.");
 	puts("/c1:## PSO: C1, default: 2.0.");

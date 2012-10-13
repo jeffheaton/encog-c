@@ -436,14 +436,13 @@ void RandomizeNetwork(char *egFile) {
 	printf("Network randomized and saved.\n");
 }
 
-void enableGPU(char *str) {
+void enableGPU() {
 #ifdef ENCOG_CUDA
-	 if( !EncogUtilStrcmpi(str,"enable") ) {
+	 if( EncogHashGetFloat(encogContext.config,PARAM_GPU,1) ) {
 		 encogContext.gpuEnabled = 1;
-	 } else if( !EncogUtilStrcmpi(str,"disable") ) {
-		 encogContext.gpuEnabled = 0;
 	 } else {
-	 }
+		 encogContext.gpuEnabled = 0;
+	 } 
 #else
 	cudaNotCompiled();
 #endif
@@ -509,6 +508,7 @@ int main(int argc, char* argv[])
 	}
 
 #ifdef ENCOG_CUDA
+	enableGPU();
 	printf("GPU: %s\n",encogContext.gpuEnabled?"enabled":"disabled");
 #endif
 	AdjustThreads();

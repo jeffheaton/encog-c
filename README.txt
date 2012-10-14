@@ -5,6 +5,14 @@ This file includes the complete source code for Encog for C.  The header
 files are designed so that Encog can also be used with C++.  This file
 includes instructions on how to compile and execute Encog for C.
 
+For more information, visit:
+
+http://www.heatonresearch.com/wiki/Encog_for_C
+
+For binary releases, visit:
+
+https://github.com/encog/encog-c/downloads
+
 ** Visual C++ **
 
 Just open the encog-c.sln file and compile as you would any Visual Studio 
@@ -42,10 +50,4 @@ option.  The following command will compile Encog for Raspberry PI.
 
 make ARCH=RPI
 
-For more information, visit:
 
-http://www.heatonresearch.com/wiki/Encog_for_C
-
-For binary releases, visit:
-
-https://github.com/encog/encog-c/downloads

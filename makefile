@@ -108,6 +108,6 @@ $(ENCOG_LIB): $(LIB_OBJ) $(LIB_CUOBJ)
 
 .PHONY: clean
 clean:
-	rm -f $(LIB_ODIR)/*.o *~ core $(INCDIR)/*~ 
-	rm -f $(CMD_ODIR)/*.o *~ core $(INCDIR)/*~ 
-
+	rm -f $(LIB_ODIR)/*.o 
+	rm -f $(CMD_ODIR)/*.o
+	rm -f $(LDIR)/*.a

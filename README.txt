@@ -1,4 +1,4 @@
-Encog C/C++ v0.1
+Encog C/C++ v1.0
 
 This is the C/C++ version of Encog (http://www.heatonresearch.com/encog).
 This file includes the complete source code for Encog for C.  The header
@@ -41,3 +41,11 @@ The gcc that comes with Raspberry PI seems to have trouble with the -m32
 option.  The following command will compile Encog for Raspberry PI.
 
 make ARCH=RPI
+
+For more information, visit:
+
+http://www.heatonresearch.com/wiki/Encog_for_C
+
+For binary releases, visit:
+
+https://github.com/encog/encog-c/downloads

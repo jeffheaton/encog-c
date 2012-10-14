@@ -113,7 +113,7 @@ void *EncogHashGet(ENCOG_HASH *hashTable, char *key, void *defaultValue)
 
 int EncogHashContains(ENCOG_HASH *hashTable, char *key)
 {
-	return EncogHashGet(hashTable, key, NULL)==NULL;
+	return EncogHashGet(hashTable, key, NULL)!=NULL;
 }
 
 void EncogHashDump(ENCOG_HASH *hashTable)

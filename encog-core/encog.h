@@ -35,7 +35,7 @@ extern "C" {
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
-#include <omp.h>
+//#include <omp.h>
 #include <assert.h>
 #ifdef _MSC_VER
 #include <conio.h>
@@ -226,6 +226,12 @@ typedef struct ENCOG_DATA
     REAL *data;
 } ENCOG_DATA;
 
+typedef struct ENCOG_DATA_NORM
+{
+	REAL stdev;
+	REAL mean;
+} ENCOG_DATA_NORM;
+
 typedef struct ENCOG_TRAINING_REPORT {
 	float error;
 	INT iterations;
@@ -396,6 +402,9 @@ REAL *EncogDataGetIdeal(ENCOG_DATA *data, INT index);
 ENCOG_DATA *EncogDataGenerateRandom(INT inputCount, INT idealCount, INT records, REAL low, REAL high);
 ENCOG_DATA *EncogDataEGBLoad(char *f);
 void EncogDataEGBSave(char *egbFile,ENCOG_DATA *data);
+
+ENCOG_DATA_NORM *EncogDataNormalise(ENCOG_DATA *data);
+void EncogDataDenormalise(ENCOG_DATA *data,ENCOG_DATA_NORM *normalise_params);
 
 void EncogVectorAdd(REAL *v1, REAL *v2, int length);
 void EncogVectorSub(REAL* v1, REAL* v2, int length);

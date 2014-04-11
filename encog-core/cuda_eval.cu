@@ -235,7 +235,7 @@ extern "C" GPU_DEVICE *EncogGPUDeviceNew(INT deviceNumber, ENCOG_NEURAL_NETWORK 
 		}
 	}
 
-	cudaMemcpyToSymbol("cnet", &tempConstNet, sizeof(GPU_CONST_NETWORK));
+	cudaMemcpyToSymbol(cnet, &tempConstNet, sizeof(GPU_CONST_NETWORK));
 
 	result = (GPU_DEVICE*)EncogUtilAlloc(1,sizeof(GPU_DEVICE));
 

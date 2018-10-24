@@ -47,7 +47,7 @@ ENCOG_DATA *EncogDataCreate(unsigned int inputCount, unsigned int idealCount, un
 void EncogDataAdd(ENCOG_DATA *data,char *str)
 {
     char ch, *ptr;
-    char temp[MAX_STR];
+    char temp[MAX_STR]; //MAX_STR is not declared 
     REAL d;
 
 	/* Clear out any previous errors */
